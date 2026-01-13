@@ -1,0 +1,119 @@
+function varargout = epistatic_michalewicz_10D(varargin)
+%EPISTATIC_MICHALEWICZ_10D  Self-contained scaled test function.
+%
+% Wrapper/scaling formulation:
+%   J. F. A. Madeira (2026)
+%
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   Journal of Global Optimization, 2026.
+%
+% Problem:   epistatic_michalewicz (source instance p=12)
+% Dimension: n = 10
+% Strategy folder: sobol_oscillatory (kappa = 1000000)
+% Original bound tag: bound(p) = 0
+% Effective contrast: 680.5457476716454
+%
+% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
+% Mapping (as in create_scaled_wrapper.m):
+%   t      = clip01((x - lb_work)./(ub_work - lb_work))
+%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
+%   f      = epistatic_michalewicz_orig(x_orig)
+
+nloc = 10;
+lb_orig = [0;0;0;0;0;0;0;0;0;0];
+ub_orig = [3.141592653589793;3.141592653589793;3.141592653589793;3.141592653589793;3.141592653589793;3.141592653589793;3.141592653589793;3.141592653589793;3.141592653589793;3.141592653589793];
+lb_work = [0;0;0;0;0;0;0;0;0;0];
+ub_work = [469005.4220113075;2038.230952479409;1253618.187245358;2822.84371771346;272852.2307027947;1842.077761170896;1057464.995936846;2626.690526404947;665158.6133198201;2234.384143787922];
+scale_factors = [149289.0625;648.7890625;399039.0625;898.5390625;86851.5625;586.3515625;336601.5625;836.1015625;211726.5625;711.2265625];
+contrast_ratio = 680.5457476716454;
+
+if nargin == 0
+    info.name = mfilename;
+    info.problem = 'epistatic_michalewicz';
+    info.source_p = 12;
+    info.dimension = nloc;
+    info.strategy = 'sobol_oscillatory';
+    info.kappa = 1000000;
+    info.bound_p = 0;  % Original bound(p) from test setup
+    info.lb_orig = lb_orig; info.ub_orig = ub_orig;
+    info.lb_work = lb_work; info.ub_work = ub_work;
+    info.scale_factors = scale_factors;
+    info.contrast_ratio = contrast_ratio;
+    info.global_min_known = true;
+    info.f_global_min = -9.66;
+    info.global_min_note = 'Epistatic Michalewicz (n=10): f*=-9.66, x* not documented. Ref: Ali et al. (2005).';
+    info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
+    varargout{1} = info;
+    return
+end
+
+arg1 = varargin{1};
+if isscalar(arg1) && arg1 == round(arg1)
+    if arg1 ~= nloc, error('This instance is 10D only.'); end
+    varargout{1} = lb_work;
+    if nargout >= 2, varargout{2} = ub_work; end
+    return
+end
+
+x = arg1(:);
+if numel(x) ~= nloc
+    error('Input x must have 10 components.');
+end
+range = ub_work - lb_work;
+range(range == 0) = 1;
+t = (x - lb_work)./range;
+t = max(0, min(1, t));
+x_orig = lb_orig + t.*(ub_orig - lb_orig);
+varargout{1} = epistatic_michalewicz_orig(x_orig);
+return
+
+% -------------------------------------------------------------------------
+% Embedded original problem function (verbatim; only the function name is renamed)
+% -------------------------------------------------------------------------
+function [f] = epistatic_michalewicz_orig(x);
+%
+% Purpose:
+%
+%    Function epistatic_michalewicz is the function described in
+%    Montaz et al. (2005).
+%
+%    dim = n
+%    Minimum global value: -4.687 if n = 5
+%                          -9.66 if n = 10
+%    Global minima
+%    Local minima (several)
+%    Search domain: 0 <= x <= pi (Huyer and Neumaier (1999))
+%    Cases considered: n = 5 Huyer and Neumaier (1999), ICEO
+%                      n = 10 Huyer and Neumaier (1999), ICEO
+%
+% Input:  
+%
+%         x (point given by the optimizer).
+%
+% Output: 
+%
+%         f (function value at x).
+%
+% Written by A. L. Custodio and J. F. A. Madeira.
+%
+% Version June 2012.
+%
+%
+n    = size(x,1);
+even = 0;
+for i=1:n-1
+    if even == 0
+       y(i,1) = x(i)*cos(pi/6)-x(i+1)*sin(pi/6);
+       even = 1;
+    else
+       y(i,1) = x(i)*sin(pi/6)+x(i+1)*cos(pi/6);
+       even = 0;
+    end
+end
+y = [y;x(n)];
+f = -sum(sin(y).*(sin([1:n]'.*(y.^2)./pi)).^20,1);
+%
+% End of epistatic_michalewicz.
+
