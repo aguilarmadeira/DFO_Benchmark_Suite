@@ -1,0 +1,84 @@
+cff-version: 1.2.0
+title: >-
+  DFO Benchmark Suite: Test Problems and Initial Samples 
+  for Derivative-Free Optimization
+message: >-
+  If you use this software or dataset, please cite it using
+  the metadata from this file.
+type: dataset
+authors:
+  - family-names: Madeira
+    given-names: José F. Aguilar
+    email: aguilarmadeira@tecnico.ulisboa.pt
+    orcid: "https://orcid.org/0000-0001-9523-3808"
+    affiliation: >-
+      IDMEC, Instituto Superior Técnico, Universidade de Lisboa; 
+      ISEL, Instituto Politécnico de Lisboa
+repository-code: "https://github.com/aguilarmadeira/DFO_Benchmark_Suite"
+url: "https://github.com/aguilarmadeira/DFO_Benchmark_Suite"
+license: MIT
+version: "1.0.0"
+date-released: "2026-01-13"
+keywords:
+  - derivative-free optimization
+  - global optimization
+  - benchmark problems
+  - test functions
+  - scale invariance
+  - fitness landscape analysis
+  - direct-search methods
+  - multistart optimization
+abstract: >-
+  A comprehensive benchmark suite for derivative-free global optimization,
+  containing 63 bound-constrained test problems with dimensions ranging from
+  n=2 to n=10. The dataset includes pre-computed initial samples (60×n Sobol
+  points per problem) under 7 different variable scaling strategies, with
+  contrast ratios ranging from κ=1 (baseline) to κ=10^8 (extreme heterogeneity).
+  All samples are provided in HDF5 format with objective function evaluations,
+  enabling reproducible research in automatic parameter initialization and
+  scale-invariant optimization methods.
+identifiers:
+  - type: url
+    value: "https://github.com/aguilarmadeira/DFO_Benchmark_Suite"
+    description: GitHub repository
+funding:
+  - name: "Fundação para a Ciência e a Tecnologia (FCT)"
+    award: "LAETA - UID/50022/2025"
+    doi: "10.54499/UID/50022/2025"
+references:
+  - type: article
+    authors:
+      - family-names: Custódio
+        given-names: Ana Luísa
+      - family-names: Madeira
+        given-names: José F. Aguilar
+    title: >-
+      GLODS: Global and Local Optimization using Direct Search
+    journal: Journal of Global Optimization
+    volume: 62
+    start: 1
+    end: 28
+    year: 2015
+    doi: "10.1007/s10898-014-0224-9"
+  - type: article
+    authors:
+      - family-names: Madeira
+        given-names: José F. Aguilar
+    title: >-
+      GLODS-SI: Global and Local Optimization using Direct Search 
+      – A Scale-Invariant Approach
+    journal: Journal of Global Optimization
+    year: 2025
+    status: submitted
+  - type: article
+    authors:
+      - family-names: Madeira
+        given-names: José F. Aguilar
+      - family-names: Thomson
+        given-names: Sarah L.
+    title: >-
+      Automatic Step-Size Initialization for Derivative-Free Global 
+      Optimization via Fitness Landscape Analysis
+    journal: Journal of Global Optimization
+    year: 2025
+    status: in-preparation
