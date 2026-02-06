@@ -1,25 +1,19 @@
 function varargout = cauchy_4D(varargin)
-%CAUCHY_4D  Self-contained scaled test function.
+%CAUCHY_4D  cauchy 4D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (HALTON OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [1501500     , 8508500     ]   (range: 7007000     )
+%   x2   ∈ [752.25      , 4262.75     ]   (range: 3510.5      )
+%   x3   ∈ [2250750     , 12754250    ]   (range: 10503500    )
+%   x4   ∈ [377.625     , 2139.875    ]   (range: 1762.25     )
 %
-% Problem:   cauchy (source instance p=6)
-% Dimension: n = 4
-% Strategy folder: halton_oscillatory (kappa = 1000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 5960.278053624627
+% Effective contrast ratio (max range / min range): 5960.27805362
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = cauchy_orig(x_orig)
+% USAGE:
+%   f = cauchy_4D(x)          % Evaluate function at point x (4D vector)
+%   [lb, ub] = cauchy_4D(n)   % Get bounds for dimension n (must be 4)
+%   info = cauchy_4D()        % Get complete problem information
 
 nloc = 4;
 lb_orig = [3;3;3;3];
@@ -28,6 +22,11 @@ lb_work = [1501500;752.25;2250750;377.625];
 ub_work = [8508500;4262.75;12754250;2139.875];
 scale_factors = [500500;250.75;750250;125.875];
 contrast_ratio = 5960.278053624627;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;

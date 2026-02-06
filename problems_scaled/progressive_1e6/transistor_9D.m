@@ -1,25 +1,28 @@
 function varargout = transistor_9D(varargin)
-%TRANSISTOR_9D  Self-contained scaled test function.
+%TRANSISTOR_9D  transistor 9D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (PROGRESSIVE HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-10         , 10          ]   (range: 20          )
+%   x2   ∈ [-100        , 100         ]   (range: 200         )
+%   x3   ∈ [-1000       , 1000        ]   (range: 2000        )
+%   x4   ∈ [-10000      , 10000       ]   (range: 20000       )
+%   x5   ∈ [-1          , 1           ]   (range: 2           )
+%   x6   ∈ [-0.1        , 0.1         ]   (range: 0.2         )
+%   x7   ∈ [-0.01       , 0.01        ]   (range: 0.02        )
+%   x8   ∈ [-10         , 10          ]   (range: 20          )
+%   x9   ∈ [-100        , 100         ]   (range: 200         )
 %
-% Problem:   transistor (source instance p=62)
-% Dimension: n = 9
-% Strategy folder: progressive (kappa = 1000000)
-% Original bound tag: bound(p) = 10
-% Effective contrast: 1000000
+% Effective contrast ratio (max range / min range): 1000000
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = transistor_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [0.9000000000000004;4.5;100;2000;0.8;0.08000000000000002;0.004999999999999999;1;20]
+%   f* = 0
+%
+% USAGE:
+%   f = transistor_9D(x)          % Evaluate function at point x (9D vector)
+%   [lb, ub] = transistor_9D(n)   % Get bounds for dimension n (must be 9)
+%   info = transistor_9D()        % Get complete problem information
 
 nloc = 9;
 lb_orig = [-10;-10;-10;-10;-10;-10;-10;-10;-10];
@@ -28,6 +31,11 @@ lb_work = [-10;-100;-1000;-10000;-1;-0.1;-0.01;-10;-100];
 ub_work = [10;100;1000;10000;1;0.1;0.01;10;100];
 scale_factors = [1;10;100;1000;0.1;0.01;0.001;1;10];
 contrast_ratio = 1000000;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +53,7 @@ if nargin == 0
     info.f_global_min = 0;
     info.x_global_min_orig = [0.9;0.45;1;2;8;8;5;1;2];
     info.x_global_min_work = [0.9000000000000004;4.5;100;2000;0.8;0.08000000000000002;0.004999999999999999;1;20];
-    info.global_min_note = 'Transistor (9D): x* approx, f*=0 (target). Ref: Ali et al. (2005).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Transistor (9D): x* approx, f*=0 (target). Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

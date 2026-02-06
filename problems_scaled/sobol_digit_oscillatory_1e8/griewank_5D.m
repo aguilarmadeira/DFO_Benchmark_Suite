@@ -1,33 +1,37 @@
 function varargout = griewank_5D(varargin)
-%GRIEWANK_5D  Self-contained scaled test function.
+%GRIEWANK_5D  griewank 5D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-32552574667.1, 32552574667.1]   (range: 65105149334.2)
+%   x2   ∈ [-26056456536, 26056456536 ]   (range: 52112913072.1)
+%   x3   ∈ [-5973929.11153, 5973929.11153]   (range: 11947858.2231)
+%   x4   ∈ [-6372659848.66, 6372659848.66]   (range: 12745319697.3)
+%   x5   ∈ [-4282187.27975, 4282187.27975]   (range: 8564374.55951)
 %
-% Problem:   griewank (source instance p=23)
-% Dimension: n = 5
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 600
-% Effective contrast: 94680.51706466607
+% Effective contrast ratio (max range / min range): 7601.85684102
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = griewank_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [0;0;0;0;0]
+%   f* = 0
+%
+% USAGE:
+%   f = griewank_5D(x)          % Evaluate function at point x (5D vector)
+%   [lb, ub] = griewank_5D(n)   % Get bounds for dimension n (must be 5)
+%   info = griewank_5D()        % Get complete problem information
 
 nloc = 5;
 lb_orig = [-600;-600;-600;-600;-600];
 ub_orig = [600;600;600;600;600];
-lb_work = [-515320.4648006053;-3476849.05928155;-1911321.504280324;-48790808061.32536;-947190.5550386652];
-ub_work = [515320.4648006053;3476849.05928155;1911321.504280324;48790808061.32536;947190.5550386652];
-scale_factors = [858.8674413343421;5794.748432135917;3185.535840467207;81318013.43554226;1578.650925064442];
-contrast_ratio = 94680.51706466607;
+lb_work = [-32552574667.12121;-26056456536.02848;-5973929.111532643;-6372659848.658818;-4282187.279753974];
+ub_work = [32552574667.12121;26056456536.02848;5973929.111532643;6372659848.658818;4282187.279753974];
+scale_factors = [54254291.11186868;43427427.56004746;9956.548519221073;10621099.7477647;7136.978799589956];
+contrast_ratio = 7601.856841018748;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +49,7 @@ if nargin == 0
     info.f_global_min = 0;
     info.x_global_min_orig = [0;0;0;0;0];
     info.x_global_min_work = [0;0;0;0;0];
-    info.global_min_note = 'Griewank (n=5): x*=0, f*=0. Ref: Huyer & Neumaier (1999).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Griewank (n=5): x*=0, f*=0. Ref: Huyer & Neumaier (1999).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

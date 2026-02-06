@@ -1,25 +1,21 @@
 function varargout = shubert_2D(varargin)
-%SHUBERT_2D  Self-contained scaled test function.
+%SHUBERT_2D  shubert 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-1492890.625, 1492890.625 ]   (range: 2985781.25  )
+%   x2   ∈ [-6487.890625, 6487.890625 ]   (range: 12975.78125 )
 %
-% Problem:   shubert (source instance p=52)
-% Dimension: n = 2
-% Strategy folder: sobol_oscillatory (kappa = 1000000)
-% Original bound tag: bound(p) = 10
-% Effective contrast: 230.1041603949666
+% Effective contrast ratio (max range / min range): 230.104160395
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = shubert_orig(x_orig)
+% Known global minimum (WORK-space):
+%   see info.x_global_min_work (not stored as a representative here)
+%   f* = -186.7309
+%
+% USAGE:
+%   f = shubert_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = shubert_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = shubert_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [-10;-10];
@@ -28,6 +24,11 @@ lb_work = [-1492890.625;-6487.890625];
 ub_work = [1492890.625;6487.890625];
 scale_factors = [149289.0625;648.7890625];
 contrast_ratio = 230.1041603949666;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -43,7 +44,9 @@ if nargin == 0
     info.contrast_ratio = contrast_ratio;
     info.global_min_known = true;
     info.f_global_min = -186.7309;
-    info.global_min_note = 'Shubert (2D): f*=-186.7309, 18 global minima. Ref: Ali et al. (2005).';
+    info.x_global_min_orig = [];
+    info.x_global_min_work = [];
+    info.global_min_note = 'Global minimizer is known but infoG.xstar_orig is missing/empty.';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

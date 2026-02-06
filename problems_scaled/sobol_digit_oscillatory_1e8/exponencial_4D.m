@@ -1,33 +1,36 @@
 function varargout = exponencial_4D(varargin)
-%EXPONENCIAL_4D  Self-contained scaled test function.
+%EXPONENCIAL_4D  exponencial 4D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-90169985.7998, 90169985.7998]   (range: 180339971.6 )
+%   x2   ∈ [-29101477.8791, 29101477.8791]   (range: 58202955.7582)
+%   x3   ∈ [-70630521.8487, 70630521.8487]   (range: 141261043.697)
+%   x4   ∈ [-9530687.21889, 9530687.21889]   (range: 19061374.4378)
 %
-% Problem:   exponencial (source instance p=14)
-% Dimension: n = 4
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 1
-% Effective contrast: 5437.909891134252
+% Effective contrast ratio (max range / min range): 9.46101616063
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = exponencial_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [0;0;0;0]
+%   f* = -1
+%
+% USAGE:
+%   f = exponencial_4D(x)          % Evaluate function at point x (4D vector)
+%   [lb, ub] = exponencial_4D(n)   % Get bounds for dimension n (must be 4)
+%   info = exponencial_4D()        % Get complete problem information
 
 nloc = 4;
 lb_orig = [-1;-1;-1;-1];
 ub_orig = [1;1;1;1];
-lb_work = [-38773577.88784982;-7130.235451504022;-5022885.171534751;-8493.482163230938];
-ub_work = [38773577.88784982;7130.235451504022;5022885.171534751;8493.482163230938];
-scale_factors = [38773577.88784982;7130.235451504022;5022885.171534751;8493.482163230938];
-contrast_ratio = 5437.909891134252;
+lb_work = [-90169985.79982643;-29101477.87908779;-70630521.84874322;-9530687.218893221];
+ub_work = [90169985.79982643;29101477.87908779;70630521.84874322;9530687.218893221];
+scale_factors = [90169985.79982643;29101477.87908779;70630521.84874322;9530687.218893221];
+contrast_ratio = 9.461016160626629;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +48,7 @@ if nargin == 0
     info.f_global_min = -1;
     info.x_global_min_orig = [0;0;0;0];
     info.x_global_min_work = [0;0;0;0];
-    info.global_min_note = 'Exponencial (n=4): x*=0, f*=-1. Ref: Brachetti et al. (1997).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Exponencial (n=4): x*=0, f*=-1. Ref: Brachetti et al. (1997).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

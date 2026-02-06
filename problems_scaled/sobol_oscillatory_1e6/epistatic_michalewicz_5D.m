@@ -1,25 +1,24 @@
 function varargout = epistatic_michalewicz_5D(varargin)
-%EPISTATIC_MICHALEWICZ_5D  Self-contained scaled test function.
+%EPISTATIC_MICHALEWICZ_5D  epistatic_michalewicz 5D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [0           , 469005.422011]   (range: 469005.422011)
+%   x2   ∈ [0           , 2038.23095248]   (range: 2038.23095248)
+%   x3   ∈ [0           , 1253618.18725]   (range: 1253618.18725)
+%   x4   ∈ [0           , 2822.84371771]   (range: 2822.84371771)
+%   x5   ∈ [0           , 272852.230703]   (range: 272852.230703)
 %
-% Problem:   epistatic_michalewicz (source instance p=11)
-% Dimension: n = 5
-% Strategy folder: sobol_oscillatory (kappa = 1000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 615.0520801974833
+% Effective contrast ratio (max range / min range): 615.052080197
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = epistatic_michalewicz_orig(x_orig)
+% Known global minimum (WORK-space):
+%   see info.x_global_min_work (not stored as a representative here)
+%   f* = -4.687
+%
+% USAGE:
+%   f = epistatic_michalewicz_5D(x)          % Evaluate function at point x (5D vector)
+%   [lb, ub] = epistatic_michalewicz_5D(n)   % Get bounds for dimension n (must be 5)
+%   info = epistatic_michalewicz_5D()        % Get complete problem information
 
 nloc = 5;
 lb_orig = [0;0;0;0;0];
@@ -28,6 +27,11 @@ lb_work = [0;0;0;0;0];
 ub_work = [469005.4220113075;2038.230952479409;1253618.187245358;2822.84371771346;272852.2307027947];
 scale_factors = [149289.0625;648.7890625;399039.0625;898.5390625;86851.5625];
 contrast_ratio = 615.0520801974833;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -43,7 +47,9 @@ if nargin == 0
     info.contrast_ratio = contrast_ratio;
     info.global_min_known = true;
     info.f_global_min = -4.687;
-    info.global_min_note = 'Epistatic Michalewicz (n=5): f*=-4.687, x* not documented. Ref: Ali et al. (2005).';
+    info.x_global_min_orig = [];
+    info.x_global_min_work = [];
+    info.global_min_note = 'Global minimizer is known but infoG.xstar_orig is missing/empty.';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

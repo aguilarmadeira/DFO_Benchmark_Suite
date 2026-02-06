@@ -1,25 +1,23 @@
 function varargout = kowalik_4D(varargin)
-%KOWALIK_4D  Self-contained scaled test function.
+%KOWALIK_4D  kowalik 4D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [0           , 62701.40625 ]   (range: 62701.40625 )
+%   x2   ∈ [0           , 272.49140625]   (range: 272.49140625)
+%   x3   ∈ [0           , 167596.40625]   (range: 167596.40625)
+%   x4   ∈ [0           , 377.38640625]   (range: 377.38640625)
 %
-% Problem:   kowalik (source instance p=28)
-% Dimension: n = 4
-% Strategy folder: sobol_oscillatory (kappa = 1000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 615.0520801974833
+% Effective contrast ratio (max range / min range): 615.052080197
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = kowalik_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [28663.5;123.269921875;49081.8046875;121.3027734375]
+%   f* = 0.00030748
+%
+% USAGE:
+%   f = kowalik_4D(x)          % Evaluate function at point x (4D vector)
+%   [lb, ub] = kowalik_4D(n)   % Get bounds for dimension n (must be 4)
+%   info = kowalik_4D()        % Get complete problem information
 
 nloc = 4;
 lb_orig = [0;0;0;0];
@@ -28,6 +26,11 @@ lb_work = [0;0;0;0];
 ub_work = [62701.40625;272.49140625;167596.40625;377.38640625];
 scale_factors = [149289.0625;648.7890625;399039.0625;898.5390625];
 contrast_ratio = 615.0520801974833;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +48,7 @@ if nargin == 0
     info.f_global_min = 0.00030748;
     info.x_global_min_orig = [0.192;0.19;0.123;0.135];
     info.x_global_min_work = [28663.5;123.269921875;49081.8046875;121.3027734375];
-    info.global_min_note = 'Kowalik (4D): f*=3.0748e-4. Ref: Ali et al. (2005).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Kowalik (4D): f*=3.0748e-4. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

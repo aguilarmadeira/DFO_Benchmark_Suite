@@ -1,25 +1,21 @@
 function varargout = mccormick_2D(varargin)
-%MCCORMICK_2D  Self-contained scaled test function.
+%MCCORMICK_2D  mccormick 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SPATIAL THERMAL HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-1.5        , 4           ]   (range: 5.5         )
+%   x2   ∈ [-900        , 900         ]   (range: 1800        )
 %
-% Problem:   mccormick (source instance p=30)
-% Dimension: n = 2
-% Strategy folder: spatial_thermal (kappa = 90000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 300
+% Effective contrast ratio (max range / min range): 300
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = mccormick_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [-0.547;-464.1]
+%   f* = -1.9133
+%
+% USAGE:
+%   f = mccormick_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = mccormick_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = mccormick_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [-1.5;-3];
@@ -28,6 +24,11 @@ lb_work = [-1.5;-900];
 ub_work = [4;900];
 scale_factors = [1;300];
 contrast_ratio = 300;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +46,7 @@ if nargin == 0
     info.f_global_min = -1.9133;
     info.x_global_min_orig = [-0.547;-1.547];
     info.x_global_min_work = [-0.547;-464.1];
-    info.global_min_note = 'McCormick (2D): f*=-1.9133. Ref: Ali et al. (2005).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: McCormick (2D): f*=-1.9133. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

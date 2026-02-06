@@ -1,33 +1,31 @@
 function varargout = meyer_roth_3D(varargin)
-%MEYER_ROTH_3D  Self-contained scaled test function.
+%MEYER_ROTH_3D  meyer_roth 3D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-15373.0767425, 15373.0767425]   (range: 30746.153485)
+%   x2   ∈ [-88706.8835711, 88706.8835711]   (range: 177413.767142)
+%   x3   ∈ [-435829069.069, 435829069.069]   (range: 871658138.138)
 %
-% Problem:   meyer_roth (source instance p=31)
-% Dimension: n = 3
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 10
-% Effective contrast: 214178.3388140479
+% Effective contrast ratio (max range / min range): 28350.1524365
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = meyer_roth_orig(x_orig)
+% USAGE:
+%   f = meyer_roth_3D(x)          % Evaluate function at point x (3D vector)
+%   [lb, ub] = meyer_roth_3D(n)   % Get bounds for dimension n (must be 3)
+%   info = meyer_roth_3D()        % Get complete problem information
 
 nloc = 3;
 lb_orig = [-10;-10;-10];
 ub_orig = [10;10;10];
-lb_work = [-876263067.9601548;-4091.2777305689;-60349.83185248793];
-ub_work = [876263067.9601548;4091.2777305689;60349.83185248793];
-scale_factors = [87626306.79601547;409.12777305689;6034.983185248793];
-contrast_ratio = 214178.3388140479;
+lb_work = [-15373.07674252464;-88706.88357108633;-435829069.0690052];
+ub_work = [15373.07674252464;88706.88357108633;435829069.0690052];
+scale_factors = [1537.307674252464;8870.688357108633;43582906.90690052];
+contrast_ratio = 28350.15243652725;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;

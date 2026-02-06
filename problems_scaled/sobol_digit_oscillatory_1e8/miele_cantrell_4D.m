@@ -1,33 +1,36 @@
 function varargout = miele_cantrell_4D(varargin)
-%MIELE_CANTRELL_4D  Self-contained scaled test function.
+%MIELE_CANTRELL_4D  miele_cantrell 4D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-78655734.713, 78655734.713]   (range: 157311469.426)
+%   x2   ∈ [-88050.7351752, 88050.7351752]   (range: 176101.47035)
+%   x3   ∈ [-272334162.514, 272334162.514]   (range: 544668325.028)
+%   x4   ∈ [-690559339.634, 690559339.634]   (range: 1381118679.27)
 %
-% Problem:   miele_cantrell (source instance p=32)
-% Dimension: n = 4
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 10
-% Effective contrast: 7517.871092473248
+% Effective contrast ratio (max range / min range): 7842.74359844
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = miele_cantrell_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [0;8805.073517523182;27233416.25142169;69055933.96335518]
+%   f* = 0
+%
+% USAGE:
+%   f = miele_cantrell_4D(x)          % Evaluate function at point x (4D vector)
+%   [lb, ub] = miele_cantrell_4D(n)   % Get bounds for dimension n (must be 4)
+%   info = miele_cantrell_4D()        % Get complete problem information
 
 nloc = 4;
 lb_orig = [-10;-10;-10;-10];
 ub_orig = [10;10;10;10];
-lb_work = [-79864043.2274773;-57479.89148745945;-432126414.6120704;-91341.2239793224];
-ub_work = [79864043.2274773;57479.89148745945;432126414.6120704;91341.2239793224];
-scale_factors = [7986404.32274773;5747.989148745944;43212641.46120705;9134.12239793224];
-contrast_ratio = 7517.871092473248;
+lb_work = [-78655734.71298145;-88050.73517523179;-272334162.5142167;-690559339.6335516];
+ub_work = [78655734.71298145;88050.73517523179;272334162.5142167;690559339.6335516];
+scale_factors = [7865573.471298145;8805.073517523178;27233416.25142167;69055933.96335515];
+contrast_ratio = 7842.743598440758;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -44,8 +47,8 @@ if nargin == 0
     info.global_min_known = true;
     info.f_global_min = 0;
     info.x_global_min_orig = [0;1;1;1];
-    info.x_global_min_work = [0;5747.989148745954;43212641.46120709;9134.122397932253];
-    info.global_min_note = 'Miele-Cantrell (4D): x*=(0,1,1,1), f*=0. Ref: Brachetti et al. (1997).';
+    info.x_global_min_work = [0;8805.073517523182;27233416.25142169;69055933.96335518];
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Miele-Cantrell (4D): x*=(0,1,1,1), f*=0. Ref: Brachetti et al. (1997).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

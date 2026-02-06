@@ -1,33 +1,42 @@
 function varargout = ackley_10D(varargin)
-%ACKLEY_10D  Self-contained scaled test function.
+%ACKLEY_10D  ackley 10D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-1757068234.52, 1757068234.52]   (range: 3514136469.04)
+%   x2   ∈ [-105438.374236, 105438.374236]   (range: 210876.748472)
+%   x3   ∈ [-2449343645.81, 2449343645.81]   (range: 4898687291.61)
+%   x4   ∈ [-34128.2301534, 34128.2301534]   (range: 68256.4603068)
+%   x5   ∈ [-200490.649095, 200490.649095]   (range: 400981.298191)
+%   x6   ∈ [-120774.670881, 120774.670881]   (range: 241549.341762)
+%   x7   ∈ [-281248.117387, 281248.117387]   (range: 562496.234774)
+%   x8   ∈ [-420998235.451, 420998235.451]   (range: 841996470.902)
+%   x9   ∈ [-154096.12599, 154096.12599]   (range: 308192.25198)
+%   x10  ∈ [-93054.3748343, 93054.3748343]   (range: 186108.749669)
 %
-% Problem:   ackley (source instance p=1)
-% Dimension: n = 10
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 30
-% Effective contrast: 149515.9300171582
+% Effective contrast ratio (max range / min range): 71768.844584
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = ackley_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [0;0;0;0;0;0;0;0;0;0]
+%   f* = 0
+%
+% USAGE:
+%   f = ackley_10D(x)          % Evaluate function at point x (10D vector)
+%   [lb, ub] = ackley_10D(n)   % Get bounds for dimension n (must be 10)
+%   info = ackley_10D()        % Get complete problem information
 
 nloc = 10;
 lb_orig = [-30;-30;-30;-30;-30;-30;-30;-30;-30;-30];
 ub_orig = [30;30;30;30;30;30;30;30;30;30];
-lb_work = [-35974.38712086231;-240956.6263231844;-1485952257.170651;-2038854039.18265;-62843.63784577073;-2703201531.597895;-100792.5327610986;-1579911090.063973;-18079.68910929879;-258218.9494962456];
-ub_work = [35974.38712086231;240956.6263231844;1485952257.170651;2038854039.18265;62843.63784577073;2703201531.597895;100792.5327610986;1579911090.063973;18079.68910929879;258218.9494962456];
-scale_factors = [1199.146237362077;8031.887544106147;49531741.90568837;67961801.30608833;2094.787928192357;90106717.71992984;3359.751092036619;52663703.00213243;602.6563036432931;8607.298316541521];
-contrast_ratio = 149515.9300171582;
+lb_work = [-1757068234.521907;-105438.3742357855;-2449343645.807012;-34128.23015341543;-200490.6490954587;-120774.6708810126;-281248.1173867774;-420998235.4510967;-154096.1259901716;-93054.37483433889];
+ub_work = [1757068234.521907;105438.3742357855;2449343645.807012;34128.23015341543;200490.6490954587;120774.6708810126;281248.1173867774;420998235.4510967;154096.1259901716;93054.37483433889];
+scale_factors = [58568941.15073022;3514.612474526182;81644788.19356707;1137.607671780514;6683.021636515289;4025.822362700419;9374.937246225913;14033274.51503656;5136.537533005721;3101.812494477963];
+contrast_ratio = 71768.84458398703;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +54,7 @@ if nargin == 0
     info.f_global_min = 0;
     info.x_global_min_orig = [0;0;0;0;0;0;0;0;0;0];
     info.x_global_min_work = [0;0;0;0;0;0;0;0;0;0];
-    info.global_min_note = 'Ackley (n=10): x*=0, f*=0. Ref: Ali et al. (2005).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Ackley (n=10): x*=0, f*=0. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

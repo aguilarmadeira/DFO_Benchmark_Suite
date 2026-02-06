@@ -1,33 +1,42 @@
 function varargout = salomon_10D(varargin)
-%SALOMON_10D  Self-contained scaled test function.
+%SALOMON_10D  salomon 10D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-246629.611888, 246629.611888]   (range: 493259.223777)
+%   x2   ∈ [-9072935261.86, 9072935261.86]   (range: 18145870523.7)
+%   x3   ∈ [-2776159306.8, 2776159306.8]   (range: 5552318613.59)
+%   x4   ∈ [-5637788435.77, 5637788435.77]   (range: 11275576871.5)
+%   x5   ∈ [-68133.4310978, 68133.4310978]   (range: 136266.862196)
+%   x6   ∈ [-774299.090579, 774299.090579]   (range: 1548598.18116)
+%   x7   ∈ [-4120481211.6, 4120481211.6]   (range: 8240962423.2)
+%   x8   ∈ [-7427897223.84, 7427897223.84]   (range: 14855794447.7)
+%   x9   ∈ [-173786.342564, 173786.342564]   (range: 347572.685127)
+%   x10  ∈ [-9811144539.59, 9811144539.59]   (range: 19622289079.2)
 %
-% Problem:   salomon (source instance p=43)
-% Dimension: n = 10
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 100
-% Effective contrast: 55340.85926612483
+% Effective contrast ratio (max range / min range): 143998.979378
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = salomon_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [0;0;0;0;0;0;0;0;0;0]
+%   f* = 0
+%
+% USAGE:
+%   f = salomon_10D(x)          % Evaluate function at point x (10D vector)
+%   [lb, ub] = salomon_10D(n)   % Get bounds for dimension n (must be 10)
+%   info = salomon_10D()        % Get complete problem information
 
 nloc = 10;
 lb_orig = [-100;-100;-100;-100;-100;-100;-100;-100;-100;-100];
 ub_orig = [100;100;100;100;100;100;100;100;100;100];
-lb_work = [-4555143152.356721;-572640.1887079697;-1031520283.099325;-9860691889.154221;-263450.7082315946;-646032.864130124;-178181.0405533428;-795359.6649510807;-3845217748.542391;-517249.1822915346];
-ub_work = [4555143152.356721;572640.1887079697;1031520283.099325;9860691889.154221;263450.7082315946;646032.864130124;178181.0405533428;795359.6649510807;3845217748.542391;517249.1822915346];
-scale_factors = [45551431.52356721;5726.401887079697;10315202.83099325;98606918.89154221;2634.507082315947;6460.32864130124;1781.810405533427;7953.596649510807;38452177.48542392;5172.491822915345];
-contrast_ratio = 55340.85926612483;
+lb_work = [-246629.6118884623;-9072935261.855909;-2776159306.797195;-5637788435.765785;-68133.43109778507;-774299.0905786331;-4120481211.602268;-7427897223.844584;-173786.3425635711;-9811144539.58934];
+ub_work = [246629.6118884623;9072935261.855909;2776159306.797195;5637788435.765785;68133.43109778507;774299.0905786331;4120481211.602268;7427897223.844584;173786.3425635711;9811144539.58934];
+scale_factors = [2466.296118884623;90729352.61855909;27761593.06797195;56377884.35765785;681.3343109778507;7742.990905786331;41204812.11602268;74278972.23844583;1737.863425635712;98111445.39589339];
+contrast_ratio = 143998.9793778092;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +54,7 @@ if nargin == 0
     info.f_global_min = 0;
     info.x_global_min_orig = [0;0;0;0;0;0;0;0;0;0];
     info.x_global_min_work = [0;0;0;0;0;0;0;0;0;0];
-    info.global_min_note = 'Salomon (n=10): x*=0, f*=0. Ref: Ali et al. (2005).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Salomon (n=10): x*=0, f*=0. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

@@ -1,33 +1,30 @@
 function varargout = cosine_mixture_2D(varargin)
-%COSINE_MIXTURE_2D  Self-contained scaled test function.
+%COSINE_MIXTURE_2D  cosine_mixture 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-5974070.47002, 5974070.47002]   (range: 11948140.94 )
+%   x2   ∈ [-96761757.7425, 96761757.7425]   (range: 193523515.485)
 %
-% Problem:   cosine_mixture (source instance p=8)
-% Dimension: n = 2
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 1
-% Effective contrast: 21700.38087011145
+% Effective contrast ratio (max range / min range): 16.1969562006
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = cosine_mixture_orig(x_orig)
+% USAGE:
+%   f = cosine_mixture_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = cosine_mixture_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = cosine_mixture_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [-1;-1];
 ub_orig = [1;1];
-lb_work = [-2837.131857567024;-61566841.8879312];
-ub_work = [2837.131857567024;61566841.8879312];
-scale_factors = [2837.131857567024;61566841.8879312];
-contrast_ratio = 21700.38087011145;
+lb_work = [-5974070.470024628;-96761757.7425016];
+ub_work = [5974070.470024628;96761757.7425016];
+scale_factors = [5974070.470024628;96761757.7425016];
+contrast_ratio = 16.19695620063596;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;

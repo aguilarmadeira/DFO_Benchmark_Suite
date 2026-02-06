@@ -1,25 +1,25 @@
 function varargout = cauchy_10D(varargin)
-%CAUCHY_10D  Self-contained scaled test function.
+%CAUCHY_10D  cauchy 10D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (BASELINE HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [2           , 26          ]   (range: 24          )
+%   x2   ∈ [2           , 26          ]   (range: 24          )
+%   x3   ∈ [2           , 26          ]   (range: 24          )
+%   x4   ∈ [2           , 26          ]   (range: 24          )
+%   x5   ∈ [2           , 26          ]   (range: 24          )
+%   x6   ∈ [2           , 26          ]   (range: 24          )
+%   x7   ∈ [2           , 26          ]   (range: 24          )
+%   x8   ∈ [2           , 26          ]   (range: 24          )
+%   x9   ∈ [2           , 26          ]   (range: 24          )
+%   x10  ∈ [2           , 26          ]   (range: 24          )
 %
-% Problem:   cauchy (source instance p=7)
-% Dimension: n = 10
-% Strategy folder: baseline (kappa = 1)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 1
+% Effective contrast ratio (max range / min range): 1
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = cauchy_orig(x_orig)
+% USAGE:
+%   f = cauchy_10D(x)          % Evaluate function at point x (10D vector)
+%   [lb, ub] = cauchy_10D(n)   % Get bounds for dimension n (must be 10)
+%   info = cauchy_10D()        % Get complete problem information
 
 nloc = 10;
 lb_orig = [2;2;2;2;2;2;2;2;2;2];
@@ -28,6 +28,11 @@ lb_work = [2;2;2;2;2;2;2;2;2;2];
 ub_work = [26;26;26;26;26;26;26;26;26;26];
 scale_factors = [1;1;1;1;1;1;1;1;1;1];
 contrast_ratio = 1;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;

@@ -1,33 +1,32 @@
 function varargout = cauchy_4D(varargin)
-%CAUCHY_4D  Self-contained scaled test function.
+%CAUCHY_4D  cauchy 4D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [15449.0999096, 87544.8994878]   (range: 72095.7995782)
+%   x2   ∈ [4377914.72458, 24808183.4393]   (range: 20430268.7147)
+%   x3   ∈ [283475478.257, 1606361043.46]   (range: 1322885565.2)
+%   x4   ∈ [13303.2540292, 75385.1061657]   (range: 62081.8521365)
 %
-% Problem:   cauchy (source instance p=6)
-% Dimension: n = 4
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 29104.50652725234
+% Effective contrast ratio (max range / min range): 21308.7322571
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = cauchy_orig(x_orig)
+% USAGE:
+%   f = cauchy_4D(x)          % Evaluate function at point x (4D vector)
+%   [lb, ub] = cauchy_4D(n)   % Get bounds for dimension n (must be 4)
+%   info = cauchy_4D()        % Get complete problem information
 
 nloc = 4;
 lb_orig = [3;3;3;3];
 ub_orig = [17;17;17;17];
-lb_work = [14437.20425858589;174219050.9076299;5985.981955904252;25843.72086418441];
-ub_work = [81810.82413198672;987241288.4765694;33920.56441679074;146447.7515637117];
-scale_factors = [4812.401419528631;58073016.96920997;1995.32731863475;8614.573621394806];
-contrast_ratio = 29104.50652725234;
+lb_work = [15449.09990961935;4377914.724582402;283475478.2572832;13303.25402924625];
+ub_work = [87544.89948784298;24808183.43930028;1606361043.457938;75385.10616572878];
+scale_factors = [5149.699969873116;1459304.908194134;94491826.08576104;4434.418009748752];
+contrast_ratio = 21308.73225709157;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;

@@ -1,33 +1,34 @@
 function varargout = aluffi_pentini_2D(varargin)
-%ALUFFI_PENTINI_2D  Self-contained scaled test function.
+%ALUFFI_PENTINI_2D  aluffi_pentini 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-909071872.365, 909071872.365]   (range: 1818143744.73)
+%   x2   ∈ [-37631.2335435, 37631.2335435]   (range: 75262.4670869)
 %
-% Problem:   aluffi_pentini (source instance p=2)
-% Dimension: n = 2
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 10
-% Effective contrast: 3.368597772911382
+% Effective contrast ratio (max range / min range): 24157.3763803
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = aluffi_pentini_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [-95134371.44304931;0]
+%   f* = -0.3523
+%
+% USAGE:
+%   f = aluffi_pentini_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = aluffi_pentini_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = aluffi_pentini_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [-10;-10];
 ub_orig = [10;10];
-lb_work = [-75760.22173664517;-22490.13590933054];
-ub_work = [75760.22173664517;22490.13590933054];
-scale_factors = [7576.022173664517;2249.013590933054];
-contrast_ratio = 3.368597772911382;
+lb_work = [-909071872.3654976;-37631.23354346595];
+ub_work = [909071872.3654976;37631.23354346595];
+scale_factors = [90907187.23654976;3763.123354346595];
+contrast_ratio = 24157.37638032711;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -44,8 +45,8 @@ if nargin == 0
     info.global_min_known = true;
     info.f_global_min = -0.3523;
     info.x_global_min_orig = [-1.0465;0];
-    info.x_global_min_work = [-7928.307204739918;0];
-    info.global_min_note = 'Aluffi-Pentini (2D): x*=(-1.0465,0), f*=-0.3523. Ref: Ali et al. (2005).';
+    info.x_global_min_work = [-95134371.44304931;0];
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Aluffi-Pentini (2D): x*=(-1.0465,0), f*=-0.3523. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

@@ -1,25 +1,21 @@
 function varargout = poissonian_2D(varargin)
-%POISSONIAN_2D  Self-contained scaled test function.
+%POISSONIAN_2D  poissonian 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (BASELINE HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [1           , 21          ]   (range: 20          )
+%   x2   ∈ [1           , 8           ]   (range: 7           )
 %
-% Problem:   poissonian (source instance p=38)
-% Dimension: n = 2
-% Strategy folder: baseline (kappa = 1)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 1
+% Effective contrast ratio (max range / min range): 1
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = poissonian_orig(x_orig)
+% Known global minimum (WORK-space):
+%   see info.x_global_min_work (not stored as a representative here)
+%   f* = -95.28
+%
+% USAGE:
+%   f = poissonian_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = poissonian_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = poissonian_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [1;1];
@@ -28,6 +24,11 @@ lb_work = [1;1];
 ub_work = [21;8];
 scale_factors = [1;1];
 contrast_ratio = 1;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -43,7 +44,9 @@ if nargin == 0
     info.contrast_ratio = contrast_ratio;
     info.global_min_known = true;
     info.f_global_min = -95.28;
-    info.global_min_note = 'Poissonian (2D): f*=-95.28, x* not documented. Ref: Brachetti et al. (1997).';
+    info.x_global_min_orig = [];
+    info.x_global_min_work = [];
+    info.global_min_note = 'Global minimizer is known but infoG.xstar_orig is missing/empty.';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

@@ -1,25 +1,21 @@
 function varargout = poissonian_2D(varargin)
-%POISSONIAN_2D  Self-contained scaled test function.
+%POISSONIAN_2D  poissonian 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (HALTON OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [500500      , 10510500    ]   (range: 10010000    )
+%   x2   ∈ [250.75      , 2006        ]   (range: 1755.25     )
 %
-% Problem:   poissonian (source instance p=38)
-% Dimension: n = 2
-% Strategy folder: halton_oscillatory (kappa = 1000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 1996.011964107677
+% Effective contrast ratio (max range / min range): 1996.01196411
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = poissonian_orig(x_orig)
+% Known global minimum (WORK-space):
+%   see info.x_global_min_work (not stored as a representative here)
+%   f* = -95.28
+%
+% USAGE:
+%   f = poissonian_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = poissonian_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = poissonian_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [1;1];
@@ -28,6 +24,11 @@ lb_work = [500500;250.75];
 ub_work = [10510500;2006];
 scale_factors = [500500;250.75];
 contrast_ratio = 1996.011964107677;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -43,7 +44,9 @@ if nargin == 0
     info.contrast_ratio = contrast_ratio;
     info.global_min_known = true;
     info.f_global_min = -95.28;
-    info.global_min_note = 'Poissonian (2D): f*=-95.28, x* not documented. Ref: Brachetti et al. (1997).';
+    info.x_global_min_orig = [];
+    info.x_global_min_work = [];
+    info.global_min_note = 'Global minimizer is known but infoG.xstar_orig is missing/empty.';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

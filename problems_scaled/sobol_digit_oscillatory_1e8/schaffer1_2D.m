@@ -1,33 +1,34 @@
 function varargout = schaffer1_2D(varargin)
-%SCHAFFER1_2D  Self-contained scaled test function.
+%SCHAFFER1_2D  schaffer1 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-7201235613.42, 7201235613.42]   (range: 14402471226.8)
+%   x2   ∈ [-4994176318.54, 4994176318.54]   (range: 9988352637.07)
 %
-% Problem:   schaffer1 (source instance p=44)
-% Dimension: n = 2
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 100
-% Effective contrast: 43443.48908854352
+% Effective contrast ratio (max range / min range): 1.44192658691
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = schaffer1_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [0;0]
+%   f* = 0
+%
+% USAGE:
+%   f = schaffer1_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = schaffer1_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = schaffer1_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [-100;-100];
 ub_orig = [100;100];
-lb_work = [-9099173525.382862;-209448.4977216622];
-ub_work = [9099173525.382862;209448.4977216622];
-scale_factors = [90991735.25382863;2094.484977216622];
-contrast_ratio = 43443.48908854352;
+lb_work = [-7201235613.418463;-4994176318.535228];
+ub_work = [7201235613.418463;4994176318.535228];
+scale_factors = [72012356.13418463;49941763.18535227];
+contrast_ratio = 1.441926586911244;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +46,7 @@ if nargin == 0
     info.f_global_min = 0;
     info.x_global_min_orig = [0;0];
     info.x_global_min_work = [0;0];
-    info.global_min_note = 'Schaffer1 (2D): x*=0, f*=0. Ref: Ali et al. (2005).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Schaffer1 (2D): x*=0, f*=0. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

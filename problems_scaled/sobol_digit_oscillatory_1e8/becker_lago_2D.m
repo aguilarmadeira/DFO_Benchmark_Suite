@@ -1,33 +1,34 @@
 function varargout = becker_lago_2D(varargin)
-%BECKER_LAGO_2D  Self-contained scaled test function.
+%BECKER_LAGO_2D  becker_lago 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-987503855.629, 987503855.629]   (range: 1975007711.26)
+%   x2   ∈ [-31070.7184774, 31070.7184774]   (range: 62141.4369548)
 %
-% Problem:   becker_lago (source instance p=3)
-% Dimension: n = 2
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 10
-% Effective contrast: 33130.92347678328
+% Effective contrast ratio (max range / min range): 31782.4596283
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = becker_lago_orig(x_orig)
+% Known global minimum (WORK-space):
+%   multiple minimizers; see info.x_global_min_work
+%   f* = 0
+%
+% USAGE:
+%   f = becker_lago_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = becker_lago_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = becker_lago_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [-10;-10];
 ub_orig = [10;10];
-lb_work = [-670702174.6577091;-20243.99274978581];
-ub_work = [670702174.6577091;20243.99274978581];
-scale_factors = [67070217.46577091;2024.399274978581];
-contrast_ratio = 33130.92347678328;
+lb_work = [-987503855.6293652;-31070.71847738306];
+ub_work = [987503855.6293652;31070.71847738306];
+scale_factors = [98750385.56293651;3107.071847738306];
+contrast_ratio = 31782.45962828916;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -44,8 +45,8 @@ if nargin == 0
     info.global_min_known = true;
     info.f_global_min = 0;
     info.x_global_min_orig = [-5 -5 5 5;-5 5 -5 5];
-    info.x_global_min_work = [-335351087.3288546 -335351087.3288546 335351087.3288546 335351087.3288546;-10121.9963748929 10121.9963748929 -10121.9963748929 10121.9963748929];
-    info.global_min_note = 'Becker-Lago (2D): 4 global minima at (+-5,+-5), f*=0. Ref: Ali et al. (2005).';
+    info.x_global_min_work = [-493751927.8146826 -493751927.8146826 493751927.8146827 493751927.8146827;-15535.35923869153 15535.35923869153 -15535.35923869153 15535.35923869153];
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Becker-Lago (2D): 4 global minima at (+-5,+-5), f*=0. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

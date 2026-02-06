@@ -1,33 +1,36 @@
 function varargout = kowalik_4D(varargin)
-%KOWALIK_4D  Self-contained scaled test function.
+%KOWALIK_4D  kowalik 4D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [0           , 31.0932932021]   (range: 31.0932932021)
+%   x2   ∈ [0           , 40515389.5821]   (range: 40515389.5821)
+%   x3   ∈ [0           , 1802.21031673]   (range: 1802.21031673)
+%   x4   ∈ [0           , 2542.62284242]   (range: 2542.62284242)
 %
-% Problem:   kowalik (source instance p=28)
-% Dimension: n = 4
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 4.798632712345603
+% Effective contrast ratio (max range / min range): 1303026.6469
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = kowalik_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [14.21407689238524;18328390.52525159;527.7901641857209;817.2716279204159]
+%   f* = 0.00030748
+%
+% USAGE:
+%   f = kowalik_4D(x)          % Evaluate function at point x (4D vector)
+%   [lb, ub] = kowalik_4D(n)   % Get bounds for dimension n (must be 4)
+%   info = kowalik_4D()        % Get complete problem information
 
 nloc = 4;
 lb_orig = [0;0;0;0];
 ub_orig = [0.42;0.42;0.42;0.42];
 lb_work = [0;0;0;0];
-ub_work = [2863.16084243428;754.4896058058393;3620.51850354464;1572.783978938593];
-scale_factors = [6817.049624843524;1796.403823347237;8620.282151296762;3744.723759377603];
-contrast_ratio = 4.798632712345603;
+ub_work = [31.09329320209271;40515389.58213509;1802.21031673173;2542.622842419071];
+scale_factors = [74.03165048117313;96465213.29079783;4290.976944599357;6053.863910521598];
+contrast_ratio = 1303026.646897866;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -44,8 +47,8 @@ if nargin == 0
     info.global_min_known = true;
     info.f_global_min = 0.00030748;
     info.x_global_min_orig = [0.192;0.19;0.123;0.135];
-    info.x_global_min_work = [1308.873527969957;341.3167264359749;1060.294704609502;505.5377075159764];
-    info.global_min_note = 'Kowalik (4D): f*=3.0748e-4. Ref: Ali et al. (2005).';
+    info.x_global_min_work = [14.21407689238524;18328390.52525159;527.7901641857209;817.2716279204159];
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Kowalik (4D): f*=3.0748e-4. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

@@ -1,33 +1,35 @@
 function varargout = sphere_3D(varargin)
-%SPHERE_3D  Self-contained scaled test function.
+%SPHERE_3D  sphere 3D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-16979.3310909, 16979.3310909]   (range: 33958.6621818)
+%   x2   ∈ [-39675.3150112, 39675.3150112]   (range: 79350.6300223)
+%   x3   ∈ [-3110.00838917, 3110.00838917]   (range: 6220.01677834)
 %
-% Problem:   sphere (source instance p=55)
-% Dimension: n = 3
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 5.12
-% Effective contrast: 28.47961991488289
+% Effective contrast ratio (max range / min range): 12.7573016038
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = sphere_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [0;0;0]
+%   f* = 0
+%
+% USAGE:
+%   f = sphere_3D(x)          % Evaluate function at point x (3D vector)
+%   [lb, ub] = sphere_3D(n)   % Get bounds for dimension n (must be 3)
+%   info = sphere_3D()        % Get complete problem information
 
 nloc = 3;
 lb_orig = [-5.12;-5.12;-5.12];
 ub_orig = [5.12;5.12;5.12];
-lb_work = [-17720901.05606144;-504684526.6258766;-158592716.5409002];
-ub_work = [17720901.05606144;504684526.6258766;158592716.5409002];
-scale_factors = [3461113.487511999;98571196.60661653;30975139.94939457];
-contrast_ratio = 28.47961991488289;
+lb_work = [-16979.33109087539;-39675.31501115803;-3110.008389171395];
+ub_work = [16979.33109087539;39675.31501115803;3110.008389171395];
+scale_factors = [3316.275603686599;7749.084963116803;607.423513510038];
+contrast_ratio = 12.75730160384834;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +47,7 @@ if nargin == 0
     info.f_global_min = 0;
     info.x_global_min_orig = [0;0;0];
     info.x_global_min_work = [0;0;0];
-    info.global_min_note = 'Sphere (n=3): x*=0, f*=0. Ref: Huyer & Neumaier (1999).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Sphere (n=3): x*=0, f*=0. Ref: Huyer & Neumaier (1999).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

@@ -1,25 +1,21 @@
 function varargout = branin_hoo_2D(varargin)
-%BRANIN_HOO_2D  Self-contained scaled test function.
+%BRANIN_HOO_2D  branin_hoo 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-746445.3125, 1492890.625 ]   (range: 2239335.9375)
+%   x2   ∈ [0           , 9731.8359375]   (range: 9731.8359375)
 %
-% Problem:   branin_hoo (source instance p=5)
-% Dimension: n = 2
-% Strategy folder: sobol_oscillatory (kappa = 1000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 230.1041603949666
+% Effective contrast ratio (max range / min range): 230.104160395
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = branin_hoo_orig(x_orig)
+% Known global minimum (WORK-space):
+%   multiple minimizers; see info.x_global_min_work
+%   f* = 0.3978873577297384
+%
+% USAGE:
+%   f = branin_hoo_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = branin_hoo_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = branin_hoo_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [-5;0];
@@ -28,6 +24,11 @@ lb_work = [-746445.3125;0];
 ub_work = [1492890.625;9731.8359375];
 scale_factors = [149289.0625;648.7890625];
 contrast_ratio = 230.1041603949666;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +46,7 @@ if nargin == 0
     info.f_global_min = 0.3978873577297384;
     info.x_global_min_orig = [-3.141592653589793 3.141592653589793 9.424777960769379;12.275 2.275 2.475];
     info.x_global_min_work = [-469005.4220113074 469005.4220113074 1407016.266033922;7963.8857421875 1475.9951171875 1605.7529296875];
-    info.global_min_note = 'Branin-Hoo (2D): 3 global minima, f*=5/(4*pi). Ref: Garcia-Palomares (2012).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Branin-Hoo (2D): 3 global minima, f*=5/(4*pi). Ref: Garcia-Palomares (2012).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

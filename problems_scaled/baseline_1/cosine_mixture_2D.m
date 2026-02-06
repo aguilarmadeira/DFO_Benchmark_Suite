@@ -1,25 +1,17 @@
 function varargout = cosine_mixture_2D(varargin)
-%COSINE_MIXTURE_2D  Self-contained scaled test function.
+%COSINE_MIXTURE_2D  cosine_mixture 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (BASELINE HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-1          , 1           ]   (range: 2           )
+%   x2   ∈ [-1          , 1           ]   (range: 2           )
 %
-% Problem:   cosine_mixture (source instance p=8)
-% Dimension: n = 2
-% Strategy folder: baseline (kappa = 1)
-% Original bound tag: bound(p) = 1
-% Effective contrast: 1
+% Effective contrast ratio (max range / min range): 1
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = cosine_mixture_orig(x_orig)
+% USAGE:
+%   f = cosine_mixture_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = cosine_mixture_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = cosine_mixture_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [-1;-1];
@@ -28,6 +20,11 @@ lb_work = [-1;-1];
 ub_work = [1;1];
 scale_factors = [1;1];
 contrast_ratio = 1;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;

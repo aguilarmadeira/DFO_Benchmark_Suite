@@ -1,25 +1,23 @@
 function varargout = shekel_410_4D(varargin)
-%SHEKEL_410_4D  Self-contained scaled test function.
+%SHEKEL_410_4D  shekel_410 4D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (EXTREME HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [0           , 10          ]   (range: 10          )
+%   x2   ∈ [0           , 10          ]   (range: 10          )
+%   x3   ∈ [0           , 1000000000  ]   (range: 1000000000  )
+%   x4   ∈ [0           , 1000000000  ]   (range: 1000000000  )
 %
-% Problem:   shekel_410 (source instance p=49)
-% Dimension: n = 4
-% Strategy folder: extreme (kappa = 100000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 100000000
+% Effective contrast ratio (max range / min range): 100000000
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = shekel_410_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [4;4;400000000;400000000]
+%   f* = -10.5364
+%
+% USAGE:
+%   f = shekel_410_4D(x)          % Evaluate function at point x (4D vector)
+%   [lb, ub] = shekel_410_4D(n)   % Get bounds for dimension n (must be 4)
+%   info = shekel_410_4D()        % Get complete problem information
 
 nloc = 4;
 lb_orig = [0;0;0;0];
@@ -28,6 +26,11 @@ lb_work = [0;0;0;0];
 ub_work = [10;10;1000000000;1000000000];
 scale_factors = [1;1;100000000;100000000];
 contrast_ratio = 100000000;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +48,7 @@ if nargin == 0
     info.f_global_min = -10.5364;
     info.x_global_min_orig = [4;4;4;4];
     info.x_global_min_work = [4;4;400000000;400000000];
-    info.global_min_note = 'Shekel-4,10 (4D): x*=(4,4,4,4), f*=-10.5364. Ref: Brachetti et al. (1997).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Shekel-4,10 (4D): x*=(4,4,4,4), f*=-10.5364. Ref: Brachetti et al. (1997).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

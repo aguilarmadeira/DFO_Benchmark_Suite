@@ -1,25 +1,21 @@
 function varargout = mccormick_2D(varargin)
-%MCCORMICK_2D  Self-contained scaled test function.
+%MCCORMICK_2D  mccormick 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-223933.59375, 597156.25   ]   (range: 821089.84375)
+%   x2   ∈ [-1946.3671875, 1946.3671875]   (range: 3892.734375 )
 %
-% Problem:   mccormick (source instance p=30)
-% Dimension: n = 2
-% Strategy folder: sobol_oscillatory (kappa = 1000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 230.1041603949666
+% Effective contrast ratio (max range / min range): 230.104160395
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = mccormick_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [-81661.1171875;-1003.6766796875]
+%   f* = -1.9133
+%
+% USAGE:
+%   f = mccormick_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = mccormick_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = mccormick_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [-1.5;-3];
@@ -28,6 +24,11 @@ lb_work = [-223933.59375;-1946.3671875];
 ub_work = [597156.25;1946.3671875];
 scale_factors = [149289.0625;648.7890625];
 contrast_ratio = 230.1041603949666;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +46,7 @@ if nargin == 0
     info.f_global_min = -1.9133;
     info.x_global_min_orig = [-0.547;-1.547];
     info.x_global_min_work = [-81661.1171875;-1003.6766796875];
-    info.global_min_note = 'McCormick (2D): f*=-1.9133. Ref: Ali et al. (2005).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: McCormick (2D): f*=-1.9133. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

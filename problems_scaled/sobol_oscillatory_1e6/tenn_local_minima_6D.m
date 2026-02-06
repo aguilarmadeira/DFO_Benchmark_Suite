@@ -1,25 +1,25 @@
 function varargout = tenn_local_minima_6D(varargin)
-%TENN_LOCAL_MINIMA_6D  Self-contained scaled test function.
+%TENN_LOCAL_MINIMA_6D  tenn_local_minima 6D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-1492890.625, 1492890.625 ]   (range: 2985781.25  )
+%   x2   ∈ [-6487.890625, 6487.890625 ]   (range: 12975.78125 )
+%   x3   ∈ [-3990390.625, 3990390.625 ]   (range: 7980781.25  )
+%   x4   ∈ [-8985.390625, 8985.390625 ]   (range: 17970.78125 )
+%   x5   ∈ [-868515.625 , 868515.625  ]   (range: 1737031.25  )
+%   x6   ∈ [-5863.515625, 5863.515625 ]   (range: 11727.03125 )
 %
-% Problem:   tenn_local_minima (source instance p=59)
-% Dimension: n = 6
-% Strategy folder: sobol_oscillatory (kappa = 1000000)
-% Original bound tag: bound(p) = 10
-% Effective contrast: 680.5457476716454
+% Effective contrast ratio (max range / min range): 680.545747672
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = tenn_local_minima_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [149289.0625000002;648.7890625000009;399039.0625;898.5390625;86851.56250000012;586.3515625000009]
+%   f* = 0
+%
+% USAGE:
+%   f = tenn_local_minima_6D(x)          % Evaluate function at point x (6D vector)
+%   [lb, ub] = tenn_local_minima_6D(n)   % Get bounds for dimension n (must be 6)
+%   info = tenn_local_minima_6D()        % Get complete problem information
 
 nloc = 6;
 lb_orig = [-10;-10;-10;-10;-10;-10];
@@ -28,6 +28,11 @@ lb_work = [-1492890.625;-6487.890625;-3990390.625;-8985.390625;-868515.625;-5863
 ub_work = [1492890.625;6487.890625;3990390.625;8985.390625;868515.625;5863.515625];
 scale_factors = [149289.0625;648.7890625;399039.0625;898.5390625;86851.5625;586.3515625];
 contrast_ratio = 680.5457476716454;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +50,7 @@ if nargin == 0
     info.f_global_min = 0;
     info.x_global_min_orig = [1;1;1;1;1;1];
     info.x_global_min_work = [149289.0625000002;648.7890625000009;399039.0625;898.5390625;86851.56250000012;586.3515625000009];
-    info.global_min_note = 'Ten Local Minima (n=6): x*=1, f*=0. Ref: Brachetti et al. (1997).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Ten Local Minima (n=6): x*=1, f*=0. Ref: Brachetti et al. (1997).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

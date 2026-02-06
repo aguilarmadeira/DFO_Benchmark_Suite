@@ -1,25 +1,21 @@
 function varargout = becker_lago_2D(varargin)
-%BECKER_LAGO_2D  Self-contained scaled test function.
+%BECKER_LAGO_2D  becker_lago 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (EXTREME HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-10         , 10          ]   (range: 20          )
+%   x2   ∈ [-1000000000 , 1000000000  ]   (range: 2000000000  )
 %
-% Problem:   becker_lago (source instance p=3)
-% Dimension: n = 2
-% Strategy folder: extreme (kappa = 100000000)
-% Original bound tag: bound(p) = 10
-% Effective contrast: 100000000
+% Effective contrast ratio (max range / min range): 100000000
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = becker_lago_orig(x_orig)
+% Known global minimum (WORK-space):
+%   multiple minimizers; see info.x_global_min_work
+%   f* = 0
+%
+% USAGE:
+%   f = becker_lago_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = becker_lago_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = becker_lago_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [-10;-10];
@@ -28,6 +24,11 @@ lb_work = [-10;-1000000000];
 ub_work = [10;1000000000];
 scale_factors = [1;100000000];
 contrast_ratio = 100000000;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +46,7 @@ if nargin == 0
     info.f_global_min = 0;
     info.x_global_min_orig = [-5 -5 5 5;-5 5 -5 5];
     info.x_global_min_work = [-5 -5 5 5;-500000000 500000000 -500000000 500000000];
-    info.global_min_note = 'Becker-Lago (2D): 4 global minima at (+-5,+-5), f*=0. Ref: Ali et al. (2005).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Becker-Lago (2D): 4 global minima at (+-5,+-5), f*=0. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

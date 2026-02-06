@@ -1,25 +1,25 @@
 function varargout = hartman_4_6D(varargin)
-%HARTMAN_4_6D  Self-contained scaled test function.
+%HARTMAN_4_6D  hartman_4 6D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SPATIAL THERMAL HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [0           , 1           ]   (range: 1           )
+%   x2   ∈ [0           , 1           ]   (range: 1           )
+%   x3   ∈ [0           , 1           ]   (range: 1           )
+%   x4   ∈ [0           , 300         ]   (range: 300         )
+%   x5   ∈ [0           , 300         ]   (range: 300         )
+%   x6   ∈ [0           , 300         ]   (range: 300         )
 %
-% Problem:   hartman_4 (source instance p=26)
-% Dimension: n = 6
-% Strategy folder: spatial_thermal (kappa = 90000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 300
+% Effective contrast ratio (max range / min range): 300
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = hartman_4_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [0.20169;0.150011;0.476874;82.59960000000001;93.4956;197.19]
+%   f* = -3.32237
+%
+% USAGE:
+%   f = hartman_4_6D(x)          % Evaluate function at point x (6D vector)
+%   [lb, ub] = hartman_4_6D(n)   % Get bounds for dimension n (must be 6)
+%   info = hartman_4_6D()        % Get complete problem information
 
 nloc = 6;
 lb_orig = [0;0;0;0;0;0];
@@ -28,6 +28,11 @@ lb_work = [0;0;0;0;0;0];
 ub_work = [1;1;1;300;300;300];
 scale_factors = [1;1;1;300;300;300];
 contrast_ratio = 300;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +50,7 @@ if nargin == 0
     info.f_global_min = -3.32237;
     info.x_global_min_orig = [0.20169;0.150011;0.476874;0.275332;0.311652;0.6573];
     info.x_global_min_work = [0.20169;0.150011;0.476874;82.59960000000001;93.4956;197.19];
-    info.global_min_note = 'Hartman-6: f*=-3.32237. Ref: Brachetti et al. (1997).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Hartman-6: f*=-3.32237. Ref: Brachetti et al. (1997).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

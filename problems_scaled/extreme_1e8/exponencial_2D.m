@@ -1,25 +1,21 @@
 function varargout = exponencial_2D(varargin)
-%EXPONENCIAL_2D  Self-contained scaled test function.
+%EXPONENCIAL_2D  exponencial 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (EXTREME HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-1          , 1           ]   (range: 2           )
+%   x2   ∈ [-100000000  , 100000000   ]   (range: 200000000   )
 %
-% Problem:   exponencial (source instance p=13)
-% Dimension: n = 2
-% Strategy folder: extreme (kappa = 100000000)
-% Original bound tag: bound(p) = 1
-% Effective contrast: 100000000
+% Effective contrast ratio (max range / min range): 100000000
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = exponencial_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [0;0]
+%   f* = -1
+%
+% USAGE:
+%   f = exponencial_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = exponencial_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = exponencial_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [-1;-1];
@@ -28,6 +24,11 @@ lb_work = [-1;-100000000];
 ub_work = [1;100000000];
 scale_factors = [1;100000000];
 contrast_ratio = 100000000;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +46,7 @@ if nargin == 0
     info.f_global_min = -1;
     info.x_global_min_orig = [0;0];
     info.x_global_min_work = [0;0];
-    info.global_min_note = 'Exponencial (n=2): x*=0, f*=-1. Ref: Brachetti et al. (1997).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Exponencial (n=2): x*=0, f*=-1. Ref: Brachetti et al. (1997).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

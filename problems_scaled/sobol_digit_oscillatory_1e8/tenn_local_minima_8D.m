@@ -1,33 +1,40 @@
 function varargout = tenn_local_minima_8D(varargin)
-%TENN_LOCAL_MINIMA_8D  Self-contained scaled test function.
+%TENN_LOCAL_MINIMA_8D  tenn_local_minima 8D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-2146.65858316, 2146.65858316]   (range: 4293.31716633)
+%   x2   ∈ [-68467.4399267, 68467.4399267]   (range: 136934.879853)
+%   x3   ∈ [-33570.3855984, 33570.3855984]   (range: 67140.7711968)
+%   x4   ∈ [-99928.2902175, 99928.2902175]   (range: 199856.580435)
+%   x5   ∈ [-218631225.521, 218631225.521]   (range: 437262451.042)
+%   x6   ∈ [-616488822.994, 616488822.994]   (range: 1232977645.99)
+%   x7   ∈ [-40397.7334059, 40397.7334059]   (range: 80795.4668117)
+%   x8   ∈ [-80219.7954567, 80219.7954567]   (range: 160439.590913)
 %
-% Problem:   tenn_local_minima (source instance p=60)
-% Dimension: n = 8
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 10
-% Effective contrast: 84650.6123038856
+% Effective contrast ratio (max range / min range): 287185.315741
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = tenn_local_minima_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [214.6658583163517;6846.743992673044;3357.038559840585;9992.829021746875;21863122.55211776;61648882.29939187;4039.773340585147;8021.979545669936]
+%   f* = 0
+%
+% USAGE:
+%   f = tenn_local_minima_8D(x)          % Evaluate function at point x (8D vector)
+%   [lb, ub] = tenn_local_minima_8D(n)   % Get bounds for dimension n (must be 8)
+%   info = tenn_local_minima_8D()        % Get complete problem information
 
 nloc = 8;
 lb_orig = [-10;-10;-10;-10;-10;-10;-10;-10];
 ub_orig = [10;10;10;10;10;10;10;10];
-lb_work = [-93174.22207509597;-185397701.1378443;-528752720.7038549;-276194028.3111725;-84183.63016281961;-8784.99790562978;-743655451.7999135;-498712219.7493586];
-ub_work = [93174.22207509597;185397701.1378443;528752720.7038549;276194028.3111725;84183.63016281961;8784.99790562978;743655451.7999135;498712219.7493586];
-scale_factors = [9317.422207509597;18539770.11378443;52875272.07038549;27619402.83111725;8418.363016281961;878.499790562978;74365545.17999135;49871221.97493586];
-contrast_ratio = 84650.6123038856;
+lb_work = [-2146.658583163516;-68467.43992673043;-33570.38559840578;-99928.2902174686;-218631225.5211775;-616488822.9939183;-40397.73340585146;-80219.79545669924];
+ub_work = [2146.658583163516;68467.43992673043;33570.38559840578;99928.2902174686;218631225.5211775;616488822.9939183;40397.73340585146;80219.79545669924];
+scale_factors = [214.6658583163516;6846.743992673042;3357.038559840578;9992.82902174686;21863122.55211775;61648882.29939183;4039.773340585146;8021.979545669925];
+contrast_ratio = 287185.3157409889;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -44,8 +51,8 @@ if nargin == 0
     info.global_min_known = true;
     info.f_global_min = 0;
     info.x_global_min_orig = [1;1;1;1;1;1;1;1];
-    info.x_global_min_work = [9317.422207509604;18539770.11378443;52875272.07038558;27619402.83111727;8418.363016281975;878.4997905629789;74365545.17999136;49871221.97493595];
-    info.global_min_note = 'Ten Local Minima (n=8): x*=1, f*=0. Ref: Brachetti et al. (1997).';
+    info.x_global_min_work = [214.6658583163517;6846.743992673044;3357.038559840585;9992.829021746875;21863122.55211776;61648882.29939187;4039.773340585147;8021.979545669936];
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Ten Local Minima (n=8): x*=1, f*=0. Ref: Brachetti et al. (1997).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

@@ -1,25 +1,29 @@
 function varargout = shekel_foxholes_10D(varargin)
-%SHEKEL_FOXHOLES_10D  Self-contained scaled test function.
+%SHEKEL_FOXHOLES_10D  shekel_foxholes 10D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (BASELINE HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [0           , 10          ]   (range: 10          )
+%   x2   ∈ [0           , 10          ]   (range: 10          )
+%   x3   ∈ [0           , 10          ]   (range: 10          )
+%   x4   ∈ [0           , 10          ]   (range: 10          )
+%   x5   ∈ [0           , 10          ]   (range: 10          )
+%   x6   ∈ [0           , 10          ]   (range: 10          )
+%   x7   ∈ [0           , 10          ]   (range: 10          )
+%   x8   ∈ [0           , 10          ]   (range: 10          )
+%   x9   ∈ [0           , 10          ]   (range: 10          )
+%   x10  ∈ [0           , 10          ]   (range: 10          )
 %
-% Problem:   shekel_foxholes (source instance p=51)
-% Dimension: n = 10
-% Strategy folder: baseline (kappa = 1)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 1
+% Effective contrast ratio (max range / min range): 1
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = shekel_foxholes_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [8.025;9.151999999999999;5.114;7.621;4.564;4.711;2.996;6.126;0.734;4.982]
+%   f* = -10.2087915119
+%
+% USAGE:
+%   f = shekel_foxholes_10D(x)          % Evaluate function at point x (10D vector)
+%   [lb, ub] = shekel_foxholes_10D(n)   % Get bounds for dimension n (must be 10)
+%   info = shekel_foxholes_10D()        % Get complete problem information
 
 nloc = 10;
 lb_orig = [0;0;0;0;0;0;0;0;0;0];
@@ -28,6 +32,11 @@ lb_work = [0;0;0;0;0;0;0;0;0;0];
 ub_work = [10;10;10;10;10;10;10;10;10;10];
 scale_factors = [1;1;1;1;1;1;1;1;1;1];
 contrast_ratio = 1;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +54,7 @@ if nargin == 0
     info.f_global_min = -10.2087915119;
     info.x_global_min_orig = [8.025;9.151999999999999;5.114;7.621;4.564;4.711;2.996;6.126;0.734;4.982];
     info.x_global_min_work = [8.025;9.151999999999999;5.114;7.621;4.564;4.711;2.996;6.126;0.734;4.982];
-    info.global_min_note = 'Shekel Foxholes (10D): f*=-10.5364. Ref: Ali et al. (2005).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Shekel Foxholes (10D): f*=-10.5364. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

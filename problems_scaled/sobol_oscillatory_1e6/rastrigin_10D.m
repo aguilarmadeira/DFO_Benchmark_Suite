@@ -1,25 +1,29 @@
 function varargout = rastrigin_10D(varargin)
-%RASTRIGIN_10D  Self-contained scaled test function.
+%RASTRIGIN_10D  rastrigin 10D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-764360     , 764360      ]   (range: 1528720     )
+%   x2   ∈ [-3321.8     , 3321.8      ]   (range: 6643.6      )
+%   x3   ∈ [-2043080    , 2043080     ]   (range: 4086160     )
+%   x4   ∈ [-4600.52    , 4600.52     ]   (range: 9201.04     )
+%   x5   ∈ [-444680     , 444680      ]   (range: 889360      )
+%   x6   ∈ [-3002.12    , 3002.12     ]   (range: 6004.24     )
+%   x7   ∈ [-1723400    , 1723400     ]   (range: 3446800     )
+%   x8   ∈ [-4280.84    , 4280.84     ]   (range: 8561.68     )
+%   x9   ∈ [-1084040    , 1084040     ]   (range: 2168080     )
+%   x10  ∈ [-3641.48    , 3641.48     ]   (range: 7282.96     )
 %
-% Problem:   rastrigin (source instance p=40)
-% Dimension: n = 10
-% Strategy folder: sobol_oscillatory (kappa = 1000000)
-% Original bound tag: bound(p) = 5.12
-% Effective contrast: 680.5457476716454
+% Effective contrast ratio (max range / min range): 680.545747672
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = rastrigin_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [0;0;0;0;0;0;0;0;0;0]
+%   f* = 0
+%
+% USAGE:
+%   f = rastrigin_10D(x)          % Evaluate function at point x (10D vector)
+%   [lb, ub] = rastrigin_10D(n)   % Get bounds for dimension n (must be 10)
+%   info = rastrigin_10D()        % Get complete problem information
 
 nloc = 10;
 lb_orig = [-5.12;-5.12;-5.12;-5.12;-5.12;-5.12;-5.12;-5.12;-5.12;-5.12];
@@ -28,6 +32,11 @@ lb_work = [-764360;-3321.8;-2043080;-4600.52;-444680;-3002.12;-1723400;-4280.84;
 ub_work = [764360;3321.8;2043080;4600.52;444680;3002.12;1723400;4280.84;1084040;3641.48];
 scale_factors = [149289.0625;648.7890625;399039.0625;898.5390625;86851.5625;586.3515625;336601.5625;836.1015625;211726.5625;711.2265625];
 contrast_ratio = 680.5457476716454;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +54,7 @@ if nargin == 0
     info.f_global_min = 0;
     info.x_global_min_orig = [0;0;0;0;0;0;0;0;0;0];
     info.x_global_min_work = [0;0;0;0;0;0;0;0;0;0];
-    info.global_min_note = 'Rastrigin (n=10): x*=0, f*=0. Ref: Ali et al. (2005).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Rastrigin (n=10): x*=0, f*=0. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

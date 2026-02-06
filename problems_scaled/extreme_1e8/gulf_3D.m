@@ -1,25 +1,22 @@
 function varargout = gulf_3D(varargin)
-%GULF_3D  Self-contained scaled test function.
+%GULF_3D  gulf 3D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (EXTREME HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [0.1         , 100         ]   (range: 99.9        )
+%   x2   ∈ [0           , 2560000000  ]   (range: 2560000000  )
+%   x3   ∈ [0           , 500000000   ]   (range: 500000000   )
 %
-% Problem:   gulf (source instance p=24)
-% Dimension: n = 3
-% Strategy folder: extreme (kappa = 100000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 100000000
+% Effective contrast ratio (max range / min range): 100000000
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = gulf_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [49.99999999999999;2500000000;150000000]
+%   f* = 0
+%
+% USAGE:
+%   f = gulf_3D(x)          % Evaluate function at point x (3D vector)
+%   [lb, ub] = gulf_3D(n)   % Get bounds for dimension n (must be 3)
+%   info = gulf_3D()        % Get complete problem information
 
 nloc = 3;
 lb_orig = [0.1;0;0];
@@ -28,6 +25,11 @@ lb_work = [0.09999999999999432;0;0];
 ub_work = [100;2560000000;500000000];
 scale_factors = [1;100000000;100000000];
 contrast_ratio = 100000000;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +47,7 @@ if nargin == 0
     info.f_global_min = 0;
     info.x_global_min_orig = [50;25;1.5];
     info.x_global_min_work = [49.99999999999999;2500000000;150000000];
-    info.global_min_note = 'Gulf (3D): x*=(50,25,1.5), f*=0. Ref: Ali et al. (2005).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Gulf (3D): x*=(50,25,1.5), f*=0. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

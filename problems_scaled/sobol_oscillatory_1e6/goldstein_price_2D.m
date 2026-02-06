@@ -1,25 +1,21 @@
 function varargout = goldstein_price_2D(varargin)
-%GOLDSTEIN_PRICE_2D  Self-contained scaled test function.
+%GOLDSTEIN_PRICE_2D  goldstein_price 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-298578.125 , 298578.125  ]   (range: 597156.25   )
+%   x2   ∈ [-1297.578125, 1297.578125 ]   (range: 2595.15625  )
 %
-% Problem:   goldstein_price (source instance p=21)
-% Dimension: n = 2
-% Strategy folder: sobol_oscillatory (kappa = 1000000)
-% Original bound tag: bound(p) = 2
-% Effective contrast: 230.1041603949666
+% Effective contrast ratio (max range / min range): 230.104160395
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = goldstein_price_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [0;-648.7890625]
+%   f* = 3
+%
+% USAGE:
+%   f = goldstein_price_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = goldstein_price_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = goldstein_price_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [-2;-2];
@@ -28,6 +24,11 @@ lb_work = [-298578.125;-1297.578125];
 ub_work = [298578.125;1297.578125];
 scale_factors = [149289.0625;648.7890625];
 contrast_ratio = 230.1041603949666;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +46,7 @@ if nargin == 0
     info.f_global_min = 3;
     info.x_global_min_orig = [0;-1];
     info.x_global_min_work = [0;-648.7890625];
-    info.global_min_note = 'Goldstein-Price (2D): x*=(0,-1), f*=3. Ref: Brachetti et al. (1997).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Goldstein-Price (2D): x*=(0,-1), f*=3. Ref: Brachetti et al. (1997).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

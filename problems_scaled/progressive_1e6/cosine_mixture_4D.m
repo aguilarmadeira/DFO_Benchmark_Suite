@@ -1,25 +1,19 @@
 function varargout = cosine_mixture_4D(varargin)
-%COSINE_MIXTURE_4D  Self-contained scaled test function.
+%COSINE_MIXTURE_4D  cosine_mixture 4D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (PROGRESSIVE HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-1          , 1           ]   (range: 2           )
+%   x2   ∈ [-10         , 10          ]   (range: 20          )
+%   x3   ∈ [-100        , 100         ]   (range: 200         )
+%   x4   ∈ [-1000       , 1000        ]   (range: 2000        )
 %
-% Problem:   cosine_mixture (source instance p=9)
-% Dimension: n = 4
-% Strategy folder: progressive (kappa = 1000000)
-% Original bound tag: bound(p) = 1
-% Effective contrast: 1000
+% Effective contrast ratio (max range / min range): 1000
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = cosine_mixture_orig(x_orig)
+% USAGE:
+%   f = cosine_mixture_4D(x)          % Evaluate function at point x (4D vector)
+%   [lb, ub] = cosine_mixture_4D(n)   % Get bounds for dimension n (must be 4)
+%   info = cosine_mixture_4D()        % Get complete problem information
 
 nloc = 4;
 lb_orig = [-1;-1;-1;-1];
@@ -28,6 +22,11 @@ lb_work = [-1;-10;-100;-1000];
 ub_work = [1;10;100;1000];
 scale_factors = [1;10;100;1000];
 contrast_ratio = 1000;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;

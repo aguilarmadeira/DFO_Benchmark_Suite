@@ -1,25 +1,21 @@
 function varargout = shubert_2D(varargin)
-%SHUBERT_2D  Self-contained scaled test function.
+%SHUBERT_2D  shubert 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SPATIAL THERMAL HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-10         , 10          ]   (range: 20          )
+%   x2   ∈ [-3000       , 3000        ]   (range: 6000        )
 %
-% Problem:   shubert (source instance p=52)
-% Dimension: n = 2
-% Strategy folder: spatial_thermal (kappa = 90000)
-% Original bound tag: bound(p) = 10
-% Effective contrast: 300
+% Effective contrast ratio (max range / min range): 300
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = shubert_orig(x_orig)
+% Known global minimum (WORK-space):
+%   see info.x_global_min_work (not stored as a representative here)
+%   f* = -186.7309
+%
+% USAGE:
+%   f = shubert_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = shubert_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = shubert_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [-10;-10];
@@ -28,6 +24,11 @@ lb_work = [-10;-3000];
 ub_work = [10;3000];
 scale_factors = [1;300];
 contrast_ratio = 300;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -43,7 +44,9 @@ if nargin == 0
     info.contrast_ratio = contrast_ratio;
     info.global_min_known = true;
     info.f_global_min = -186.7309;
-    info.global_min_note = 'Shubert (2D): f*=-186.7309, 18 global minima. Ref: Ali et al. (2005).';
+    info.x_global_min_orig = [];
+    info.x_global_min_work = [];
+    info.global_min_note = 'Global minimizer is known but infoG.xstar_orig is missing/empty.';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

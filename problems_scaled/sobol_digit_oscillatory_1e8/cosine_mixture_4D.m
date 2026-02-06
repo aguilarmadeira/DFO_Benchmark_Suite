@@ -1,33 +1,32 @@
 function varargout = cosine_mixture_4D(varargin)
-%COSINE_MIXTURE_4D  Self-contained scaled test function.
+%COSINE_MIXTURE_4D  cosine_mixture 4D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-32487359.8983, 32487359.8983]   (range: 64974719.7966)
+%   x2   ∈ [-67707650.4509, 67707650.4509]   (range: 135415300.902)
+%   x3   ∈ [-23572907.2738, 23572907.2738]   (range: 47145814.5476)
+%   x4   ∈ [-7584.31877556, 7584.31877556]   (range: 15168.6375511)
 %
-% Problem:   cosine_mixture (source instance p=9)
-% Dimension: n = 4
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 1
-% Effective contrast: 18123.39723227892
+% Effective contrast ratio (max range / min range): 8927.3212868
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = cosine_mixture_orig(x_orig)
+% USAGE:
+%   f = cosine_mixture_4D(x)          % Evaluate function at point x (4D vector)
+%   [lb, ub] = cosine_mixture_4D(n)   % Get bounds for dimension n (must be 4)
+%   info = cosine_mixture_4D()        % Get complete problem information
 
 nloc = 4;
 lb_orig = [-1;-1;-1;-1];
 ub_orig = [1;1;1;1];
-lb_work = [-38551460.84874003;-96899797.62958358;-7189889.360190046;-5346.668529507199];
-ub_work = [38551460.84874003;96899797.62958358;7189889.360190046;5346.668529507199];
-scale_factors = [38551460.84874003;96899797.62958358;7189889.360190046;5346.668529507199];
-contrast_ratio = 18123.39723227892;
+lb_work = [-32487359.89832055;-67707650.45092843;-23572907.27380256;-7584.318775563541];
+ub_work = [32487359.89832055;67707650.45092843;23572907.27380256;7584.318775563541];
+scale_factors = [32487359.89832055;67707650.45092843;23572907.27380256;7584.318775563541];
+contrast_ratio = 8927.321286795139;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;

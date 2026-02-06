@@ -1,33 +1,36 @@
 function varargout = fifteenn_local_minima_4D(varargin)
-%FIFTEENN_LOCAL_MINIMA_4D  Self-contained scaled test function.
+%FIFTEENN_LOCAL_MINIMA_4D  fifteenn_local_minima 4D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-33576.6300848, 33576.6300848]   (range: 67153.2601696)
+%   x2   ∈ [-677351515.89, 677351515.89]   (range: 1354703031.78)
+%   x3   ∈ [-11794.7848142, 11794.7848142]   (range: 23589.5696284)
+%   x4   ∈ [-901265178.188, 901265178.188]   (range: 1802530356.38)
 %
-% Problem:   fifteenn_local_minima (source instance p=16)
-% Dimension: n = 4
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 10
-% Effective contrast: 62545.96868317256
+% Effective contrast ratio (max range / min range): 76412.176431
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = fifteenn_local_minima_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [3357.663008477699;67735151.58902574;1179.478481418675;90126517.81877589]
+%   f* = 0
+%
+% USAGE:
+%   f = fifteenn_local_minima_4D(x)          % Evaluate function at point x (4D vector)
+%   [lb, ub] = fifteenn_local_minima_4D(n)   % Get bounds for dimension n (must be 4)
+%   info = fifteenn_local_minima_4D()        % Get complete problem information
 
 nloc = 4;
 lb_orig = [-10;-10;-10;-10];
 ub_orig = [10;10;10;10];
-lb_work = [-690175720.9337976;-39898.4378540094;-79121.05561743581;-11034.69552817852];
-ub_work = [690175720.9337976;39898.4378540094;79121.05561743581;11034.69552817852];
-scale_factors = [69017572.09337977;3989.84378540094;7912.10556174358;1103.469552817852];
-contrast_ratio = 62545.96868317256;
+lb_work = [-33576.63008477697;-677351515.8902566;-11794.78481418675;-901265178.1877584];
+ub_work = [33576.63008477697;677351515.8902566;11794.78481418675;901265178.1877584];
+scale_factors = [3357.663008477697;67735151.58902566;1179.478481418675;90126517.81877585];
+contrast_ratio = 76412.17643103741;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -44,8 +47,8 @@ if nargin == 0
     info.global_min_known = true;
     info.f_global_min = 0;
     info.x_global_min_orig = [1;1;1;1];
-    info.x_global_min_work = [69017572.09337986;3989.843785400946;7912.105561743592;1103.469552817853];
-    info.global_min_note = 'Fifteen Local Minima (n=4): x*=1, f*=0. Ref: Brachetti et al. (1997).';
+    info.x_global_min_work = [3357.663008477699;67735151.58902574;1179.478481418675;90126517.81877589];
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Fifteen Local Minima (n=4): x*=1, f*=0. Ref: Brachetti et al. (1997).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

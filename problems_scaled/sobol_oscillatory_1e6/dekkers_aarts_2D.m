@@ -1,25 +1,21 @@
 function varargout = dekkers_aarts_2D(varargin)
-%DEKKERS_AARTS_2D  Self-contained scaled test function.
+%DEKKERS_AARTS_2D  dekkers_aarts 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-2985781.25 , 2985781.25  ]   (range: 5971562.5   )
+%   x2   ∈ [-12975.78125, 12975.78125 ]   (range: 25951.5625  )
 %
-% Problem:   dekkers_aarts (source instance p=10)
-% Dimension: n = 2
-% Strategy folder: sobol_oscillatory (kappa = 1000000)
-% Original bound tag: bound(p) = 20
-% Effective contrast: 230.1041603949666
+% Effective contrast ratio (max range / min range): 230.104160395
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = dekkers_aarts_orig(x_orig)
+% Known global minimum (WORK-space):
+%   multiple minimizers; see info.x_global_min_work
+%   f* = -24771.09375
+%
+% USAGE:
+%   f = dekkers_aarts_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = dekkers_aarts_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = dekkers_aarts_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [-20;-20];
@@ -28,6 +24,11 @@ lb_work = [-2985781.25;-12975.78125];
 ub_work = [2985781.25;12975.78125];
 scale_factors = [149289.0625;648.7890625];
 contrast_ratio = 230.1041603949666;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +46,7 @@ if nargin == 0
     info.f_global_min = -24771.09375;
     info.x_global_min_orig = [0 0;15 -15];
     info.x_global_min_work = [0 0;9731.8359375 -9731.8359375];
-    info.global_min_note = 'Dekkers-Aarts (2D): 2 global minima at (0,+-15), f*=-24771. Ref: Ali et al. (2005).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Dekkers-Aarts (2D): 2 global minima at (0,+-15), f*=-24771. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

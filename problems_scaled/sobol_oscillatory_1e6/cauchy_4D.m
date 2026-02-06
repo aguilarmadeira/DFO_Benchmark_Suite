@@ -1,25 +1,19 @@
 function varargout = cauchy_4D(varargin)
-%CAUCHY_4D  Self-contained scaled test function.
+%CAUCHY_4D  cauchy 4D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [447867.1875 , 2537914.0625]   (range: 2090046.875 )
+%   x2   ∈ [1946.3671875, 11029.4140625]   (range: 9083.046875 )
+%   x3   ∈ [1197117.1875, 6783664.0625]   (range: 5586546.875 )
+%   x4   ∈ [2695.6171875, 15275.1640625]   (range: 12579.546875)
 %
-% Problem:   cauchy (source instance p=6)
-% Dimension: n = 4
-% Strategy folder: sobol_oscillatory (kappa = 1000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 615.0520801974833
+% Effective contrast ratio (max range / min range): 615.052080197
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = cauchy_orig(x_orig)
+% USAGE:
+%   f = cauchy_4D(x)          % Evaluate function at point x (4D vector)
+%   [lb, ub] = cauchy_4D(n)   % Get bounds for dimension n (must be 4)
+%   info = cauchy_4D()        % Get complete problem information
 
 nloc = 4;
 lb_orig = [3;3;3;3];
@@ -28,6 +22,11 @@ lb_work = [447867.1875;1946.3671875;1197117.1875;2695.6171875];
 ub_work = [2537914.0625;11029.4140625;6783664.0625;15275.1640625];
 scale_factors = [149289.0625;648.7890625;399039.0625;898.5390625];
 contrast_ratio = 615.0520801974833;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;

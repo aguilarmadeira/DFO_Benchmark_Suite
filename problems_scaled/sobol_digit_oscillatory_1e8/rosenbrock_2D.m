@@ -1,33 +1,34 @@
 function varargout = rosenbrock_2D(varargin)
-%ROSENBROCK_2D  Self-contained scaled test function.
+%ROSENBROCK_2D  rosenbrock 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-42019.9017105, 42019.9017105]   (range: 84039.803421)
+%   x2   ∈ [-19105.0410425, 19105.0410425]   (range: 38210.082085)
 %
-% Problem:   rosenbrock (source instance p=41)
-% Dimension: n = 2
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 5.12
-% Effective contrast: 1895.114918869996
+% Effective contrast ratio (max range / min range): 2.19941436488
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = rosenbrock_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [8207.012052834332;3731.453328612268]
+%   f* = 0
+%
+% USAGE:
+%   f = rosenbrock_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = rosenbrock_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = rosenbrock_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [-5.12;-5.12];
 ub_orig = [5.12;5.12];
-lb_work = [-43352.90979794816;-82158746.13451679];
-ub_work = [43352.90979794816;82158746.13451679];
-scale_factors = [8467.36519491175;16046630.10439781];
-contrast_ratio = 1895.114918869996;
+lb_work = [-42019.90171051177;-19105.04104249482];
+ub_work = [42019.90171051177;19105.04104249482];
+scale_factors = [8207.01205283433;3731.45332861227];
+contrast_ratio = 2.199414364881397;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -44,8 +45,8 @@ if nargin == 0
     info.global_min_known = true;
     info.f_global_min = 0;
     info.x_global_min_orig = [1;1];
-    info.x_global_min_work = [8467.365194911748;16046630.1043978];
-    info.global_min_note = 'Rosenbrock (n=2): x*=1, f*=0. Ref: Brachetti et al. (1997).';
+    info.x_global_min_work = [8207.012052834332;3731.453328612268];
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Rosenbrock (n=2): x*=1, f*=0. Ref: Brachetti et al. (1997).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

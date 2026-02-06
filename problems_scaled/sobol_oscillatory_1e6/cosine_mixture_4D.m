@@ -1,25 +1,19 @@
 function varargout = cosine_mixture_4D(varargin)
-%COSINE_MIXTURE_4D  Self-contained scaled test function.
+%COSINE_MIXTURE_4D  cosine_mixture 4D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-149289.0625, 149289.0625 ]   (range: 298578.125  )
+%   x2   ∈ [-648.7890625, 648.7890625 ]   (range: 1297.578125 )
+%   x3   ∈ [-399039.0625, 399039.0625 ]   (range: 798078.125  )
+%   x4   ∈ [-898.5390625, 898.5390625 ]   (range: 1797.078125 )
 %
-% Problem:   cosine_mixture (source instance p=9)
-% Dimension: n = 4
-% Strategy folder: sobol_oscillatory (kappa = 1000000)
-% Original bound tag: bound(p) = 1
-% Effective contrast: 615.0520801974833
+% Effective contrast ratio (max range / min range): 615.052080197
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = cosine_mixture_orig(x_orig)
+% USAGE:
+%   f = cosine_mixture_4D(x)          % Evaluate function at point x (4D vector)
+%   [lb, ub] = cosine_mixture_4D(n)   % Get bounds for dimension n (must be 4)
+%   info = cosine_mixture_4D()        % Get complete problem information
 
 nloc = 4;
 lb_orig = [-1;-1;-1;-1];
@@ -28,6 +22,11 @@ lb_work = [-149289.0625;-648.7890625;-399039.0625;-898.5390625];
 ub_work = [149289.0625;648.7890625;399039.0625;898.5390625];
 scale_factors = [149289.0625;648.7890625;399039.0625;898.5390625];
 contrast_ratio = 615.0520801974833;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;

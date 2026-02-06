@@ -1,33 +1,34 @@
 function varargout = mccormick_2D(varargin)
-%MCCORMICK_2D  Self-contained scaled test function.
+%MCCORMICK_2D  mccormick 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-7236.86626082, 19298.3100288]   (range: 26535.1762897)
+%   x2   ∈ [-201809555.014, 201809555.014]   (range: 403619110.027)
 %
-% Problem:   mccormick (source instance p=30)
-% Dimension: n = 2
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 26382.20497486475
+% Effective contrast ratio (max range / min range): 13943.1590788
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = mccormick_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [-2639.043896445044;-104066460.5353765]
+%   f* = -1.9133
+%
+% USAGE:
+%   f = mccormick_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = mccormick_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = mccormick_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [-1.5;-3];
 ub_orig = [4;3];
-lb_work = [-4745.523290163146;-250394736.3081574];
-ub_work = [12654.72877376839;250394736.3081574];
-scale_factors = [3163.682193442098;83464912.10271913];
-contrast_ratio = 26382.20497486475;
+lb_work = [-7236.866260818219;-201809555.0136583];
+ub_work = [19298.31002884858;201809555.0136583];
+scale_factors = [4824.577507212146;67269851.67121945];
+contrast_ratio = 13943.15907883319;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -44,8 +45,8 @@ if nargin == 0
     info.global_min_known = true;
     info.f_global_min = -1.9133;
     info.x_global_min_orig = [-0.547;-1.547];
-    info.x_global_min_work = [-1730.534159812827;-129120219.0229065];
-    info.global_min_note = 'McCormick (2D): f*=-1.9133. Ref: Ali et al. (2005).';
+    info.x_global_min_work = [-2639.043896445044;-104066460.5353765];
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: McCormick (2D): f*=-1.9133. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

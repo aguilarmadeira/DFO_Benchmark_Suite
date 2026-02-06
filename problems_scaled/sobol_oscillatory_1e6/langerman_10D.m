@@ -1,25 +1,29 @@
 function varargout = langerman_10D(varargin)
-%LANGERMAN_10D  Self-contained scaled test function.
+%LANGERMAN_10D  langerman 10D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [0           , 1492890.625 ]   (range: 1492890.625 )
+%   x2   ∈ [0           , 6487.890625 ]   (range: 6487.890625 )
+%   x3   ∈ [0           , 3990390.625 ]   (range: 3990390.625 )
+%   x4   ∈ [0           , 8985.390625 ]   (range: 8985.390625 )
+%   x5   ∈ [0           , 868515.625  ]   (range: 868515.625  )
+%   x6   ∈ [0           , 5863.515625 ]   (range: 5863.515625 )
+%   x7   ∈ [0           , 3366015.625 ]   (range: 3366015.625 )
+%   x8   ∈ [0           , 8361.015625 ]   (range: 8361.015625 )
+%   x9   ∈ [0           , 2117265.625 ]   (range: 2117265.625 )
+%   x10  ∈ [0           , 7112.265625 ]   (range: 7112.265625 )
 %
-% Problem:   langerman (source instance p=29)
-% Dimension: n = 10
-% Strategy folder: sobol_oscillatory (kappa = 1000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 680.5457476716454
+% Effective contrast ratio (max range / min range): 680.545747672
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = langerman_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [1205359.890625;5694.4216015625;1383468.4296875;1677.5724296875;582600.28125;3722.7460703125;1526151.484375;230.76403125;1616108.8515625;1114.4920234375]
+%   f* = -0.965
+%
+% USAGE:
+%   f = langerman_10D(x)          % Evaluate function at point x (10D vector)
+%   [lb, ub] = langerman_10D(n)   % Get bounds for dimension n (must be 10)
+%   info = langerman_10D()        % Get complete problem information
 
 nloc = 10;
 lb_orig = [0;0;0;0;0;0;0;0;0;0];
@@ -28,6 +32,11 @@ lb_work = [0;0;0;0;0;0;0;0;0;0];
 ub_work = [1492890.625;6487.890625;3990390.625;8985.390625;868515.625;5863.515625;3366015.625;8361.015625;2117265.625;7112.265625];
 scale_factors = [149289.0625;648.7890625;399039.0625;898.5390625;86851.5625;586.3515625;336601.5625;836.1015625;211726.5625;711.2265625];
 contrast_ratio = 680.5457476716454;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +54,7 @@ if nargin == 0
     info.f_global_min = -0.965;
     info.x_global_min_orig = [8.074;8.776999999999999;3.467;1.867;6.708;6.349;4.534;0.276;7.633;1.567];
     info.x_global_min_work = [1205359.890625;5694.4216015625;1383468.4296875;1677.5724296875;582600.28125;3722.7460703125;1526151.484375;230.76403125;1616108.8515625;1114.4920234375];
-    info.global_min_note = 'Langerman (10D): f*=-0.965. Ref: Ali et al. (2005).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Langerman (10D): f*=-0.965. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

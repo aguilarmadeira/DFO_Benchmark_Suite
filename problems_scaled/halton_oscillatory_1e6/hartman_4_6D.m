@@ -1,25 +1,25 @@
 function varargout = hartman_4_6D(varargin)
-%HARTMAN_4_6D  Self-contained scaled test function.
+%HARTMAN_4_6D  hartman_4 6D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (HALTON OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [0           , 500500      ]   (range: 500500      )
+%   x2   ∈ [0           , 250.75      ]   (range: 250.75      )
+%   x3   ∈ [0           , 750250      ]   (range: 750250      )
+%   x4   ∈ [0           , 125.875     ]   (range: 125.875     )
+%   x5   ∈ [0           , 625375      ]   (range: 625375      )
+%   x6   ∈ [0           , 375.625     ]   (range: 375.625     )
 %
-% Problem:   hartman_4 (source instance p=26)
-% Dimension: n = 6
-% Strategy folder: halton_oscillatory (kappa = 1000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 5960.278053624627
+% Effective contrast ratio (max range / min range): 5960.27805362
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = hartman_4_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [100945.845;37.61525825;357774.7185;34.65741550000001;194899.3695;246.8983125]
+%   f* = -3.32237
+%
+% USAGE:
+%   f = hartman_4_6D(x)          % Evaluate function at point x (6D vector)
+%   [lb, ub] = hartman_4_6D(n)   % Get bounds for dimension n (must be 6)
+%   info = hartman_4_6D()        % Get complete problem information
 
 nloc = 6;
 lb_orig = [0;0;0;0;0;0];
@@ -28,6 +28,11 @@ lb_work = [0;0;0;0;0;0];
 ub_work = [500500;250.75;750250;125.875;625375;375.625];
 scale_factors = [500500;250.75;750250;125.875;625375;375.625];
 contrast_ratio = 5960.278053624627;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +50,7 @@ if nargin == 0
     info.f_global_min = -3.32237;
     info.x_global_min_orig = [0.20169;0.150011;0.476874;0.275332;0.311652;0.6573];
     info.x_global_min_work = [100945.845;37.61525825;357774.7185;34.65741550000001;194899.3695;246.8983125];
-    info.global_min_note = 'Hartman-6: f*=-3.32237. Ref: Brachetti et al. (1997).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Hartman-6: f*=-3.32237. Ref: Brachetti et al. (1997).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

@@ -1,25 +1,24 @@
 function varargout = griewank_5D(varargin)
-%GRIEWANK_5D  Self-contained scaled test function.
+%GRIEWANK_5D  griewank 5D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (PROGRESSIVE HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-600        , 600         ]   (range: 1200        )
+%   x2   ∈ [-6000       , 6000        ]   (range: 12000       )
+%   x3   ∈ [-60000      , 60000       ]   (range: 120000      )
+%   x4   ∈ [-600000     , 600000      ]   (range: 1200000     )
+%   x5   ∈ [-60         , 60          ]   (range: 120         )
 %
-% Problem:   griewank (source instance p=23)
-% Dimension: n = 5
-% Strategy folder: progressive (kappa = 1000000)
-% Original bound tag: bound(p) = 600
-% Effective contrast: 10000
+% Effective contrast ratio (max range / min range): 10000
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = griewank_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [0;0;0;0;0]
+%   f* = 0
+%
+% USAGE:
+%   f = griewank_5D(x)          % Evaluate function at point x (5D vector)
+%   [lb, ub] = griewank_5D(n)   % Get bounds for dimension n (must be 5)
+%   info = griewank_5D()        % Get complete problem information
 
 nloc = 5;
 lb_orig = [-600;-600;-600;-600;-600];
@@ -28,6 +27,11 @@ lb_work = [-600;-6000;-60000;-600000;-60];
 ub_work = [600;6000;60000;600000;60];
 scale_factors = [1;10;100;1000;0.1];
 contrast_ratio = 10000;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +49,7 @@ if nargin == 0
     info.f_global_min = 0;
     info.x_global_min_orig = [0;0;0;0;0];
     info.x_global_min_work = [0;0;0;0;0];
-    info.global_min_note = 'Griewank (n=5): x*=0, f*=0. Ref: Huyer & Neumaier (1999).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Griewank (n=5): x*=0, f*=0. Ref: Huyer & Neumaier (1999).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

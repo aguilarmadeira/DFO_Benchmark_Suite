@@ -1,25 +1,29 @@
 function varargout = paviani_10D(varargin)
-%PAVIANI_10D  Self-contained scaled test function.
+%PAVIANI_10D  paviani 10D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (HALTON OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [1001500.5   , 5004499.5   ]   (range: 4002999     )
+%   x2   ∈ [501.75075   , 2507.24925  ]   (range: 2005.4985   )
+%   x3   ∈ [1501250.25  , 7501749.75  ]   (range: 6000499.5   )
+%   x4   ∈ [251.875875  , 1258.624125 ]   (range: 1006.74825  )
+%   x5   ∈ [1251375.375 , 6253124.625 ]   (range: 5001749.25  )
+%   x6   ∈ [751.625625  , 3755.874375 ]   (range: 3004.24875  )
+%   x7   ∈ [1751125.125 , 8750374.875 ]   (range: 6999249.75  )
+%   x8   ∈ [126.9384375 , 634.3115625 ]   (range: 507.373125  )
+%   x9   ∈ [1126437.9375, 5628812.0625]   (range: 4502374.125 )
+%   x10  ∈ [626.6881875 , 3131.5618125]   (range: 2504.873625 )
 %
-% Problem:   paviani (source instance p=36)
-% Dimension: n = 10
-% Strategy folder: halton_oscillatory (kappa = 1000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 13795.07389162562
+% Effective contrast ratio (max range / min range): 13795.0738916
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = paviani_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [4680175.5;2344.76325;7015587.75;1177.057125;5847881.625;3512.469375000001;8183293.875;593.2040625000001;5264028.5625;2928.6163125]
+%   f* = -45.778
+%
+% USAGE:
+%   f = paviani_10D(x)          % Evaluate function at point x (10D vector)
+%   [lb, ub] = paviani_10D(n)   % Get bounds for dimension n (must be 10)
+%   info = paviani_10D()        % Get complete problem information
 
 nloc = 10;
 lb_orig = [2.001;2.001;2.001;2.001;2.001;2.001;2.001;2.001;2.001;2.001];
@@ -28,6 +32,11 @@ lb_work = [1001500.5;501.7507499999998;1501250.25;251.875875;1251375.375;751.625
 ub_work = [5004499.5;2507.24925;7501749.75;1258.624125;6253124.625;3755.874375;8750374.875;634.3115625;5628812.0625;3131.5618125];
 scale_factors = [500500;250.75;750250;125.875;625375;375.625;875125;63.4375;562937.5;313.1875];
 contrast_ratio = 13795.07389162562;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +54,7 @@ if nargin == 0
     info.f_global_min = -45.778;
     info.x_global_min_orig = [9.351000000000001;9.351000000000001;9.351000000000001;9.351000000000001;9.351000000000001;9.351000000000001;9.351000000000001;9.351000000000001;9.351000000000001;9.351000000000001];
     info.x_global_min_work = [4680175.5;2344.76325;7015587.75;1177.057125;5847881.625;3512.469375000001;8183293.875;593.2040625000001;5264028.5625;2928.6163125];
-    info.global_min_note = 'Paviani (10D): x*=9.351, f*=-45.778. Ref: Ali et al. (2005).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Paviani (10D): x*=9.351, f*=-45.778. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

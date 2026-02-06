@@ -1,25 +1,21 @@
 function varargout = hosaki_2D(varargin)
-%HOSAKI_2D  Self-contained scaled test function.
+%HOSAKI_2D  hosaki 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [0           , 746445.3125 ]   (range: 746445.3125 )
+%   x2   ∈ [0           , 3892.734375 ]   (range: 3892.734375 )
 %
-% Problem:   hosaki (source instance p=27)
-% Dimension: n = 2
-% Strategy folder: sobol_oscillatory (kappa = 1000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 230.1041603949666
+% Effective contrast ratio (max range / min range): 230.104160395
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = hosaki_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [597156.25;1297.578125]
+%   f* = -2.3458
+%
+% USAGE:
+%   f = hosaki_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = hosaki_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = hosaki_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [0;0];
@@ -28,6 +24,11 @@ lb_work = [0;0];
 ub_work = [746445.3125;3892.734375];
 scale_factors = [149289.0625;648.7890625];
 contrast_ratio = 230.1041603949666;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +46,7 @@ if nargin == 0
     info.f_global_min = -2.3458;
     info.x_global_min_orig = [4;2];
     info.x_global_min_work = [597156.25;1297.578125];
-    info.global_min_note = 'Hosaki (2D): x*=(4,2), f*=-2.3458. Ref: Ali et al. (2005).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Hosaki (2D): x*=(4,2), f*=-2.3458. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

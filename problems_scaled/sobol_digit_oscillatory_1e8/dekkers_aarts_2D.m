@@ -1,33 +1,34 @@
 function varargout = dekkers_aarts_2D(varargin)
-%DEKKERS_AARTS_2D  Self-contained scaled test function.
+%DEKKERS_AARTS_2D  dekkers_aarts 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-298224329.988, 298224329.988]   (range: 596448659.976)
+%   x2   ∈ [-1442465388.9, 1442465388.9]   (range: 2884930777.8)
 %
-% Problem:   dekkers_aarts (source instance p=10)
-% Dimension: n = 2
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 20
-% Effective contrast: 1294.018827581426
+% Effective contrast ratio (max range / min range): 4.83684677557
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = dekkers_aarts_orig(x_orig)
+% Known global minimum (WORK-space):
+%   multiple minimizers; see info.x_global_min_work
+%   f* = -24771.09375
+%
+% USAGE:
+%   f = dekkers_aarts_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = dekkers_aarts_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = dekkers_aarts_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [-20;-20];
 ub_orig = [20;20];
-lb_work = [-142894.2614561811;-184907864.6776412];
-ub_work = [142894.2614561811;184907864.6776412];
-scale_factors = [7144.713072809055;9245393.23388206];
-contrast_ratio = 1294.018827581426;
+lb_work = [-298224329.9880025;-1442465388.899981];
+ub_work = [298224329.9880025;1442465388.899981];
+scale_factors = [14911216.49940013;72123269.44499904];
+contrast_ratio = 4.83684677557331;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -44,8 +45,8 @@ if nargin == 0
     info.global_min_known = true;
     info.f_global_min = -24771.09375;
     info.x_global_min_orig = [0 0;15 -15];
-    info.x_global_min_work = [0 0;138680898.5082309 -138680898.5082309];
-    info.global_min_note = 'Dekkers-Aarts (2D): 2 global minima at (0,+-15), f*=-24771. Ref: Ali et al. (2005).';
+    info.x_global_min_work = [0 0;1081849041.674986 -1081849041.674986];
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Dekkers-Aarts (2D): 2 global minima at (0,+-15), f*=-24771. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

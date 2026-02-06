@@ -1,33 +1,34 @@
 function varargout = goldstein_price_2D(varargin)
-%GOLDSTEIN_PRICE_2D  Self-contained scaled test function.
+%GOLDSTEIN_PRICE_2D  goldstein_price 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-3528.94697221, 3528.94697221]   (range: 7057.89394441)
+%   x2   ∈ [-13316.3248084, 13316.3248084]   (range: 26632.6496168)
 %
-% Problem:   goldstein_price (source instance p=21)
-% Dimension: n = 2
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 2
-% Effective contrast: 6.438168032100346
+% Effective contrast ratio (max range / min range): 3.77345562665
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = goldstein_price_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [0;-6658.162404205729]
+%   f* = 3
+%
+% USAGE:
+%   f = goldstein_price_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = goldstein_price_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = goldstein_price_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [-2;-2];
 ub_orig = [2;2];
-lb_work = [-19505.00170941687;-3029.588791744176];
-ub_work = [19505.00170941687;3029.588791744176];
-scale_factors = [9752.500854708434;1514.794395872088];
-contrast_ratio = 6.438168032100346;
+lb_work = [-3528.946972205948;-13316.32480841146];
+ub_work = [3528.946972205948;13316.32480841146];
+scale_factors = [1764.473486102974;6658.162404205729];
+contrast_ratio = 3.773455626647575;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -44,8 +45,8 @@ if nargin == 0
     info.global_min_known = true;
     info.f_global_min = 3;
     info.x_global_min_orig = [0;-1];
-    info.x_global_min_work = [0;-1514.794395872088];
-    info.global_min_note = 'Goldstein-Price (2D): x*=(0,-1), f*=3. Ref: Brachetti et al. (1997).';
+    info.x_global_min_work = [0;-6658.162404205729];
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Goldstein-Price (2D): x*=(0,-1), f*=3. Ref: Brachetti et al. (1997).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

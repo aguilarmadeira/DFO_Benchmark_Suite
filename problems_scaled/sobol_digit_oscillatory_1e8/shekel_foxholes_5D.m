@@ -1,33 +1,37 @@
 function varargout = shekel_foxholes_5D(varargin)
-%SHEKEL_FOXHOLES_5D  Self-contained scaled test function.
+%SHEKEL_FOXHOLES_5D  shekel_foxholes 5D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [0           , 75929124.4402]   (range: 75929124.4402)
+%   x2   ∈ [0           , 73408.0915001]   (range: 73408.0915001)
+%   x3   ∈ [0           , 39341.0571534]   (range: 39341.0571534)
+%   x4   ∈ [0           , 79766.4340161]   (range: 79766.4340161)
+%   x5   ∈ [0           , 214254285.066]   (range: 214254285.066)
 %
-% Problem:   shekel_foxholes (source instance p=50)
-% Dimension: n = 5
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 14837.22124616536
+% Effective contrast ratio (max range / min range): 5446.07340446
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = shekel_foxholes_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [60933122.36328853;67183.08534087152;20119.01662822863;60789.99936366851;97785655.70416507]
+%   f* = -10.4056057586
+%
+% USAGE:
+%   f = shekel_foxholes_5D(x)          % Evaluate function at point x (5D vector)
+%   [lb, ub] = shekel_foxholes_5D(n)   % Get bounds for dimension n (must be 5)
+%   info = shekel_foxholes_5D()        % Get complete problem information
 
 nloc = 5;
 lb_orig = [0;0;0;0;0];
 ub_orig = [10;10;10;10;10];
 lb_work = [0;0;0;0;0];
-ub_work = [48670.94443544383;60715.53685032341;24712.56622184475;84670.86658485065;366665812.5940234];
-scale_factors = [4867.094443544383;6071.553685032341;2471.256622184475;8467.086658485065;36666581.25940234];
-contrast_ratio = 14837.22124616536;
+ub_work = [75929124.44023493;73408.09150007815;39341.05715336064;79766.4340160983;214254285.0660935];
+scale_factors = [7592912.444023493;7340.809150007815;3934.105715336064;7976.64340160983;21425428.50660935];
+contrast_ratio = 5446.073404455812;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -44,8 +48,8 @@ if nargin == 0
     info.global_min_known = true;
     info.f_global_min = -10.4056057586;
     info.x_global_min_orig = [8.025;9.151999999999999;5.114;7.621;4.564];
-    info.x_global_min_work = [39058.43290944368;55566.85932541598;12638.00636585141;64527.66742431468;167346276.8679123];
-    info.global_min_note = 'Shekel Foxholes (5D): f*=-10.2088. Ref: Ali et al. (2005).';
+    info.x_global_min_work = [60933122.36328853;67183.08534087152;20119.01662822863;60789.99936366851;97785655.70416507];
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Shekel Foxholes (5D): f*=-10.2088. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

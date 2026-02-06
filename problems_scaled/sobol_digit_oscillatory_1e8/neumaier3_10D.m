@@ -1,33 +1,42 @@
 function varargout = neumaier3_10D(varargin)
-%NEUMAIER3_10D  Self-contained scaled test function.
+%NEUMAIER3_10D  neumaier3 10D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-8569539805.66, 8569539805.66]   (range: 17139079611.3)
+%   x2   ∈ [-336047.253108, 336047.253108]   (range: 672094.506216)
+%   x3   ∈ [-5432900607.88, 5432900607.88]   (range: 10865801215.8)
+%   x4   ∈ [-25253.5761669, 25253.5761669]   (range: 50507.1523337)
+%   x5   ∈ [-9861567688.26, 9861567688.26]   (range: 19723135376.5)
+%   x6   ∈ [-441799.478829, 441799.478829]   (range: 883598.957659)
+%   x7   ∈ [-6720124389.38, 6720124389.38]   (range: 13440248778.8)
+%   x8   ∈ [-130525.451378, 130525.451378]   (range: 261050.902755)
+%   x9   ∈ [-778982.810635, 778982.810635]   (range: 1557965.62127)
+%   x10  ∈ [-289305.789971, 289305.789971]   (range: 578611.579943)
 %
-% Problem:   neumaier3 (source instance p=35)
-% Dimension: n = 10
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 100
-% Effective contrast: 40482.73457099601
+% Effective contrast ratio (max range / min range): 390501.82925
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = neumaier3_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [856953980.5662489;60488.50555947487;1303896145.89078;7071.001326719685;2958470306.478094;132539.8436488358;1881634829.027754;31326.1083306353;140216.905914303;28930.57899713988]
+%   f* = -210
+%
+% USAGE:
+%   f = neumaier3_10D(x)          % Evaluate function at point x (10D vector)
+%   [lb, ub] = neumaier3_10D(n)   % Get bounds for dimension n (must be 10)
+%   info = neumaier3_10D()        % Get complete problem information
 
 nloc = 10;
 lb_orig = [-100;-100;-100;-100;-100;-100;-100;-100;-100;-100];
 ub_orig = [100;100;100;100;100;100;100;100;100;100];
-lb_work = [-824545.8138585094;-2514562799.046238;-6167105700.75314;-569940882.9282978;-8948659829.358858;-462395.0722741366;-6714089110.416155;-221048.7983133964;-7801846072.519416;-331952.8842256456];
-ub_work = [824545.8138585094;2514562799.046238;6167105700.75314;569940882.9282978;8948659829.358858;462395.0722741366;6714089110.416155;221048.7983133964;7801846072.519416;331952.8842256456];
-scale_factors = [8245.458138585094;25145627.99046238;61671057.0075314;5699408.829282978;89486598.29358858;4623.950722741366;67140891.10416155;2210.487983133964;78018460.72519416;3319.528842256456];
-contrast_ratio = 40482.73457099601;
+lb_work = [-8569539805.662486;-336047.2531081937;-5432900607.878252;-25253.57616685602;-9861567688.260309;-441799.4788294528;-6720124389.384836;-130525.4513776471;-778982.8106350169;-289305.7899713986];
+ub_work = [8569539805.662486;336047.2531081937;5432900607.878252;25253.57616685602;9861567688.260309;441799.4788294528;6720124389.384836;130525.4513776471;778982.8106350169;289305.7899713986];
+scale_factors = [85695398.05662486;3360.472531081938;54329006.07878252;252.5357616685602;98615676.88260309;4417.994788294528;67201243.89384836;1305.254513776471;7789.828106350169;2893.057899713986];
+contrast_ratio = 390501.8292499537;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -44,8 +53,8 @@ if nargin == 0
     info.global_min_known = true;
     info.f_global_min = -210;
     info.x_global_min_orig = [10;18;24;28;30;30;28;24;18;10];
-    info.x_global_min_work = [82454.58138585102;452621303.8283229;1480105368.180754;159583447.2199234;2684597948.807657;138718.521682241;1879944950.916523;53051.71159521514;1404332293.053494;33195.28842256457];
-    info.global_min_note = 'Neumaier3 (10D): x*_i=i*(n+1-i), f*=-210. Ref: Ali et al. (2005).';
+    info.x_global_min_work = [856953980.5662489;60488.50555947487;1303896145.89078;7071.001326719685;2958470306.478094;132539.8436488358;1881634829.027754;31326.1083306353;140216.905914303;28930.57899713988];
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Neumaier3 (10D): x*_i=i*(n+1-i), f*=-210. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

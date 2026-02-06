@@ -1,33 +1,36 @@
 function varargout = neumaier2_4D(varargin)
-%NEUMAIER2_4D  Self-contained scaled test function.
+%NEUMAIER2_4D  neumaier2 4D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [0           , 7433852.68597]   (range: 7433852.68597)
+%   x2   ∈ [0           , 277849831.113]   (range: 277849831.113)
+%   x3   ∈ [0           , 166797568.02]   (range: 166797568.02)
+%   x4   ∈ [0           , 349755717.128]   (range: 349755717.128)
 %
-% Problem:   neumaier2 (source instance p=34)
-% Dimension: n = 4
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 19729.1772890109
+% Effective contrast ratio (max range / min range): 47.0490514009
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = neumaier2_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [1858463.17149169;138924915.5566917;83398784.00998878;262316787.8463342]
+%   f* = 0
+%
+% USAGE:
+%   f = neumaier2_4D(x)          % Evaluate function at point x (4D vector)
+%   [lb, ub] = neumaier2_4D(n)   % Get bounds for dimension n (must be 4)
+%   info = neumaier2_4D()        % Get complete problem information
 
 nloc = 4;
 lb_orig = [0;0;0;0];
 ub_orig = [4;4;4;4];
 lb_work = [0;0;0;0];
-ub_work = [35482.93754177074;12774.37414257991;252027892.2151155;31105329.16147408];
-scale_factors = [8870.734385442685;3193.593535644977;63006973.05377889;7776332.290368519];
-contrast_ratio = 19729.1772890109;
+ub_work = [7433852.68596676;277849831.1133834;166797568.0199776;349755717.1284456];
+scale_factors = [1858463.17149169;69462457.77834585;41699392.00499439;87438929.28211139];
+contrast_ratio = 47.04905140085654;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -44,8 +47,8 @@ if nargin == 0
     info.global_min_known = true;
     info.f_global_min = 0;
     info.x_global_min_orig = [1;2;2;3];
-    info.x_global_min_work = [8870.734385442685;6387.187071289954;126013946.1075578;23328996.87110556];
-    info.global_min_note = 'Neumaier2 (4D): x*=(1,2,2,3), f*=0. Ref: Ali et al. (2005).';
+    info.x_global_min_work = [1858463.17149169;138924915.5566917;83398784.00998878;262316787.8463342];
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Neumaier2 (4D): x*=(1,2,2,3), f*=0. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

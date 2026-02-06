@@ -1,25 +1,23 @@
 function varargout = powell_4D(varargin)
-%POWELL_4D  Self-contained scaled test function.
+%POWELL_4D  powell 4D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (BASELINE HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-10         , 10          ]   (range: 20          )
+%   x2   ∈ [-10         , 10          ]   (range: 20          )
+%   x3   ∈ [-10         , 10          ]   (range: 20          )
+%   x4   ∈ [-10         , 10          ]   (range: 20          )
 %
-% Problem:   powell (source instance p=39)
-% Dimension: n = 4
-% Strategy folder: baseline (kappa = 1)
-% Original bound tag: bound(p) = 10
-% Effective contrast: 1
+% Effective contrast ratio (max range / min range): 1
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = powell_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [0;0;0;0]
+%   f* = 0
+%
+% USAGE:
+%   f = powell_4D(x)          % Evaluate function at point x (4D vector)
+%   [lb, ub] = powell_4D(n)   % Get bounds for dimension n (must be 4)
+%   info = powell_4D()        % Get complete problem information
 
 nloc = 4;
 lb_orig = [-10;-10;-10;-10];
@@ -28,6 +26,11 @@ lb_work = [-10;-10;-10;-10];
 ub_work = [10;10;10;10];
 scale_factors = [1;1;1;1];
 contrast_ratio = 1;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +48,7 @@ if nargin == 0
     info.f_global_min = 0;
     info.x_global_min_orig = [0;0;0;0];
     info.x_global_min_work = [0;0;0;0];
-    info.global_min_note = 'Powell (4D): x*=0, f*=0. Ref: Ali et al. (2005).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Powell (4D): x*=0, f*=0. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

@@ -1,25 +1,23 @@
 function varargout = neumaier2_4D(varargin)
-%NEUMAIER2_4D  Self-contained scaled test function.
+%NEUMAIER2_4D  neumaier2 4D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (HALTON OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [0           , 2002000     ]   (range: 2002000     )
+%   x2   ∈ [0           , 1003        ]   (range: 1003        )
+%   x3   ∈ [0           , 3001000     ]   (range: 3001000     )
+%   x4   ∈ [0           , 503.5       ]   (range: 503.5       )
 %
-% Problem:   neumaier2 (source instance p=34)
-% Dimension: n = 4
-% Strategy folder: halton_oscillatory (kappa = 1000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 5960.278053624627
+% Effective contrast ratio (max range / min range): 5960.27805362
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = neumaier2_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [500500;501.5;1500500;377.625]
+%   f* = 0
+%
+% USAGE:
+%   f = neumaier2_4D(x)          % Evaluate function at point x (4D vector)
+%   [lb, ub] = neumaier2_4D(n)   % Get bounds for dimension n (must be 4)
+%   info = neumaier2_4D()        % Get complete problem information
 
 nloc = 4;
 lb_orig = [0;0;0;0];
@@ -28,6 +26,11 @@ lb_work = [0;0;0;0];
 ub_work = [2002000;1003;3001000;503.5];
 scale_factors = [500500;250.75;750250;125.875];
 contrast_ratio = 5960.278053624627;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +48,7 @@ if nargin == 0
     info.f_global_min = 0;
     info.x_global_min_orig = [1;2;2;3];
     info.x_global_min_work = [500500;501.5;1500500;377.625];
-    info.global_min_note = 'Neumaier2 (4D): x*=(1,2,2,3), f*=0. Ref: Ali et al. (2005).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Neumaier2 (4D): x*=(1,2,2,3), f*=0. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

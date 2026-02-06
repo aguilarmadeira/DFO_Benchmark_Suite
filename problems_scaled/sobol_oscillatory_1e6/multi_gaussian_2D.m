@@ -1,25 +1,21 @@
 function varargout = multi_gaussian_2D(varargin)
-%MULTI_GAUSSIAN_2D  Self-contained scaled test function.
+%MULTI_GAUSSIAN_2D  multi_gaussian 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-298578.125 , 298578.125  ]   (range: 597156.25   )
+%   x2   ∈ [-1297.578125, 1297.578125 ]   (range: 2595.15625  )
 %
-% Problem:   multi_gaussian (source instance p=33)
-% Dimension: n = 2
-% Strategy folder: sobol_oscillatory (kappa = 1000000)
-% Original bound tag: bound(p) = 2
-% Effective contrast: 230.1041603949666
+% Effective contrast ratio (max range / min range): 230.104160395
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = multi_gaussian_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [-2024.359687499993;-8.797579687500047]
+%   f* = -1.29695
+%
+% USAGE:
+%   f = multi_gaussian_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = multi_gaussian_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = multi_gaussian_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [-2;-2];
@@ -28,6 +24,11 @@ lb_work = [-298578.125;-1297.578125];
 ub_work = [298578.125;1297.578125];
 scale_factors = [149289.0625;648.7890625];
 contrast_ratio = 230.1041603949666;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +46,7 @@ if nargin == 0
     info.f_global_min = -1.29695;
     info.x_global_min_orig = [-0.01356;-0.01356];
     info.x_global_min_work = [-2024.359687499993;-8.797579687500047];
-    info.global_min_note = 'Multi-Gaussian (2D): f*=-1.29695. Ref: Ali et al. (2005).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Multi-Gaussian (2D): f*=-1.29695. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

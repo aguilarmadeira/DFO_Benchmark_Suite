@@ -1,25 +1,22 @@
 function varargout = fletcher_powell_3D(varargin)
-%FLETCHER_POWELL_3D  Self-contained scaled test function.
+%FLETCHER_POWELL_3D  fletcher_powell 3D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (HALTON OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-5005000    , 5005000     ]   (range: 10010000    )
+%   x2   ∈ [-2507.5     , 2507.5      ]   (range: 5015        )
+%   x3   ∈ [-7502500    , 7502500     ]   (range: 15005000    )
 %
-% Problem:   fletcher_powell (source instance p=20)
-% Dimension: n = 3
-% Strategy folder: halton_oscillatory (kappa = 1000000)
-% Original bound tag: bound(p) = 10
-% Effective contrast: 2992.023928215354
+% Effective contrast ratio (max range / min range): 2992.02392822
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = fletcher_powell_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [500500;0;0]
+%   f* = 0
+%
+% USAGE:
+%   f = fletcher_powell_3D(x)          % Evaluate function at point x (3D vector)
+%   [lb, ub] = fletcher_powell_3D(n)   % Get bounds for dimension n (must be 3)
+%   info = fletcher_powell_3D()        % Get complete problem information
 
 nloc = 3;
 lb_orig = [-10;-10;-10];
@@ -28,6 +25,11 @@ lb_work = [-5005000;-2507.5;-7502500];
 ub_work = [5005000;2507.5;7502500];
 scale_factors = [500500;250.75;750250];
 contrast_ratio = 2992.023928215354;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +47,7 @@ if nargin == 0
     info.f_global_min = 0;
     info.x_global_min_orig = [1;0;0];
     info.x_global_min_work = [500500;0;0];
-    info.global_min_note = 'Fletcher-Powell (3D): x*=(1,0,0), f*=0. Ref: Brachetti et al. (1997).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Fletcher-Powell (3D): x*=(1,0,0), f*=0. Ref: Brachetti et al. (1997).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

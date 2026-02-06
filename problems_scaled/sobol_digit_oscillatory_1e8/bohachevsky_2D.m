@@ -1,33 +1,34 @@
 function varargout = bohachevsky_2D(varargin)
-%BOHACHEVSKY_2D  Self-contained scaled test function.
+%BOHACHEVSKY_2D  bohachevsky 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-4614976820.59, 4614976820.59]   (range: 9229953641.18)
+%   x2   ∈ [-14064.5232122, 14064.5232122]   (range: 28129.0464244)
 %
-% Problem:   bohachevsky (source instance p=4)
-% Dimension: n = 2
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 50
-% Effective contrast: 2.225017544428539
+% Effective contrast ratio (max range / min range): 328128.920615
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = bohachevsky_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [0;0]
+%   f* = 0
+%
+% USAGE:
+%   f = bohachevsky_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = bohachevsky_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = bohachevsky_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [-50;-50];
 ub_orig = [50;50];
-lb_work = [-214561.3712491645;-477402.8153860362];
-ub_work = [214561.3712491645;477402.8153860362];
-scale_factors = [4291.22742498329;9548.056307720724];
-contrast_ratio = 2.225017544428539;
+lb_work = [-4614976820.589287;-14064.52321221108];
+ub_work = [4614976820.589287;14064.52321221108];
+scale_factors = [92299536.41178574;281.2904642442216];
+contrast_ratio = 328128.9206151317;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +46,7 @@ if nargin == 0
     info.f_global_min = 0;
     info.x_global_min_orig = [0;0];
     info.x_global_min_work = [0;0];
-    info.global_min_note = 'Bohachevsky (2D): x*=0, f*=0. Ref: Ali et al. (2005).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Bohachevsky (2D): x*=0, f*=0. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

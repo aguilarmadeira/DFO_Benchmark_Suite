@@ -1,25 +1,21 @@
 function varargout = fifteenn_local_minima_2D(varargin)
-%FIFTEENN_LOCAL_MINIMA_2D  Self-contained scaled test function.
+%FIFTEENN_LOCAL_MINIMA_2D  fifteenn_local_minima 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (HALTON OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-5005000    , 5005000     ]   (range: 10010000    )
+%   x2   ∈ [-2507.5     , 2507.5      ]   (range: 5015        )
 %
-% Problem:   fifteenn_local_minima (source instance p=15)
-% Dimension: n = 2
-% Strategy folder: halton_oscillatory (kappa = 1000000)
-% Original bound tag: bound(p) = 10
-% Effective contrast: 1996.011964107677
+% Effective contrast ratio (max range / min range): 1996.01196411
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = fifteenn_local_minima_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [500500;250.75]
+%   f* = 0
+%
+% USAGE:
+%   f = fifteenn_local_minima_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = fifteenn_local_minima_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = fifteenn_local_minima_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [-10;-10];
@@ -28,6 +24,11 @@ lb_work = [-5005000;-2507.5];
 ub_work = [5005000;2507.5];
 scale_factors = [500500;250.75];
 contrast_ratio = 1996.011964107677;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +46,7 @@ if nargin == 0
     info.f_global_min = 0;
     info.x_global_min_orig = [1;1];
     info.x_global_min_work = [500500;250.75];
-    info.global_min_note = 'Fifteen Local Minima (n=2): x*=1, f*=0. Ref: Brachetti et al. (1997).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Fifteen Local Minima (n=2): x*=1, f*=0. Ref: Brachetti et al. (1997).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

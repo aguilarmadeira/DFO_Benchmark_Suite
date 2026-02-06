@@ -1,25 +1,24 @@
 function varargout = shekel_foxholes_5D(varargin)
-%SHEKEL_FOXHOLES_5D  Self-contained scaled test function.
+%SHEKEL_FOXHOLES_5D  shekel_foxholes 5D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (EXTREME HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [0           , 10          ]   (range: 10          )
+%   x2   ∈ [0           , 10          ]   (range: 10          )
+%   x3   ∈ [0           , 1000000000  ]   (range: 1000000000  )
+%   x4   ∈ [0           , 1000000000  ]   (range: 1000000000  )
+%   x5   ∈ [0           , 1000000000  ]   (range: 1000000000  )
 %
-% Problem:   shekel_foxholes (source instance p=50)
-% Dimension: n = 5
-% Strategy folder: extreme (kappa = 100000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 100000000
+% Effective contrast ratio (max range / min range): 100000000
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = shekel_foxholes_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [8.025;9.151999999999999;511399999.9999999;762100000;456400000]
+%   f* = -10.4056057586
+%
+% USAGE:
+%   f = shekel_foxholes_5D(x)          % Evaluate function at point x (5D vector)
+%   [lb, ub] = shekel_foxholes_5D(n)   % Get bounds for dimension n (must be 5)
+%   info = shekel_foxholes_5D()        % Get complete problem information
 
 nloc = 5;
 lb_orig = [0;0;0;0;0];
@@ -28,6 +27,11 @@ lb_work = [0;0;0;0;0];
 ub_work = [10;10;1000000000;1000000000;1000000000];
 scale_factors = [1;1;100000000;100000000;100000000];
 contrast_ratio = 100000000;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +49,7 @@ if nargin == 0
     info.f_global_min = -10.4056057586;
     info.x_global_min_orig = [8.025;9.151999999999999;5.114;7.621;4.564];
     info.x_global_min_work = [8.025;9.151999999999999;511399999.9999999;762100000;456400000];
-    info.global_min_note = 'Shekel Foxholes (5D): f*=-10.2088. Ref: Ali et al. (2005).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Shekel Foxholes (5D): f*=-10.2088. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

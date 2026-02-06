@@ -1,33 +1,34 @@
 function varargout = fifteenn_local_minima_2D(varargin)
-%FIFTEENN_LOCAL_MINIMA_2D  Self-contained scaled test function.
+%FIFTEENN_LOCAL_MINIMA_2D  fifteenn_local_minima 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-163155443.559, 163155443.559]   (range: 326310887.117)
+%   x2   ∈ [-947060561.885, 947060561.885]   (range: 1894121123.77)
 %
-% Problem:   fifteenn_local_minima (source instance p=15)
-% Dimension: n = 2
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 10
-% Effective contrast: 23220.62931979087
+% Effective contrast ratio (max range / min range): 5.80465193945
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = fifteenn_local_minima_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [16315544.35587397;94706056.18847692]
+%   f* = 0
+%
+% USAGE:
+%   f = fifteenn_local_minima_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = fifteenn_local_minima_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = fifteenn_local_minima_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [-10;-10];
 ub_orig = [10;10];
-lb_work = [-670407997.0562292;-28871.22428180026];
-ub_work = [670407997.0562292;28871.22428180026];
-scale_factors = [67040799.70562292;2887.122428180026];
-contrast_ratio = 23220.62931979087;
+lb_work = [-163155443.5587395;-947060561.8847678];
+ub_work = [163155443.5587395;947060561.8847678];
+scale_factors = [16315544.35587395;94706056.18847677];
+contrast_ratio = 5.804651939448195;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -44,8 +45,8 @@ if nargin == 0
     info.global_min_known = true;
     info.f_global_min = 0;
     info.x_global_min_orig = [1;1];
-    info.x_global_min_work = [67040799.70562303;2887.122428180028];
-    info.global_min_note = 'Fifteen Local Minima (n=2): x*=1, f*=0. Ref: Brachetti et al. (1997).';
+    info.x_global_min_work = [16315544.35587397;94706056.18847692];
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Fifteen Local Minima (n=2): x*=1, f*=0. Ref: Brachetti et al. (1997).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

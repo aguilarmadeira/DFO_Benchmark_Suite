@@ -1,25 +1,29 @@
 function varargout = schwefel_10D(varargin)
-%SCHWEFEL_10D  Self-contained scaled test function.
+%SCHWEFEL_10D  schwefel 10D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SPATIAL THERMAL HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-500        , 500         ]   (range: 1000        )
+%   x2   ∈ [-500        , 500         ]   (range: 1000        )
+%   x3   ∈ [-500        , 500         ]   (range: 1000        )
+%   x4   ∈ [-500        , 500         ]   (range: 1000        )
+%   x5   ∈ [-500        , 500         ]   (range: 1000        )
+%   x6   ∈ [-150000     , 150000      ]   (range: 300000      )
+%   x7   ∈ [-150000     , 150000      ]   (range: 300000      )
+%   x8   ∈ [-150000     , 150000      ]   (range: 300000      )
+%   x9   ∈ [-150000     , 150000      ]   (range: 300000      )
+%   x10  ∈ [-150000     , 150000      ]   (range: 300000      )
 %
-% Problem:   schwefel (source instance p=46)
-% Dimension: n = 10
-% Strategy folder: spatial_thermal (kappa = 90000)
-% Original bound tag: bound(p) = 500
-% Effective contrast: 300
+% Effective contrast ratio (max range / min range): 300
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = schwefel_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [420.9687;420.9687;420.9687;420.9687;420.9687;126290.61;126290.61;126290.61;126290.61;126290.61]
+%   f* = -4189.829
+%
+% USAGE:
+%   f = schwefel_10D(x)          % Evaluate function at point x (10D vector)
+%   [lb, ub] = schwefel_10D(n)   % Get bounds for dimension n (must be 10)
+%   info = schwefel_10D()        % Get complete problem information
 
 nloc = 10;
 lb_orig = [-500;-500;-500;-500;-500;-500;-500;-500;-500;-500];
@@ -28,6 +32,11 @@ lb_work = [-500;-500;-500;-500;-500;-150000;-150000;-150000;-150000;-150000];
 ub_work = [500;500;500;500;500;150000;150000;150000;150000;150000];
 scale_factors = [1;1;1;1;1;300;300;300;300;300];
 contrast_ratio = 300;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +54,7 @@ if nargin == 0
     info.f_global_min = -4189.829;
     info.x_global_min_orig = [420.9687;420.9687;420.9687;420.9687;420.9687;420.9687;420.9687;420.9687;420.9687;420.9687];
     info.x_global_min_work = [420.9687;420.9687;420.9687;420.9687;420.9687;126290.61;126290.61;126290.61;126290.61;126290.61];
-    info.global_min_note = 'Schwefel (n=10): x*=420.9687, f*=-418.9829*n. Ref: Ali et al. (2005).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Schwefel (n=10): x*=420.9687, f*=-418.9829*n. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

@@ -1,25 +1,29 @@
 function varargout = neumaier3_10D(varargin)
-%NEUMAIER3_10D  Self-contained scaled test function.
+%NEUMAIER3_10D  neumaier3 10D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (PROGRESSIVE HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-100        , 100         ]   (range: 200         )
+%   x2   ∈ [-1000       , 1000        ]   (range: 2000        )
+%   x3   ∈ [-10000      , 10000       ]   (range: 20000       )
+%   x4   ∈ [-100000     , 100000      ]   (range: 200000      )
+%   x5   ∈ [-10         , 10          ]   (range: 20          )
+%   x6   ∈ [-1          , 1           ]   (range: 2           )
+%   x7   ∈ [-0.1        , 0.1         ]   (range: 0.2         )
+%   x8   ∈ [-100        , 100         ]   (range: 200         )
+%   x9   ∈ [-1000       , 1000        ]   (range: 2000        )
+%   x10  ∈ [-10000      , 10000       ]   (range: 20000       )
 %
-% Problem:   neumaier3 (source instance p=35)
-% Dimension: n = 10
-% Strategy folder: progressive (kappa = 1000000)
-% Original bound tag: bound(p) = 100
-% Effective contrast: 1000000
+% Effective contrast ratio (max range / min range): 1000000
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = neumaier3_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [10.00000000000001;180;2400;28000;3;0.3;0.028;24;180;1000]
+%   f* = -210
+%
+% USAGE:
+%   f = neumaier3_10D(x)          % Evaluate function at point x (10D vector)
+%   [lb, ub] = neumaier3_10D(n)   % Get bounds for dimension n (must be 10)
+%   info = neumaier3_10D()        % Get complete problem information
 
 nloc = 10;
 lb_orig = [-100;-100;-100;-100;-100;-100;-100;-100;-100;-100];
@@ -28,6 +32,11 @@ lb_work = [-100;-1000;-10000;-100000;-10;-1;-0.1;-100;-1000;-10000];
 ub_work = [100;1000;10000;100000;10;1;0.1;100;1000;10000];
 scale_factors = [1;10;100;1000;0.1;0.01;0.001;1;10;100];
 contrast_ratio = 1000000;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +54,7 @@ if nargin == 0
     info.f_global_min = -210;
     info.x_global_min_orig = [10;18;24;28;30;30;28;24;18;10];
     info.x_global_min_work = [10.00000000000001;180;2400;28000;3;0.3;0.028;24;180;1000];
-    info.global_min_note = 'Neumaier3 (10D): x*_i=i*(n+1-i), f*=-210. Ref: Ali et al. (2005).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Neumaier3 (10D): x*_i=i*(n+1-i), f*=-210. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

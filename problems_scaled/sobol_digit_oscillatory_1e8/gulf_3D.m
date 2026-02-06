@@ -1,33 +1,35 @@
 function varargout = gulf_3D(varargin)
-%GULF_3D  Self-contained scaled test function.
+%GULF_3D  gulf 3D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [9045730.3624, 9045730362.4]   (range: 9036684632.04)
+%   x2   ∈ [0           , 72779.2031027]   (range: 72779.2031027)
+%   x3   ∈ [0           , 30435.6251678]   (range: 30435.6251678)
 %
-% Problem:   gulf (source instance p=24)
-% Dimension: n = 3
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 15941.66048462197
+% Effective contrast ratio (max range / min range): 31818.2512868
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = gulf_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [4522865181.199354;71073.44052997361;9130.687550334276]
+%   f* = 0
+%
+% USAGE:
+%   f = gulf_3D(x)          % Evaluate function at point x (3D vector)
+%   [lb, ub] = gulf_3D(n)   % Get bounds for dimension n (must be 3)
+%   info = gulf_3D()        % Get complete problem information
 
 nloc = 3;
 lb_orig = [0.1;0;0];
 ub_orig = [100;25.6;5];
-lb_work = [6361335.658449173;0;0];
-ub_work = [6361335658.449685;102153.8459016891;44016.61782978238];
-scale_factors = [63613356.58449685;3990.38460553473;8803.323565956476];
-contrast_ratio = 15941.66048462197;
+lb_work = [9045730.362398148;0;0];
+ub_work = [9045730362.39871;72779.20310269298;30435.62516778092];
+scale_factors = [90457303.62398711;2842.937621198944;6087.125033556184];
+contrast_ratio = 31818.25128679355;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -44,8 +46,8 @@ if nargin == 0
     info.global_min_known = true;
     info.f_global_min = 0;
     info.x_global_min_orig = [50;25;1.5];
-    info.x_global_min_work = [3180667829.224842;99759.61513836826;13204.98534893471];
-    info.global_min_note = 'Gulf (3D): x*=(50,25,1.5), f*=0. Ref: Ali et al. (2005).';
+    info.x_global_min_work = [4522865181.199354;71073.44052997361;9130.687550334276];
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Gulf (3D): x*=(50,25,1.5), f*=0. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

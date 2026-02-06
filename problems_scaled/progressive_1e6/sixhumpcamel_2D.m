@@ -1,25 +1,21 @@
 function varargout = sixhumpcamel_2D(varargin)
-%SIXHUMPCAMEL_2D  Self-contained scaled test function.
+%SIXHUMPCAMEL_2D  sixhumpcamel 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (PROGRESSIVE HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-3          , 3           ]   (range: 6           )
+%   x2   ∈ [-20         , 20          ]   (range: 40          )
 %
-% Problem:   sixhumpcamel (source instance p=54)
-% Dimension: n = 2
-% Strategy folder: progressive (kappa = 1000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 10
+% Effective contrast ratio (max range / min range): 10
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = sixhumpcamel_orig(x_orig)
+% Known global minimum (WORK-space):
+%   multiple minimizers; see info.x_global_min_work
+%   f* = -1.031628453489877
+%
+% USAGE:
+%   f = sixhumpcamel_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = sixhumpcamel_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = sixhumpcamel_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [-3;-2];
@@ -28,6 +24,11 @@ lb_work = [-3;-20];
 ub_work = [3;20];
 scale_factors = [1;10];
 contrast_ratio = 10;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +46,7 @@ if nargin == 0
     info.f_global_min = -1.031628453489877;
     info.x_global_min_orig = [0.08984200000000001 -0.08984200000000001;-0.712656 0.712656];
     info.x_global_min_work = [0.08984199999999998 -0.08984199999999998;-7.12656 7.126559999999998];
-    info.global_min_note = 'Six-Hump Camel (2D): 2 global minima, f*=-1.0316. Ref: Brachetti et al. (1997).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Six-Hump Camel (2D): 2 global minima, f*=-1.0316. Ref: Brachetti et al. (1997).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

@@ -1,25 +1,25 @@
 function varargout = cauchy_10D(varargin)
-%CAUCHY_10D  Self-contained scaled test function.
+%CAUCHY_10D  cauchy 10D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (PROGRESSIVE HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [2           , 26          ]   (range: 24          )
+%   x2   ∈ [20          , 260         ]   (range: 240         )
+%   x3   ∈ [200         , 2600        ]   (range: 2400        )
+%   x4   ∈ [2000        , 26000       ]   (range: 24000       )
+%   x5   ∈ [0.2         , 2.6         ]   (range: 2.4         )
+%   x6   ∈ [0.02        , 0.26        ]   (range: 0.24        )
+%   x7   ∈ [0.002       , 0.026       ]   (range: 0.024       )
+%   x8   ∈ [2           , 26          ]   (range: 24          )
+%   x9   ∈ [20          , 260         ]   (range: 240         )
+%   x10  ∈ [200         , 2600        ]   (range: 2400        )
 %
-% Problem:   cauchy (source instance p=7)
-% Dimension: n = 10
-% Strategy folder: progressive (kappa = 1000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 1000000
+% Effective contrast ratio (max range / min range): 1000000
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = cauchy_orig(x_orig)
+% USAGE:
+%   f = cauchy_10D(x)          % Evaluate function at point x (10D vector)
+%   [lb, ub] = cauchy_10D(n)   % Get bounds for dimension n (must be 10)
+%   info = cauchy_10D()        % Get complete problem information
 
 nloc = 10;
 lb_orig = [2;2;2;2;2;2;2;2;2;2];
@@ -28,6 +28,11 @@ lb_work = [2;20;200;2000;0.2;0.02000000000000002;0.002;2;20;200];
 ub_work = [26;260;2600;26000;2.600000000000001;0.26;0.026;26;260;2600];
 scale_factors = [1;10;100;1000;0.1;0.01;0.001;1;10;100];
 contrast_ratio = 1000000;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;

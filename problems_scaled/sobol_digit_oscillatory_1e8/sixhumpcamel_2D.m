@@ -1,33 +1,34 @@
 function varargout = sixhumpcamel_2D(varargin)
-%SIXHUMPCAMEL_2D  Self-contained scaled test function.
+%SIXHUMPCAMEL_2D  sixhumpcamel 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-283408247.852, 283408247.852]   (range: 566816495.705)
+%   x2   ∈ [-18536300.822, 18536300.822]   (range: 37072601.644)
 %
-% Problem:   sixhumpcamel (source instance p=54)
-% Dimension: n = 2
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 35635.30931523938
+% Effective contrast ratio (max range / min range): 10.1929092388
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = sixhumpcamel_orig(x_orig)
+% Known global minimum (WORK-space):
+%   multiple minimizers; see info.x_global_min_work
+%   f* = -1.031628453489877
+%
+% USAGE:
+%   f = sixhumpcamel_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = sixhumpcamel_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = sixhumpcamel_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [-3;-2];
 ub_orig = [3;2];
-lb_work = [-5167.823426085275;-122771324.1833926];
-ub_work = [5167.823426085275;122771324.1833926];
-scale_factors = [1722.607808695092;61385662.0916963];
-contrast_ratio = 35635.30931523938;
+lb_work = [-283408247.8523431;-18536300.82199823];
+ub_work = [283408247.8523431;18536300.82199823];
+scale_factors = [94469415.95078105;9268150.410999114];
+contrast_ratio = 10.19290923879139;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -44,8 +45,8 @@ if nargin == 0
     info.global_min_known = true;
     info.f_global_min = -1.031628453489877;
     info.x_global_min_orig = [0.08984200000000001 -0.08984200000000001;-0.712656 0.712656];
-    info.x_global_min_work = [154.7625307487842 -154.7625307487842;-43746860.40361992 43746860.40361993];
-    info.global_min_note = 'Six-Hump Camel (2D): 2 global minima, f*=-1.0316. Ref: Brachetti et al. (1997).';
+    info.x_global_min_work = [8487321.267850041 -8487321.267850041;-6605002.999300985 6605002.999300983];
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Six-Hump Camel (2D): 2 global minima, f*=-1.0316. Ref: Brachetti et al. (1997).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

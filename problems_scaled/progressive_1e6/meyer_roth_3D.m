@@ -1,25 +1,18 @@
 function varargout = meyer_roth_3D(varargin)
-%MEYER_ROTH_3D  Self-contained scaled test function.
+%MEYER_ROTH_3D  meyer_roth 3D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (PROGRESSIVE HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-10         , 10          ]   (range: 20          )
+%   x2   ∈ [-100        , 100         ]   (range: 200         )
+%   x3   ∈ [-1000       , 1000        ]   (range: 2000        )
 %
-% Problem:   meyer_roth (source instance p=31)
-% Dimension: n = 3
-% Strategy folder: progressive (kappa = 1000000)
-% Original bound tag: bound(p) = 10
-% Effective contrast: 100
+% Effective contrast ratio (max range / min range): 100
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = meyer_roth_orig(x_orig)
+% USAGE:
+%   f = meyer_roth_3D(x)          % Evaluate function at point x (3D vector)
+%   [lb, ub] = meyer_roth_3D(n)   % Get bounds for dimension n (must be 3)
+%   info = meyer_roth_3D()        % Get complete problem information
 
 nloc = 3;
 lb_orig = [-10;-10;-10];
@@ -28,6 +21,11 @@ lb_work = [-10;-100;-1000];
 ub_work = [10;100;1000];
 scale_factors = [1;10;100];
 contrast_ratio = 100;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;

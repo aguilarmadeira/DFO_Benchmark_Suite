@@ -1,33 +1,36 @@
 function varargout = powell_4D(varargin)
-%POWELL_4D  Self-contained scaled test function.
+%POWELL_4D  powell 4D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-850178768.918, 850178768.918]   (range: 1700357537.84)
+%   x2   ∈ [-42522.1443403, 42522.1443403]   (range: 85044.2886806)
+%   x3   ∈ [-57141.8641415, 57141.8641415]   (range: 114283.728283)
+%   x4   ∈ [-15325.9096932, 15325.9096932]   (range: 30651.8193863)
 %
-% Problem:   powell (source instance p=39)
-% Dimension: n = 4
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 10
-% Effective contrast: 29906.09884540481
+% Effective contrast ratio (max range / min range): 55473.2988735
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = powell_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [0;0;0;0]
+%   f* = 0
+%
+% USAGE:
+%   f = powell_4D(x)          % Evaluate function at point x (4D vector)
+%   [lb, ub] = powell_4D(n)   % Get bounds for dimension n (must be 4)
+%   info = powell_4D()        % Get complete problem information
 
 nloc = 4;
 lb_orig = [-10;-10;-10;-10];
 ub_orig = [10;10;10;10];
-lb_work = [-853554661.3064375;-218419872.6323998;-64225.77214881759;-28541.15696329244];
-ub_work = [853554661.3064375;218419872.6323998;64225.77214881759;28541.15696329244];
-scale_factors = [85355466.13064376;21841987.26323998;6422.577214881759;2854.115696329244];
-contrast_ratio = 29906.09884540481;
+lb_work = [-850178768.917727;-42522.14434031758;-57141.86414149195;-15325.90969317249];
+ub_work = [850178768.917727;42522.14434031758;57141.86414149195;15325.90969317249];
+scale_factors = [85017876.8917727;4252.214434031758;5714.186414149195;1532.590969317248];
+contrast_ratio = 55473.29887350646;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +48,7 @@ if nargin == 0
     info.f_global_min = 0;
     info.x_global_min_orig = [0;0;0;0];
     info.x_global_min_work = [0;0;0;0];
-    info.global_min_note = 'Powell (4D): x*=0, f*=0. Ref: Ali et al. (2005).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Powell (4D): x*=0, f*=0. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

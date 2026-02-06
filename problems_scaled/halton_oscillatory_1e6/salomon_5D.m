@@ -1,25 +1,24 @@
 function varargout = salomon_5D(varargin)
-%SALOMON_5D  Self-contained scaled test function.
+%SALOMON_5D  salomon 5D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (HALTON OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-50050000   , 50050000    ]   (range: 100100000   )
+%   x2   ∈ [-25075      , 25075       ]   (range: 50150       )
+%   x3   ∈ [-75025000   , 75025000    ]   (range: 150050000   )
+%   x4   ∈ [-12587.5    , 12587.5     ]   (range: 25175       )
+%   x5   ∈ [-62537500   , 62537500    ]   (range: 125075000   )
 %
-% Problem:   salomon (source instance p=42)
-% Dimension: n = 5
-% Strategy folder: halton_oscillatory (kappa = 1000000)
-% Original bound tag: bound(p) = 100
-% Effective contrast: 5960.278053624627
+% Effective contrast ratio (max range / min range): 5960.27805362
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = salomon_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [0;0;0;0;0]
+%   f* = 0
+%
+% USAGE:
+%   f = salomon_5D(x)          % Evaluate function at point x (5D vector)
+%   [lb, ub] = salomon_5D(n)   % Get bounds for dimension n (must be 5)
+%   info = salomon_5D()        % Get complete problem information
 
 nloc = 5;
 lb_orig = [-100;-100;-100;-100;-100];
@@ -28,6 +27,11 @@ lb_work = [-50050000;-25075;-75025000;-12587.5;-62537500];
 ub_work = [50050000;25075;75025000;12587.5;62537500];
 scale_factors = [500500;250.75;750250;125.875;625375];
 contrast_ratio = 5960.278053624627;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +49,7 @@ if nargin == 0
     info.f_global_min = 0;
     info.x_global_min_orig = [0;0;0;0;0];
     info.x_global_min_work = [0;0;0;0;0];
-    info.global_min_note = 'Salomon (n=5): x*=0, f*=0. Ref: Ali et al. (2005).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Salomon (n=5): x*=0, f*=0. Ref: Ali et al. (2005).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

@@ -1,25 +1,22 @@
 function varargout = sphere_3D(varargin)
-%SPHERE_3D  Self-contained scaled test function.
+%SPHERE_3D  sphere 3D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (HALTON OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-2562560    , 2562560     ]   (range: 5125120     )
+%   x2   ∈ [-1283.84    , 1283.84     ]   (range: 2567.68     )
+%   x3   ∈ [-3841280    , 3841280     ]   (range: 7682560     )
 %
-% Problem:   sphere (source instance p=55)
-% Dimension: n = 3
-% Strategy folder: halton_oscillatory (kappa = 1000000)
-% Original bound tag: bound(p) = 5.12
-% Effective contrast: 2992.023928215354
+% Effective contrast ratio (max range / min range): 2992.02392822
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = sphere_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [0;0;0]
+%   f* = 0
+%
+% USAGE:
+%   f = sphere_3D(x)          % Evaluate function at point x (3D vector)
+%   [lb, ub] = sphere_3D(n)   % Get bounds for dimension n (must be 3)
+%   info = sphere_3D()        % Get complete problem information
 
 nloc = 3;
 lb_orig = [-5.12;-5.12;-5.12];
@@ -28,6 +25,11 @@ lb_work = [-2562560;-1283.84;-3841280];
 ub_work = [2562560;1283.84;3841280];
 scale_factors = [500500;250.75;750250];
 contrast_ratio = 2992.023928215354;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -45,7 +47,7 @@ if nargin == 0
     info.f_global_min = 0;
     info.x_global_min_orig = [0;0;0];
     info.x_global_min_work = [0;0;0];
-    info.global_min_note = 'Sphere (n=3): x*=0, f*=0. Ref: Huyer & Neumaier (1999).';
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Sphere (n=3): x*=0, f*=0. Ref: Huyer & Neumaier (1999).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

@@ -1,25 +1,24 @@
 function varargout = storn_tchebychev_9D(varargin)
-%STORN_TCHEBYCHEV_9D  Self-contained scaled test function.
+%STORN_TCHEBYCHEV_9D  storn_tchebychev 9D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [-19109000   , 19109000    ]   (range: 38218000    )
+%   x2   ∈ [-83045      , 83045       ]   (range: 166090      )
+%   x3   ∈ [-51077000   , 51077000    ]   (range: 102154000   )
+%   x4   ∈ [-115013     , 115013      ]   (range: 230026      )
+%   x5   ∈ [-11117000   , 11117000    ]   (range: 22234000    )
+%   x6   ∈ [-75053      , 75053       ]   (range: 150106      )
+%   x7   ∈ [-43085000   , 43085000    ]   (range: 86170000    )
+%   x8   ∈ [-107021     , 107021      ]   (range: 214042      )
+%   x9   ∈ [-27101000   , 27101000    ]   (range: 54202000    )
 %
-% Problem:   storn_tchebychev (source instance p=56)
-% Dimension: n = 9
-% Strategy folder: sobol_oscillatory (kappa = 1000000)
-% Original bound tag: bound(p) = 128
-% Effective contrast: 680.5457476716454
+% Effective contrast ratio (max range / min range): 680.545747672
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = storn_tchebychev_orig(x_orig)
+% USAGE:
+%   f = storn_tchebychev_9D(x)          % Evaluate function at point x (9D vector)
+%   [lb, ub] = storn_tchebychev_9D(n)   % Get bounds for dimension n (must be 9)
+%   info = storn_tchebychev_9D()        % Get complete problem information
 
 nloc = 9;
 lb_orig = [-128;-128;-128;-128;-128;-128;-128;-128;-128];
@@ -28,6 +27,11 @@ lb_work = [-19109000;-83045;-51077000;-115013;-11117000;-75053;-43085000;-107021
 ub_work = [19109000;83045;51077000;115013;11117000;75053;43085000;107021;27101000];
 scale_factors = [149289.0625;648.7890625;399039.0625;898.5390625;86851.5625;586.3515625;336601.5625;836.1015625;211726.5625];
 contrast_ratio = 680.5457476716454;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;

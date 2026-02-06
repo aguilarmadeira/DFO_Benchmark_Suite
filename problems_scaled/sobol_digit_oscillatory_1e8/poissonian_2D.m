@@ -1,33 +1,34 @@
 function varargout = poissonian_2D(varargin)
-%POISSONIAN_2D  Self-contained scaled test function.
+%POISSONIAN_2D  poissonian 2D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [61010351.2935, 1281217377.16]   (range: 1220207025.87)
+%   x2   ∈ [45665756.579, 365326052.632]   (range: 319660296.053)
 %
-% Problem:   poissonian (source instance p=38)
-% Dimension: n = 2
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 1.705911702308682
+% Effective contrast ratio (max range / min range): 1.33601971946
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = poissonian_orig(x_orig)
+% Known global minimum (WORK-space):
+%   see info.x_global_min_work (not stored as a representative here)
+%   f* = -95.28
+%
+% USAGE:
+%   f = poissonian_2D(x)          % Evaluate function at point x (2D vector)
+%   [lb, ub] = poissonian_2D(n)   % Get bounds for dimension n (must be 2)
+%   info = poissonian_2D()        % Get complete problem information
 
 nloc = 2;
 lb_orig = [1;1];
 ub_orig = [21;8];
-lb_work = [76779010.2413801;45007610.96689337];
-ub_work = [1612359215.06898;360060887.7351471];
-scale_factors = [76779010.24138001;45007610.96689338];
-contrast_ratio = 1.705911702308682;
+lb_work = [61010351.29353011;45665756.57899952];
+ub_work = [1281217377.164134;365326052.6319959];
+scale_factors = [61010351.29353017;45665756.57899949];
+contrast_ratio = 1.336019719458393;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -43,7 +44,9 @@ if nargin == 0
     info.contrast_ratio = contrast_ratio;
     info.global_min_known = true;
     info.f_global_min = -95.28;
-    info.global_min_note = 'Poissonian (2D): f*=-95.28, x* not documented. Ref: Brachetti et al. (1997).';
+    info.x_global_min_orig = [];
+    info.x_global_min_work = [];
+    info.global_min_note = 'Global minimizer is known but infoG.xstar_orig is missing/empty.';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return

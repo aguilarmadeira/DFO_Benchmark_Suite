@@ -1,33 +1,36 @@
 function varargout = shekel_410_4D(varargin)
-%SHEKEL_410_4D  Self-contained scaled test function.
+%SHEKEL_410_4D  shekel_410 4D test problem (heterogeneous WORK-space wrapper).
 %
-% Wrapper/scaling formulation:
-%   J. F. A. Madeira (2026)
+% INPUT SPACE (SOBOL DIGIT OSCILLATORY HETEROGENEITY):
 %
-% Reference:
-%   J. F. A. Madeira,
-%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
-%   Journal of Global Optimization, 2026.
+%   x1   ∈ [0           , 71332.2105894]   (range: 71332.2105894)
+%   x2   ∈ [0           , 8395.44211728]   (range: 8395.44211728)
+%   x3   ∈ [0           , 91189.5226637]   (range: 91189.5226637)
+%   x4   ∈ [0           , 291377200.392]   (range: 291377200.392)
 %
-% Problem:   shekel_410 (source instance p=49)
-% Dimension: n = 4
-% Strategy folder: sobol_digit_oscillatory (kappa = 100000000)
-% Original bound tag: bound(p) = 0
-% Effective contrast: 15563.35850854793
+% Effective contrast ratio (max range / min range): 34706.5939258
 %
-% Domain (scaled variables): x in [lb_work, ub_work] (see constants below)
-% Mapping (as in create_scaled_wrapper.m):
-%   t      = clip01((x - lb_work)./(ub_work - lb_work))
-%   x_orig = lb_orig + t.*(ub_orig - lb_orig)
-%   f      = shekel_410_orig(x_orig)
+% Known global minimum (WORK-space):
+%   x* = [28532.88423574718;3358.176846913319;36475.80906548744;116550880.1569774]
+%   f* = -10.5364
+%
+% USAGE:
+%   f = shekel_410_4D(x)          % Evaluate function at point x (4D vector)
+%   [lb, ub] = shekel_410_4D(n)   % Get bounds for dimension n (must be 4)
+%   info = shekel_410_4D()        % Get complete problem information
 
 nloc = 4;
 lb_orig = [0;0;0;0];
 ub_orig = [10;10;10;10];
 lb_work = [0;0;0;0];
-ub_work = [66966.94114981033;19483.50043971882;84056.08673477182;303228702.3447952];
-scale_factors = [6696.694114981034;1948.350043971882;8405.608673477182;30322870.23447952];
-contrast_ratio = 15563.35850854793;
+ub_work = [71332.21058936795;8395.442117283295;91189.5226637186;291377200.3924434];
+scale_factors = [7133.221058936795;839.5442117283296;9118.95226637186;29137720.03924434];
+contrast_ratio = 34706.59392583972;
+
+% Reference:
+%   J. F. A. Madeira,
+%   "Global and Local Optimization using Direct Search - A Scale-Invariant Approach (GLODS-SI)",
+%   2026.
 
 if nargin == 0
     info.name = mfilename;
@@ -44,8 +47,8 @@ if nargin == 0
     info.global_min_known = true;
     info.f_global_min = -10.5364;
     info.x_global_min_orig = [4;4;4;4];
-    info.x_global_min_work = [26786.77645992413;7793.400175887527;33622.43469390873;121291480.9379181];
-    info.global_min_note = 'Shekel-4,10 (4D): x*=(4,4,4,4), f*=-10.5364. Ref: Brachetti et al. (1997).';
+    info.x_global_min_work = [28532.88423574718;3358.176846913319;36475.80906548744;116550880.1569774];
+    info.global_min_note = 'Mapped x*_orig -> x*_work via affine inverse using t=(x*_orig-lb_orig)./(ub_orig-lb_orig). Original note: Shekel-4,10 (4D): x*=(4,4,4,4), f*=-10.5364. Ref: Brachetti et al. (1997).';
     info.mapping = 'x_orig = lb_orig + clip01((x-lb_work)/(ub_work-lb_work)).*(ub_orig-lb_orig)';
     varargout{1} = info;
     return
