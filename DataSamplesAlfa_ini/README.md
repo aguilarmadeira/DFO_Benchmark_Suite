@@ -161,7 +161,6 @@ If you use this dataset, please cite:
   title={{GLODS-SI}: Global and Local Optimization using Direct Search 
          -- A Scale-Invariant Approach},
   author={Madeira, J. F. A.},
-  journal={Journal of Global Optimization},
   year={2025},
   note={Submitted}
 }
@@ -170,7 +169,6 @@ If you use this dataset, please cite:
   title={Automatic Step-Size Initialization for Derivative-Free Global Optimization
          via Fitness Landscape Analysis},
   author={Madeira, J. F. A. and Thomson, Sarah L.},
-  journal={Journal of Global Optimization},
   year={2025},
   note={In preparation}
 }
