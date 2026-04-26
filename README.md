@@ -1,136 +1,135 @@
 # DFO Benchmark Suite
 
-A comprehensive benchmark suite for **Derivative-Free Global Optimization**, containing test problems, scaling strategies, and pre-computed initial samples.
+A benchmark suite for **Derivative-Free Optimization (DFO)**, organized by the
+type of decision variables. The current release provides bound-constrained
+problems with **continuous variables** under controlled scale heterogeneity;
+additional categories (discrete, categorical, mixed) are planned for future
+releases.
 
-[![License: MIT](https://img.shields.io/badge/Code-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![License: CC BY 4.0](https://img.shields.io/badge/Data-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 [![DOI](https://img.shields.io/badge/DOI-pending-orange.svg)](https://doi.org/)
 
-## Overview
+---
 
-This repository provides resources for benchmarking derivative-free optimization algorithms:
-
-- **63 test problems** with dimensions n ∈ {2, 3, 4, 5, 6, 8, 9, 10}
-- **7 scaling strategies** with contrast ratios from κ=1 to κ=10⁸
-- **Pre-computed initial samples** (60×n Sobol points per problem)
-- **HDF5 format** readable in MATLAB, Python, Julia, R
-
-## Repository Structure
+## Repository structure
 
 ```
 DFO_Benchmark_Suite/
-├── README.md                 # This file
-├── LICENSE.md                # Dual license (MIT + CC-BY 4.0)
-├── CITATION.cff              # Citation metadata for GitHub
-├── problems/                 # Test problem definitions
-│   ├── README.md
-│   └── *.m                   # MATLAB function files
-├── scaling/                  # Scaling transformation utilities
-│   ├── README.md
-│   ├── generate_scale_factors.m
-│   └── generate_scaled_bounds.m
-└── DataSamplesAlfa_ini/      # Pre-computed samples
-    ├── README.md
-    ├── index.xlsx
-    ├── baseline_1/
-    ├── progressive_1e6/
-    ├── extreme_1e8/
-    ├── sobol_oscillatory_1e6/
-    ├── sobol_digit_oscillatory_1e8/
-    ├── halton_oscillatory_1e6/
-    └── spatial_thermal_9e4/
+├── README.md                    (this file)
+├── LICENSE                      (GNU LGPL v3)
+├── CITATION.cff                 (citation metadata)
+│
+└── prob_var_continuous/         Category: continuous variables
+    ├── README.md                (category-specific documentation)
+    ├── originals/               48 original problem definitions (Ali, Brachetti, ...)
+    ├── scaled/                  504 self-contained wrappers (63 instances × 8 strategies)
+    └── scaling_toolkit/         3 MATLAB functions to scale new problems
 ```
 
-## Quick Start
+Future releases may add:
 
-### Python
-```python
-import h5py
-
-with h5py.File('DataSamplesAlfa_ini/baseline_1/ackley_10D.h5', 'r') as f:
-    Y = f['/sample/Y'][:]    # Normalized sample points [0,1]^n
-    F = f['/sample/F'][:]    # Objective values
-    n = f['/meta'].attrs['dimension']
+```
+├── prob_var_discrete/           (planned)
+├── prob_var_categorical/        (planned)
+└── prob_var_mixed/              (planned)
 ```
 
-### MATLAB
+---
+
+## Current release: continuous-variable problems
+
+The `prob_var_continuous/` category contains:
+
+- **48 original problem definitions** corresponding to **63 (problem,
+  dimension) instances** (some functions are evaluated at multiple
+  dimensions, e.g., `cauchy` at `n=4` and `n=10`). Dimensions span
+  `n ∈ {2, 3, 4, 5, 6, 8, 9, 10}`. Problems are collected from the
+  standard derivative-free benchmarking literature
+  (Ali et al. 2005; Brachetti et al. 1997; Storn & Price 1997; and others).
+- **504 self-contained MATLAB wrappers** (63 instances × 8 scaling strategies),
+  in which heterogeneous variable scales have been embedded by construction.
+  Each wrapper is fully self-contained at runtime: no external scaling
+  utilities or path setup are required to evaluate the objective.
+- **A standalone scaling toolkit** of three MATLAB functions
+  (`generate_scale_factors`, `generate_scaled_bounds`,
+  `create_scaled_wrapper`) that allows users to apply the same scaling
+  methodology to their own bound-constrained problems.
+
+For full details, scaling strategies, file layout, and usage examples,
+see [`prob_var_continuous/README.md`](prob_var_continuous/README.md).
+
+---
+
+## Quick start
+
+Add the relevant strategy folder and (optionally) the scaling toolkit to
+the MATLAB path, and call any wrapper as a regular MATLAB function:
+
 ```matlab
-Y = h5read('DataSamplesAlfa_ini/baseline_1/ackley_10D.h5', '/sample/Y');
-F = h5read('DataSamplesAlfa_ini/baseline_1/ackley_10D.h5', '/sample/F');
-n = h5readatt('DataSamplesAlfa_ini/baseline_1/ackley_10D.h5', '/meta', 'dimension');
+addpath(genpath('prob_var_continuous/scaled'));
+
+% Get info, bounds, evaluate
+info       = ackley_10D();
+[lb, ub]   = ackley_10D(10);
+f          = ackley_10D(rand(10,1));
 ```
 
-## Test Problems
-
-The benchmark includes 63 problems commonly used in derivative-free global optimization:
-
-| Category | Problems |
-|----------|----------|
-| Unimodal | Sphere, Powell, Wood, Rosenbrock |
-| Multimodal | Ackley, Rastrigin, Griewank, Schwefel, Langerman |
-| Low-dimensional | Branin-Hoo, Goldstein-Price, Six-Hump Camel, Hosaki |
-| Shekel family | Shekel 4-5, 4-7, 4-10, Foxholes |
-| Parametric | Fifteen/Ten Local Minima (n=2,4,6,8,10) |
-
-See [`problems/README.md`](problems/README.md) for complete specifications.
-
-## Scaling Strategies
-
-| Strategy | Contrast (κ) | Description |
-|----------|--------------|-------------|
-| `baseline` | 1 | Original bounds (no scaling) |
-| `progressive` | 10⁶ | Cyclic geometric pattern |
-| `extreme` | 10⁸ | Binary partition (worst-case) |
-| `sobol_oscillatory` | 10⁶ | Continuous quasi-random |
-| `sobol_digit_oscillatory` | 10⁸ | Binary quasi-random |
-| `halton_oscillatory` | 10⁶ | Alternative QMC sequence |
-| `spatial_thermal` | ≈9×10⁴ | Multiphysics-inspired |
-
-See [`scaling/README.md`](scaling/README.md) for implementation details.
-
-## Citation
-
-If you use this benchmark suite, please cite:
-
-```bibtex
-@misc{madeira2026dfobenchmark,
-  author       = {Madeira, Jos{\'e} F. Aguilar},
-  title        = {{DFO} Benchmark Suite: Test Problems and Initial Samples 
-                  for Derivative-Free Optimization},
-  year         = {2026},
-  publisher    = {GitHub},
-  url          = {https://github.com/aguilarmadeira/DFO_Benchmark_Suite},
-  note         = {Version 1.0.0}
-}
-```
-
-### Related Publications
-
-- **GLODS**: Custódio, A.L., Madeira, J.F.A. (2015). GLODS: Global and Local Optimization using Direct Search. *J. Global Optim.* 62, 1–28. [DOI:10.1007/s10898-014-0224-9](https://doi.org/10.1007/s10898-014-0224-9)
-
-- **GLODS-SI**: Madeira, J.F.A. (2025). GLODS-SI: Global and Local Optimization using Direct Search – A Scale-Invariant Approach. *J. Global Optim.* (submitted)
-
-- **Auto-Init**: Madeira, J.F.A., Thomson, S.L. (2025). Automatic Step-Size Initialization for Derivative-Free Global Optimization via Fitness Landscape Analysis. *J. Global Optim.* (in preparation)
+---
 
 ## License
 
-This repository uses a **dual license**:
+This repository is distributed under the **GNU Lesser General Public
+License version 3** (LGPL-3.0-or-later). This license is inherited from
+the original GLODS framework (Custódio & Madeira, 2015) on which the
+embedded problem definitions and the algorithmic context of this suite
+are based.
 
-| Component | License | Files |
-|-----------|---------|-------|
-| Source code | [MIT](https://opensource.org/licenses/MIT) | `.m`, `.py` |
-| Data & documentation | [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/) | `.h5`, `.xlsx`, `.md` |
+See [`LICENSE`](LICENSE) for the full license text.
 
-**Attribution is required when using the data.** See [LICENSE.md](LICENSE.md) for details.
+---
+
+## Citation
+
+If you use this benchmark suite in academic work, please cite the
+accompanying paper:
+
+```bibtex
+@article{Madeira2026GLODSSI,
+  author  = {Madeira, J. F. A.},
+  title   = {{GLODS-SI}: Scale-Invariant {Global--Local} Direct Search
+             for Engineering Design Optimization},
+  journal = {Journal of Computational Design and Engineering},
+  year    = {2026},
+  note    = {Manuscript ID JCDE-2026-065}
+}
+```
+
+A `CITATION.cff` file is also provided for tools that consume that
+metadata format (GitHub, Zenodo, etc.).
+
+### Underlying framework
+
+The original GLODS framework on which this suite is methodologically based:
+
+> Custódio, A. L., Madeira, J. F. A. (2015).
+> *GLODS: Global and Local Optimization using Direct Search.*
+> Journal of Global Optimization, 62, 1–28.
+> [doi:10.1007/s10898-014-0224-9](https://doi.org/10.1007/s10898-014-0224-9)
+
+---
 
 ## Acknowledgments
 
-This work was supported by Fundação para a Ciência e a Tecnologia (FCT) through LAETA (project [UID/50022/2025](https://doi.org/10.54499/UID/50022/2025)).
+This work was supported by *Fundação para a Ciência e a Tecnologia*
+(FCT) through LAETA (project
+[UID/50022/2025](https://doi.org/10.54499/UID/50022/2025)).
+
+---
 
 ## Contact
 
-**José F. Aguilar Madeira**  
-IDMEC, Instituto Superior Técnico, Universidade de Lisboa  
-ISEL, Instituto Politécnico de Lisboa  
-Email: aguilarmadeira@tecnico.ulisboa.pt  
+**José F. Aguilar Madeira**
+IDMEC, Instituto Superior Técnico, Universidade de Lisboa
+ISEL, Instituto Politécnico de Lisboa
+Email: aguilarmadeira@tecnico.ulisboa.pt
 ORCID: [0000-0001-9523-3808](https://orcid.org/0000-0001-9523-3808)
