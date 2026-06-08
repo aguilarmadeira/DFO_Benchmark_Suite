@@ -1,77 +1,94 @@
 # DFO Benchmark Suite
 
-A benchmark suite for **Derivative-Free Optimization (DFO)**, organized by the
-type of decision variables. The current release provides bound-constrained
-problems with **continuous variables** under controlled scale heterogeneity;
-additional categories (discrete, categorical, mixed) are planned for future
-releases.
+A benchmark suite for **Derivative-Free Optimization (DFO)**, organized by
+the type of decision variables. The current release provides two
+categories: bound-constrained **continuous-variable** problems under
+controlled scale heterogeneity, and **mixed-variable** problems combining
+continuous, ordered discrete, and categorical variables.
 
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
-[![DOI](https://img.shields.io/badge/DOI-pending-orange.svg)](https://doi.org/)
+[![DOI](https://img.shields.io/badge/DOI-10.1093%2Fjcde%2Fqwag049-blue.svg)](https://doi.org/10.1093/jcde/qwag049)
 
 ---
 
 ## Repository structure
 
-```
+```text
 DFO_Benchmark_Suite/
-├── README.md                    (this file)
-├── LICENSE                      (GNU LGPL v3)
-├── CITATION.cff                 (citation metadata)
+├── README.md                   (this file)
+├── LICENSE                     (GNU LGPL v3)
+├── CITATION.cff                (citation metadata)
 │
-└── prob_var_continuous/         Category: continuous variables
-    ├── README.md                (category-specific documentation)
-    ├── originals/               48 original problem definitions (Ali, Brachetti, ...)
-    ├── scaled/                  504 self-contained wrappers (63 instances × 8 strategies)
-    └── scaling_toolkit/         3 MATLAB functions to scale new problems
-```
-
-Future releases may add:
-
-```
-├── prob_var_discrete/           (planned)
-├── prob_var_categorical/        (planned)
-└── prob_var_mixed/              (planned)
+├── prob_var_continuous/        Category: continuous variables
+│   ├── README.md
+│   ├── originals/              48 original problem definitions
+│   ├── scaled/                 504 self-contained scaled wrappers (63 × 8)
+│   └── scaling_toolkit/        3 MATLAB functions to scale new problems
+│
+└── prob_var_mixed/             Category: mixed variables (C / D / K)
+    ├── README.md
+    ├── problemsMix/            504 self-contained mixed wrappers (63 × 8)
+    └── metadata/               machine-readable inventory of instances
 ```
 
 ---
 
-## Current release: continuous-variable problems
+## Current release
 
-The `prob_var_continuous/` category contains:
+The repository contains two benchmark categories.
 
-- **48 original problem definitions** corresponding to **63 (problem,
-  dimension) instances** (some functions are evaluated at multiple
-  dimensions, e.g., `cauchy` at `n=4` and `n=10`). Dimensions span
-  `n ∈ {2, 3, 4, 5, 6, 8, 9, 10}`. Problems are collected from the
-  standard derivative-free benchmarking literature
-  (Ali et al. 2005; Brachetti et al. 1997; Storn & Price 1997; and others).
-- **504 self-contained MATLAB wrappers** (63 instances × 8 scaling strategies),
-  in which heterogeneous variable scales have been embedded by construction.
-  Each wrapper is fully self-contained at runtime: no external scaling
-  utilities or path setup are required to evaluate the objective.
-- **A standalone scaling toolkit** of three MATLAB functions
-  (`generate_scale_factors`, `generate_scaled_bounds`,
-  `create_scaled_wrapper`) that allows users to apply the same scaling
-  methodology to their own bound-constrained problems.
+### Continuous-variable benchmark suite
 
-For full details, scaling strategies, file layout, and usage examples,
-see [`prob_var_continuous/README.md`](prob_var_continuous/README.md).
+The `prob_var_continuous/` category contains bound-constrained continuous
+problems under controlled scale heterogeneity. It includes the original
+continuous problem definitions, self-contained scaled wrappers, and the
+scaling toolkit used to generate heterogeneous continuous test instances.
+See [`prob_var_continuous/README.md`](prob_var_continuous/README.md).
+
+### Mixed-variable benchmark suite
+
+The `prob_var_mixed/` category contains the mixed-variable benchmark
+instances used in the GLODS-SI-Mix computational study. These problems
+combine continuous, ordered discrete, and categorical variables. The main
+synthetic suite contains **504 self-contained MATLAB wrappers** generated
+from **63 classical continuous test-function instances** under **8
+deterministic heterogeneity strategies**.
+
+Each mixed wrapper is self-contained at runtime and exposes a problem
+structure with variable types, domains, decoding rules, categorical
+embeddings, and an objective handle. The mixed-variable construction
+follows a fixed cyclic variable pattern of continuous, categorical, and
+ordered discrete variables, while categorical variables are represented
+through permutation-invariant labels and evaluated through embedded
+numerical grids.
+
+The category also reports the **16-problem Cat-Suite** benchmark used for
+comparison with CatMADS and published baselines; those baseline values are
+taken from the publicly available CatMADS data
+(`github.com/bbopt/CatMADS_prototype`) and are not redistributed here. See
+[`prob_var_mixed/README.md`](prob_var_mixed/README.md).
 
 ---
 
 ## Quick start
 
-Add the relevant strategy folder and (optionally) the scaling toolkit to
-the MATLAB path, and call any wrapper as a regular MATLAB function:
+Continuous wrappers expose a three-mode interface (info / bounds / value):
 
 ```matlab
 addpath(genpath('prob_var_continuous/scaled'));
 
-% Get info, bounds, evaluate
-info       = ackley_10D();
-[lb, ub]   = ackley_10D(10);
-f          = ackley_10D(rand(10,1));
+info     = ackley_10D();        % metadata struct
+[lb, ub] = ackley_10D(10);      % work-space bounds
+f        = ackley_10D(rand(10,1));
+```
+
+Mixed wrappers return a problem struct and evaluate a cell array of values:
+
+```matlab
+addpath(genpath('prob_var_mixed/problemsMix'));
+
+PB = ackley_k83_k47_10D();      % problem struct
+f  = PB.func_F(PB.x_star);      % objective at a representative optimizer
 ```
 
 ---
@@ -79,19 +96,19 @@ f          = ackley_10D(rand(10,1));
 ## License
 
 This repository is distributed under the **GNU Lesser General Public
-License version 3** (LGPL-3.0-or-later). This license is inherited from
-the original GLODS framework (Custódio & Madeira, 2015) on which the
-embedded problem definitions and the algorithmic context of this suite
-are based.
-
-See [`LICENSE`](LICENSE) for the full license text.
+License version 3** (LGPL-3.0-or-later), inherited from the original GLODS
+framework (Custódio & Madeira, 2015) on which the embedded problem
+definitions and the algorithmic context of this suite are based. See
+[`LICENSE`](LICENSE) for the full text.
 
 ---
 
 ## Citation
 
 If you use this benchmark suite in academic work, please cite the
-accompanying paper:
+accompanying papers.
+
+Continuous-variable suite:
 
 ```bibtex
 @article{Madeira2026GLODSSI,
@@ -100,7 +117,19 @@ accompanying paper:
              for Engineering Design Optimization},
   journal = {Journal of Computational Design and Engineering},
   year    = {2026},
-  note    = {Manuscript ID JCDE-2026-065}
+  note    = {qwag049},
+  doi     = {10.1093/jcde/qwag049}
+}
+```
+
+Mixed-variable suite (GLODS-SI-Mix):
+
+```bibtex
+@unpublished{MadeiraGLODSSIMix,
+  author = {Madeira, J. F. A.},
+  title  = {{GLODS-SI-Mix}: Scale-Invariant Direct Search for
+            Mixed-Variable Derivative-Free Optimization},
+  note   = {Manuscript under review}
 }
 ```
 
@@ -109,27 +138,25 @@ metadata format (GitHub, Zenodo, etc.).
 
 ### Underlying framework
 
-The original GLODS framework on which this suite is methodologically based:
+> Custódio, A. L., Madeira, J. F. A. (2015). *GLODS: Global and Local
+> Optimization using Direct Search.* Journal of Global Optimization, 62,
+> 1–28. [doi:10.1007/s10898-014-0224-9](https://doi.org/10.1007/s10898-014-0224-9)
 
-> Custódio, A. L., Madeira, J. F. A. (2015).
-> *GLODS: Global and Local Optimization using Direct Search.*
-> Journal of Global Optimization, 62, 1–28.
-> [doi:10.1007/s10898-014-0224-9](https://doi.org/10.1007/s10898-014-0224-9)
+The Cat-Suite problems used in the mixed-variable comparison are due to the
+CatMADS authors (`github.com/bbopt/CatMADS_prototype`; report G-2025-39).
 
 ---
 
 ## Acknowledgments
 
-This work was supported by *Fundação para a Ciência e a Tecnologia*
-(FCT) through LAETA (project
-[UID/50022/2025](https://doi.org/10.54499/UID/50022/2025)).
+This work was supported by *Fundação para a Ciência e a Tecnologia* (FCT)
+through LAETA (project [UID/50022/2025](https://doi.org/10.54499/UID/50022/2025)).
 
 ---
 
 ## Contact
 
-**José F. Aguilar Madeira**
-IDMEC, Instituto Superior Técnico, Universidade de Lisboa
-ISEL, Instituto Politécnico de Lisboa
-Email: aguilarmadeira@tecnico.ulisboa.pt
+**José F. Aguilar Madeira** — IDMEC, Instituto Superior Técnico,
+Universidade de Lisboa; ISEL, Instituto Politécnico de Lisboa.
+Email: <aguilarmadeira@tecnico.ulisboa.pt> ·
 ORCID: [0000-0001-9523-3808](https://orcid.org/0000-0001-9523-3808)

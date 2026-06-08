@@ -15,11 +15,13 @@ authors:
 repository-code: 'https://github.com/aguilarmadeira/DFO_Benchmark_Suite'
 abstract: >-
   Benchmark suite for derivative-free optimization, organized by
-  decision-variable type. The current release provides 63 bound-constrained
-  test problems with continuous variables and 504 self-contained MATLAB
-  wrappers (63 problems × 8 scaling strategies) for evaluating algorithmic
-  robustness under heterogeneous variable scales, together with a
-  standalone scaling toolkit applicable to user-supplied problems.
+  decision-variable type. It provides a continuous-variable category with
+  63 bound-constrained test problems and 504 self-contained MATLAB wrappers
+  (63 problems × 8 scaling strategies) for evaluating algorithmic robustness
+  under heterogeneous variable scales, together with a standalone scaling
+  toolkit; and a mixed-variable category with 504 self-contained wrappers
+  combining continuous, ordered discrete, and categorical variables, used in
+  the GLODS-SI-Mix computational study.
 keywords:
   - derivative-free optimization
   - benchmarking
@@ -27,6 +29,7 @@ keywords:
   - scale invariance
   - global optimization
   - direct search
+  - mixed-variable optimization
   - engineering design
 license: LGPL-3.0-or-later
 preferred-citation:
@@ -36,8 +39,12 @@ preferred-citation:
       given-names: José F. Aguilar
       orcid: 'https://orcid.org/0000-0001-9523-3808'
   title: >-
-    GLODS-SI: Scale-Invariant Global-Local Direct Search for Engineering
+    GLODS-SI: Scale-Invariant Global–Local Direct Search for Engineering
     Design Optimization
   journal: Journal of Computational Design and Engineering
   year: 2026
-  notes: Manuscript ID JCDE-2026-065
+  month: 5
+  date-published: '2026-05-18'
+  doi: 10.1093/jcde/qwag049
+  url: 'https://doi.org/10.1093/jcde/qwag049'
+  notes: 'Article qwag049 (Open Access)'
