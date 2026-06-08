@@ -1,0 +1,40 @@
+# MATLAB
+*.asv
+*.m~
+*.mex*
+slprj/
+*.autosave
+
+# Note on .mat / .h5 files:
+#   These are NOT globally ignored. Small, well-named result files relevant
+#   to reproducibility (e.g., precomputed Sobol seeds, reference profiles)
+#   should be versioned explicitly. Use the patterns below to keep large or
+#   transient outputs out of the repo.
+results/local/
+tmp/
+cache/
+*.log
+*.tmp
+
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python (occasional helper scripts)
+__pycache__/
+*.pyc
+*.pyo
+
+# Local-only: development helpers not part of the public release
+generate_selfcontained_wrappers.m
+generate_selfcontained_wrappers_*.m
+problemsNew/
+problemsNew0perturbated/
+archive/

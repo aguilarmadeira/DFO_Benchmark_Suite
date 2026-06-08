@@ -1,0 +1,50 @@
+cff-version: 1.2.0
+title: DFO Benchmark Suite
+message: >-
+  If you use this benchmark suite in academic work, please cite both
+  the suite (this entry) and the accompanying paper (preferred-citation).
+type: software
+authors:
+  - family-names: Madeira
+    given-names: José F. Aguilar
+    email: aguilarmadeira@tecnico.ulisboa.pt
+    affiliation: >-
+      IDMEC, Instituto Superior Técnico, Universidade de Lisboa;
+      ISEL, Instituto Politécnico de Lisboa
+    orcid: 'https://orcid.org/0000-0001-9523-3808'
+repository-code: 'https://github.com/aguilarmadeira/DFO_Benchmark_Suite'
+abstract: >-
+  Benchmark suite for derivative-free optimization, organized by
+  decision-variable type. It provides a continuous-variable category with
+  63 bound-constrained test problems and 504 self-contained MATLAB wrappers
+  (63 problems × 8 scaling strategies) for evaluating algorithmic robustness
+  under heterogeneous variable scales, together with a standalone scaling
+  toolkit; and a mixed-variable category with 504 self-contained wrappers
+  combining continuous, ordered discrete, and categorical variables, used in
+  the GLODS-SI-Mix computational study.
+keywords:
+  - derivative-free optimization
+  - benchmarking
+  - scale heterogeneity
+  - scale invariance
+  - global optimization
+  - direct search
+  - mixed-variable optimization
+  - engineering design
+license: LGPL-3.0-or-later
+preferred-citation:
+  type: article
+  authors:
+    - family-names: Madeira
+      given-names: José F. Aguilar
+      orcid: 'https://orcid.org/0000-0001-9523-3808'
+  title: >-
+    GLODS-SI: Scale-Invariant Global–Local Direct Search for Engineering
+    Design Optimization
+  journal: Journal of Computational Design and Engineering
+  year: 2026
+  month: 5
+  date-published: '2026-05-18'
+  doi: 10.1093/jcde/qwag049
+  url: 'https://doi.org/10.1093/jcde/qwag049'
+  notes: 'Article qwag049 (Open Access)'
