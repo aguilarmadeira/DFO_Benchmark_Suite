@@ -7,7 +7,7 @@ controlled scale heterogeneity, and **mixed-variable** problems combining
 continuous, ordered discrete, and categorical variables.
 
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
-[![DOI](https://img.shields.io/badge/DOI-10.1093%2Fjcde%2Fqwag049-blue.svg)](https://doi.org/10.1093/jcde/qwag049)
+[![Paper DOI](https://img.shields.io/badge/Paper-10.1093%2Fjcde%2Fqwag049-blue.svg)](https://doi.org/10.1093/jcde/qwag049)
 
 ---
 
@@ -108,6 +108,18 @@ definitions and the algorithmic context of this suite are based. See
 If you use this benchmark suite in academic work, please cite the
 accompanying papers.
 
+Archived suite (software/dataset):
+
+```bibtex
+@dataset{madeira_dfo_benchmark_suite_2026,
+  author    = {Madeira, J. F. A.},
+  title     = {{DFO Benchmark Suite: Continuous and Mixed-Variable Test Problems for Derivative-Free Optimization}},
+  year      = {2026},
+  version   = {1.0.0},
+  publisher = {Zenodo},
+}
+```
+
 Continuous-variable suite:
 
 ```bibtex
@@ -156,7 +168,7 @@ through LAETA (project [UID/50022/2025](https://doi.org/10.54499/UID/50022/2025)
 
 ## Contact
 
-**José F. Aguilar Madeira** — IDMEC, Instituto Superior Técnico,
+**J. F. A. Madeira** — IDMEC, Instituto Superior Técnico,
 Universidade de Lisboa; ISEL, Instituto Politécnico de Lisboa.
 Email: <aguilarmadeira@tecnico.ulisboa.pt> ·
 ORCID: [0000-0001-9523-3808](https://orcid.org/0000-0001-9523-3808)

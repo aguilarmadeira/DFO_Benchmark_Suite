@@ -6,18 +6,20 @@ message: >-
 type: software
 authors:
   - family-names: Madeira
-    given-names: José F. Aguilar
+    given-names: J. F. A.
     email: aguilarmadeira@tecnico.ulisboa.pt
     affiliation: >-
       IDMEC, Instituto Superior Técnico, Universidade de Lisboa;
       ISEL, Instituto Politécnico de Lisboa
     orcid: 'https://orcid.org/0000-0001-9523-3808'
+version: 1.0.0
+date-released: '2026-06-21'
 repository-code: 'https://github.com/aguilarmadeira/DFO_Benchmark_Suite'
 abstract: >-
   Benchmark suite for derivative-free optimization, organized by
   decision-variable type. It provides a continuous-variable category with
   63 bound-constrained test problems and 504 self-contained MATLAB wrappers
-  (63 problems × 8 scaling strategies) for evaluating algorithmic robustness
+  (63 problems x 8 scaling strategies) for evaluating algorithmic robustness
   under heterogeneous variable scales, together with a standalone scaling
   toolkit; and a mixed-variable category with 504 self-contained wrappers
   combining continuous, ordered discrete, and categorical variables, used in
@@ -36,10 +38,10 @@ preferred-citation:
   type: article
   authors:
     - family-names: Madeira
-      given-names: José F. Aguilar
+      given-names: J. F. A.
       orcid: 'https://orcid.org/0000-0001-9523-3808'
   title: >-
-    GLODS-SI: Scale-Invariant Global–Local Direct Search for Engineering
+    GLODS-SI: Scale-Invariant Global-Local Direct Search for Engineering
     Design Optimization
   journal: Journal of Computational Design and Engineering
   year: 2026
