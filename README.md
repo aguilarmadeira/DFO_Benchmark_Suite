@@ -8,6 +8,7 @@ continuous, ordered discrete, and categorical variables.
 
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 [![Paper DOI](https://img.shields.io/badge/Paper-10.1093%2Fjcde%2Fqwag049-blue.svg)](https://doi.org/10.1093/jcde/qwag049)
+[![Dataset DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20782892.svg)](https://doi.org/10.5281/zenodo.20782892)
 
 ---
 
@@ -117,6 +118,8 @@ Archived suite (software/dataset):
   year      = {2026},
   version   = {1.0.0},
   publisher = {Zenodo},
+  doi       = {10.5281/zenodo.20782893},
+  url       = {https://doi.org/10.5281/zenodo.20782893}
 }
 ```
 
