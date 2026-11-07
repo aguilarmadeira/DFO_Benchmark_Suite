@@ -14,6 +14,14 @@ authors:
 version: 2.0.0
 date-released: '2026-11-07'
 repository-code: 'https://github.com/aguilarmadeira/DFO_Benchmark_Suite'
+doi: 10.5281/zenodo.24037856
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.24037856
+    description: Version 2.0.0
+  - type: doi
+    value: 10.5281/zenodo.20782892
+    description: All versions (resolves to the latest)
 abstract: >-
   Version 2.0.0: 841 deterministic black-box optimization problems with
   continuous, ordered discrete and categorical variables, independent of any

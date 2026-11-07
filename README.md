@@ -1,7 +1,8 @@
 # DFO Benchmark Suite — version 2.0.0
 
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
-[![DOI (all versions)](https://zenodo.org/badge/DOI/10.5281/zenodo.20782892.svg)](https://doi.org/10.5281/zenodo.20782892)
+[![DOI v2.0.0](https://zenodo.org/badge/DOI/10.5281/zenodo.24037856.svg)](https://doi.org/10.5281/zenodo.24037856)
+[![DOI (all versions)](https://img.shields.io/badge/DOI_(all_versions)-10.5281%2Fzenodo.20782892-blue.svg)](https://doi.org/10.5281/zenodo.20782892)
 
 A reproducible collection of deterministic black-box optimisation problems
 with continuous (C), ordered discrete (D) and categorical (K) variables,
@@ -90,12 +91,14 @@ definitions come. See [`LICENSE`](LICENSE).
   year      = {2026},
   version   = {2.0.0},
   publisher = {Zenodo},
-  url       = {https://github.com/aguilarmadeira/DFO_Benchmark_Suite}
+  doi       = {10.5281/zenodo.24037856},
+  url       = {https://doi.org/10.5281/zenodo.24037856}
 }
 ```
 
 The DOI 10.5281/zenodo.20782892 cites all versions and resolves to the latest;
-each version has its own DOI on Zenodo (v1.0.0: 10.5281/zenodo.20782893).
+each version has its own DOI on Zenodo (v2.0.0: 10.5281/zenodo.24037856;
+v1.0.0: 10.5281/zenodo.20782893).
 `CITATION.cff` carries the same metadata for GitHub and Zenodo.
 
 > Custódio, A. L., Madeira, J. F. A. (2015). *GLODS: Global and Local
