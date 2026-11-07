@@ -1,8 +1,7 @@
 cff-version: 1.2.0
 title: DFO Benchmark Suite
 message: >-
-  If you use this benchmark suite in academic work, please cite both
-  the suite (this entry) and the accompanying paper (preferred-citation).
+  If you use this benchmark suite in academic work, please cite it as below.
 type: software
 authors:
   - family-names: Madeira
@@ -12,42 +11,26 @@ authors:
       IDMEC, Instituto Superior Técnico, Universidade de Lisboa;
       ISEL, Instituto Politécnico de Lisboa
     orcid: 'https://orcid.org/0000-0001-9523-3808'
-version: 1.0.0
-date-released: '2026-06-21'
-doi: '10.5281/zenodo.20782893'
+version: 2.0.0
+date-released: '2026-11-07'
 repository-code: 'https://github.com/aguilarmadeira/DFO_Benchmark_Suite'
 abstract: >-
-  Benchmark suite for derivative-free optimization, organized by
-  decision-variable type. It provides a continuous-variable category with
-  63 bound-constrained test problems and 504 self-contained MATLAB wrappers
-  (63 problems x 8 scaling strategies) for evaluating algorithmic robustness
-  under heterogeneous variable scales, together with a standalone scaling
-  toolkit; and a mixed-variable category with 504 self-contained wrappers
-  combining continuous, ordered discrete, and categorical variables, used in
-  the GLODS-SI-Mix computational study.
+  Version 2.0.0: 841 deterministic black-box optimization problems with
+  continuous, ordered discrete and categorical variables, independent of any
+  solver. 697 problems derive from 55 classical base instances in seven
+  variable-type patterns (C, D, K, DK, CD, CK, CDK) and three scale
+  strategies; 144 belong to the synthetic Family BK (nominal categories with
+  a controlled continuous-categorical interaction). Every problem has a
+  known global optimum with a stated justification; self-contained
+  MATLAB/Octave wrappers, reference optima, versioned targets and a
+  solver-independent evaluation protocol are included. Version 1.0.0
+  (continuous and mixed-variable suites of the GLODS-SI and GLODS-SI-Mix
+  studies) remains available under tag v1.0.0.
 keywords:
   - derivative-free optimization
   - benchmarking
-  - scale heterogeneity
-  - scale invariance
-  - global optimization
-  - direct search
   - mixed-variable optimization
-  - engineering design
+  - categorical variables
+  - known global optimum
+  - black-box optimization
 license: LGPL-3.0-or-later
-preferred-citation:
-  type: article
-  authors:
-    - family-names: Madeira
-      given-names: J. F. A.
-      orcid: 'https://orcid.org/0000-0001-9523-3808'
-  title: >-
-    GLODS-SI: Scale-Invariant Global-Local Direct Search for Engineering
-    Design Optimization
-  journal: Journal of Computational Design and Engineering
-  year: 2026
-  month: 5
-  date-published: '2026-05-18'
-  doi: 10.1093/jcde/qwag049
-  url: 'https://doi.org/10.1093/jcde/qwag049'
-  notes: 'Article qwag049 (Open Access)'

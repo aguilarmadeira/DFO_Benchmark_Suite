@@ -1,0 +1,169 @@
+function PB = exponencial_ck_4D()
+%EXPONENCIAL_CK_4D  DFO Benchmark Suite v2 core: exponencial, dimension 4, pattern CK, strategy extreme.
+%
+% Copyright (C) 2026 J. F. A. Madeira
+%
+% Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
+% coordinates only: uniform grid of 151 levels on the original interval, piecewise-affine map with |T - Id| <=
+% half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
+% Global optimum of F on this domain: f* = -1 (E: exact by structure); the optimal solution is listed in
+% reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
+% Variables: x1:C x2:K x3:C x4:K
+%
+lb_orig = [-1 -1 -1 -1];
+ub_orig = [1 1 1 1];
+lb_C_work = [-1 -1 -100000000 -1];
+ub_C_work = [1 1 100000000 1];
+T_break = [NaN 0 NaN 0];   % breakpoints of T (NaN for continuous)
+T_image = [NaN 0 NaN 0];   % their images
+m = 151;
+ProblemData = cell(1, 4);
+ProblemData{1} = [lb_C_work(1); ub_C_work(1)];
+ProblemData{2} = arrayfun(@(j) sprintf('k2_%d', j), (1:m)', 'UniformOutput', false);
+ProblemData{3} = [lb_C_work(3); ub_C_work(3)];
+ProblemData{4} = arrayfun(@(j) sprintf('k4_%d', j), (1:m)', 'UniformOutput', false);
+PB.name        = 'exponencial_ck_4D';
+PB.base_function = 'exponencial';
+PB.suite_version = 2;
+PB.core = true;
+PB.description = 'DFO Benchmark Suite v2 core: CK adaptation of exponencial (F = f o T).';
+PB.nvar        = 4;
+PB.nobj        = 1;
+PB.var_types   = {'C','K','C','K'};
+PB.type_counts = struct('C', 2, 'D', 0, 'K', 2);
+PB.proportion  = [2 0 2];
+PB.pattern     = 'CK';
+PB.strategy    = 'extreme';
+PB.scale_factors_C = [1 100000000];
+PB.cardinality = [Inf 151 Inf 151];
+PB.n_finite    = 2;
+PB.finite_part_size = 22801;
+PB.M_K = 22801;
+PB.domain_size = Inf;
+PB.lb_orig = lb_orig(:); PB.ub_orig = ub_orig(:);
+PB.lb_C_work = lb_C_work(:); PB.ub_C_work = ub_C_work(:);
+PB.m = m;
+PB.ProblemData = ProblemData;
+D = struct('name', 'exponencial_ck_4D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
+D.E = cell(1, 4);
+g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([112 146 60 82 73 111 32 59 122 68 19 48 1 2 93 37 66 8 43 38 95 16 18 75 96 102 106 10 13 15 61 126 94 55 83 35 5 12 54 104 135 26 110 76 40 142 78 63 71 23 87 98 128 77 116 101 109 58 115 20 41 49 131 80 14 27 36 91 56 86 129 145 123 141 84 51 92 9 133 62 6 120 151 124 113 103 34 46 90 127 50 65 4 52 125 137 134 118 47 70 39 139 147 140 25 108 42 149 45 28 72 130 24 17 74 30 97 107 148 85 29 143 67 79 144 22 100 89 132 99 136 114 31 81 21 150 105 53 88 64 117 3 57 119 44 121 11 69 7 138 33])';
+g = linspace(lb_orig(4), ub_orig(4), m); D.E{4} = g([113 131 140 103 58 26 80 43 122 139 97 42 102 2 46 37 96 115 116 123 82 65 101 133 64 4 118 93 83 68 60 45 27 31 34 149 6 147 70 150 132 28 66 143 63 130 138 53 106 25 100 61 146 16 117 110 72 3 9 22 44 119 148 112 144 85 145 107 94 15 20 48 135 10 35 55 69 13 120 67 12 29 38 84 30 17 40 52 95 77 136 73 11 59 141 33 89 128 56 79 49 98 125 74 36 108 54 134 57 41 86 127 151 137 90 47 114 8 88 105 126 81 91 104 21 50 1 121 19 5 92 23 75 129 71 109 32 124 24 7 76 111 51 142 87 78 14 99 62 18 39])';
+D.fn = @(xh) exponencial_orig(xh);
+PB.f_star      = -1;
+PB.f_star_justification = 'E';   % exact by structure
+PB.n_minimizers_documented = 1;
+PB.x0_idx      = [-0.126953125 42 77024000 145];   % protocol starting point: Halton point 1014 (index representation)
+PB.x0_alt_idx  = [0.3447265625 46 -14175999.999999985 148;-0.6396484375 36 -74656000 134;0.6025390625 45 26144000.000000015 140;-0.3818359375 48 -35872000.000000007 147;0.0986328125 37 64928000 132;-0.8857421875 42 4448000.0000000149 136;0.9189453125 51 -86752000 143;-0.0654296875 38 44768000 149;0.4091796875 42 -46432000.000000007 135];   % 9 alternative starting points (Halton indices 1014 + 63 k)
+PB.core_pidx   = 14;
+PB.func_idx    = @(z) objective(z, D);
+PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
+PB.idx2cell    = @(z) idx2cell(z, PB);
+PB.cell2idx    = @(xr) cell2idx(xr, PB);
+PB.decode      = @(xr) decode_to_original(cell2idx(xr, PB), D);
+fprintf('exponencial_ck_4D: n = 4, pattern CK, m = 151, f* = -1 (E)\n');
+end
+
+function f = objective(z, D)
+f = D.fn(decode_to_original(z, D));
+end
+
+function xh = decode_to_original(z, D)
+if ~isnumeric(z) || numel(z) ~= 4 || ~all(isfinite(z)), error('exponencial_ck_4D: z must be a finite numeric vector with 4 entries.'); end
+xh = zeros(4, 1);
+v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('exponencial_ck_4D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
+k = check_idx(z(2), D.m, D.name, 2); g = D.E{2}(k);
+xh(2) = T_map(g, D.lb(2), D.ub(2), D.Tb(2), D.Ti(2));
+v = z(3); if v < D.lbw(3) || v > D.ubw(3), error('exponencial_ck_4D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
+xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3));
+k = check_idx(z(4), D.m, D.name, 4); g = D.E{4}(k);
+xh(4) = T_map(g, D.lb(4), D.ub(4), D.Tb(4), D.Ti(4));
+end
+
+function x = T_map(g, a, b, zs, xs)
+% piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
+elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
+elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);
+else, x = xs + (g - zs) * (b - xs) / (b - zs);
+end
+x = min(max(x, min(a, xs)), max(b, xs));
+end
+
+function k = check_idx(v, m, wname, i)
+if ~isscalar(v) || ~isfinite(v) || v ~= floor(v) || v < 1 || v > m, error('%s: z%d = %g is not an index in 1..%d.', wname, i, v, m); end
+k = double(v);
+end
+
+function xo = map_work_to_orig(xw, lbw, ubw, lbo, ubo)
+if abs(ubw - lbw) <= 1e-14, t = 0; else, t = (xw - lbw) / (ubw - lbw); end
+t = max(0, min(1, t)); xo = lbo + t * (ubo - lbo);
+end
+
+function xr = idx2cell(z, PB)
+xr = cell(1, 4);
+for i = 1:4
+    switch PB.var_types{i}
+        case 'C', xr{i} = z(i);
+        case 'D', xr{i} = PB.ProblemData{i}{1}(check_idx(z(i), PB.m, PB.name, i));
+        case 'K', xr{i} = PB.ProblemData{i}{check_idx(z(i), PB.m, PB.name, i)};
+    end
+end
+end
+
+function z = cell2idx(xr, PB)
+if ~iscell(xr) || numel(xr) ~= 4, error('exponencial_ck_4D: xr must be a cell array with 4 entries.'); end
+z = zeros(1, 4);
+for i = 1:4
+    switch PB.var_types{i}
+        case 'C'
+            v = xr{i}; if ~isnumeric(v) || ~isscalar(v) || ~isfinite(v), error('exponencial_ck_4D: x%d must be a finite scalar.', i); end
+            z(i) = double(v);
+        case 'D'
+            v = xr{i}; grid = PB.ProblemData{i}{1}; if ~isnumeric(v) || ~isscalar(v), error('exponencial_ck_4D: x%d must be a grid value.', i); end
+            [d, k] = min(abs(grid - v)); if d > 1e-10 * max(1, max(abs(grid))), error('exponencial_ck_4D: x%d = %g is not a grid value.', i, v); end
+            z(i) = k;
+        case 'K'
+            lab = xr{i}; if isstring(lab), lab = char(lab); end
+            k = find(strcmp(lab, PB.ProblemData{i}), 1); if isempty(k), error('exponencial_ck_4D: x%d unknown label %s.', i, lab); end
+            z(i) = k;
+    end
+end
+end
+
+% -------------------------------------------------------------------------
+% Embedded original continuous function (verbatim; only the top-level name is renamed)
+% -------------------------------------------------------------------------
+function [f] = exponencial_orig(x)
+%
+% Purpose:
+%
+%    Function exponencial is the function described in
+%    Brachetti et al. (1997).
+%
+%    dim = n
+%    Minimum global value = -1
+%    Global minima = zeros(n,1)
+%    Local minima
+%    Search domain: -1 <= x <= 1 (Brachetti et al. (1997))
+%    Cases considered: n = 2 Brachetti et al. (1997)
+%                      n = 4 Brachetti et al. (1997)
+%
+% Input:  
+%
+%         x (point given by the optimizer).
+%
+% Output: 
+%
+%         f (function value at x).
+%
+% Written by A. L. Custodio and J. F. A. Madeira.
+%
+% Version June 2012.
+%
+%
+f = -exp(-0.5*sum(x.^2,1)); 
+end
+%
+% End of exponencial.
+

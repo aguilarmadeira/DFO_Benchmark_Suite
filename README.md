@@ -1,177 +1,115 @@
-# DFO Benchmark Suite
-
-A benchmark suite for **Derivative-Free Optimization (DFO)**, organized by
-the type of decision variables. The current release provides two
-categories: bound-constrained **continuous-variable** problems under
-controlled scale heterogeneity, and **mixed-variable** problems combining
-continuous, ordered discrete, and categorical variables.
+# DFO Benchmark Suite — version 2.0.0
 
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
-[![Paper DOI](https://img.shields.io/badge/Paper-10.1093%2Fjcde%2Fqwag049-blue.svg)](https://doi.org/10.1093/jcde/qwag049)
-[![Dataset DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20782892.svg)](https://doi.org/10.5281/zenodo.20782892)
+[![DOI (all versions)](https://zenodo.org/badge/DOI/10.5281/zenodo.20782892.svg)](https://doi.org/10.5281/zenodo.20782892)
 
----
+A reproducible collection of deterministic black-box optimisation problems
+with continuous (C), ordered discrete (D) and categorical (K) variables,
+independent of any solver. Every problem has a **known global optimum** with a
+stated justification, every file is a self-contained MATLAB/Octave function,
+and the evaluation protocol uses only the points and values a solver
+evaluates.
 
-## Repository structure
+**Version 1.0.0** — the continuous-variable suite (504 scaled wrappers and
+the scaling toolkit) and the mixed-variable suite used in the GLODS-SI
+(JCDE, doi:10.1093/jcde/qwag049) and GLODS-SI-Mix studies — remains
+available, unchanged, under the tag
+[`v1.0.0`](https://github.com/aguilarmadeira/DFO_Benchmark_Suite/tree/v1.0.0)
+and on Zenodo (doi:10.5281/zenodo.20782893). Results obtained on different
+versions are not comparable.
 
-```text
-DFO_Benchmark_Suite/
-├── README.md                   (this file)
-├── LICENSE                     (GNU LGPL v3)
-├── CITATION.cff                (citation metadata)
-│
-├── prob_var_continuous/        Category: continuous variables
-│   ├── README.md
-│   ├── originals/              48 original problem definitions
-│   ├── scaled/                 504 self-contained scaled wrappers (63 × 8)
-│   └── scaling_toolkit/        3 MATLAB functions to scale new problems
-│
-└── prob_var_mixed/             Category: mixed variables (C / D / K)
-    ├── README.md
-    ├── problemsMix/            504 self-contained mixed wrappers (63 × 8)
-    └── metadata/               machine-readable inventory of instances
-```
+## Contents
 
----
+| path | what |
+|---|---|
+| `core/` | 17 folders, 841 problems (below) |
+| `core/<folder>/reference_optima.csv` | optimal solution of every instance (not used by solvers) |
+| `core/<folder>/INDEX.csv` | per instance: dimension, cardinalities, f*, enumeration certificate, ... |
+| `targets/` | versioned targets of the protocol (one file per folder) |
+| `benchmark/` | protocol (`PROTOCOL.md`) and tools: run, validate, targets, profiles |
+| `docs/CORE_SPEC.md` | specification: construction, interface, starting points |
+| `docs/OPTIMA.md` | the 55 base instances, their optimum and its justification |
+| `LICENSE`, `CITATION.cff`, `CHANGELOG.md` | licence (LGPL-3.0-or-later), citation metadata, changes |
 
-## Current release
+| folders | variable types | problems |
+|---|---|---|
+| `C_baseline`, `C_moderate`, `C_extreme` | continuous | 55 + 55 + 55 |
+| `D`, `K`, `DK` | ordered discrete, categorical, alternating | 55 each |
+| `CD_*`, `CK_*`, `CDK_*` (baseline / moderate / extreme) | mixed | 55 / 35 / 35, 55 / 35 / 35, 55 / 31 / 31 |
+| `BK_MK16`, `BK_binary` | continuous + nominal categories (synthetic, controlled interaction) | 54 + 90 |
 
-The repository contains two benchmark categories.
-
-### Continuous-variable benchmark suite
-
-The `prob_var_continuous/` category contains bound-constrained continuous
-problems under controlled scale heterogeneity. It includes the original
-continuous problem definitions, self-contained scaled wrappers, and the
-scaling toolkit used to generate heterogeneous continuous test instances.
-See [`prob_var_continuous/README.md`](prob_var_continuous/README.md).
-
-### Mixed-variable benchmark suite
-
-The `prob_var_mixed/` category contains the mixed-variable benchmark
-instances used in the GLODS-SI-Mix computational study. These problems
-combine continuous, ordered discrete, and categorical variables. The main
-synthetic suite contains **504 self-contained MATLAB wrappers** generated
-from **63 classical continuous test-function instances** under **8
-deterministic heterogeneity strategies**.
-
-Each mixed wrapper is self-contained at runtime and exposes a problem
-structure with variable types, domains, decoding rules, categorical
-embeddings, and an objective handle. The mixed-variable construction
-follows a fixed cyclic variable pattern of continuous, categorical, and
-ordered discrete variables, while categorical variables are represented
-through permutation-invariant labels and evaluated through embedded
-numerical grids.
-
-The category also reports the **16-problem Cat-Suite** benchmark used for
-comparison with CatMADS and published baselines; those baseline values are
-taken from the publicly available CatMADS data
-(`github.com/bbopt/CatMADS_prototype`) and are not redistributed here. See
-[`prob_var_mixed/README.md`](prob_var_mixed/README.md).
-
----
+The 697 problems of the first rows derive from 55 classical base instances
+(dimensions 2 to 10); finite coordinates take values on uniform grids and the
+objective is F = f ∘ T, with T a deformation of at most half a grid cell that
+keeps the global optimum value f* exactly (`docs/CORE_SPEC.md`). The moderate
+and extreme folders rescale the continuous coordinates and contain only the
+instances with at least two continuous variables.
 
 ## Quick start
 
-Continuous wrappers expose a three-mode interface (info / bounds / value):
-
 ```matlab
-addpath(genpath('prob_var_continuous/scaled'));
+addpath('core/CDK_baseline');
+PB = ackley_cdk_10D();                 % one problem
+f  = PB.func_idx(PB.x0_idx);           % evaluate at the protocol's starting point
+PB.var_types, PB.cardinality, PB.f_star
 
-info     = ackley_10D();        % metadata struct
-[lb, ub] = ackley_10D(10);      % work-space bounds
-f        = ackley_10D(rand(10,1));
+addpath('benchmark');
+run_benchmark(solver_random_search(), 'core/D');   % 1000 n evaluations, 10 seeds
+data_profiles({'random_search'}, 'core/D');
 ```
 
-Mixed wrappers return a problem struct and evaluate a cell array of values:
+To benchmark your own solver write a struct `solver.name`, `solver.fun =
+@(P) ...` (see `benchmark/solver_random_search.m` and `benchmark/PROTOCOL.md`).
+The solver receives the domain, the objective and the starting point only.
 
-```matlab
-addpath(genpath('prob_var_mixed/problemsMix'));
+## Verification
 
-PB = ackley_k83_k47_10D();      % problem struct
-f  = PB.func_F(PB.x_star);      % objective at a representative optimizer
-```
+841 instances, 0 problems, 0 trivial starting points (`benchmark/finalize_core`);
+F(x*) = f* in every file; generation reproduced identically in MATLAB and
+Octave; optimum of the fully finite versions certified by enumeration where
+the grid has at most 2·10⁶ points (39 of 55 instances in each of D, K, DK).
 
----
+## Held-out part
+
+`benchmark/holdout_instances.m` lists 19 base instances whose results are to
+be reported separately and never used to tune a solver.
 
 ## License
 
-This repository is distributed under the **GNU Lesser General Public
-License version 3** (LGPL-3.0-or-later), inherited from the original GLODS
-framework (Custódio & Madeira, 2015) on which the embedded problem
-definitions and the algorithmic context of this suite are based. See
-[`LICENSE`](LICENSE) for the full text.
-
----
+Distributed under the **GNU Lesser General Public License version 3**
+(LGPL-3.0-or-later), as version 1, inherited from the GLODS framework
+(Custódio & Madeira, 2015) from which the embedded original test-function
+definitions come. See [`LICENSE`](LICENSE).
 
 ## Citation
 
-If you use this benchmark suite in academic work, please cite the
-accompanying papers.
-
-Archived suite (software/dataset):
-
 ```bibtex
-@dataset{madeira_dfo_benchmark_suite_2026,
+@software{madeira_dfo_benchmark_suite_v2,
   author    = {Madeira, J. F. A.},
-  title     = {{DFO Benchmark Suite: Continuous and Mixed-Variable Test Problems for Derivative-Free Optimization}},
+  title     = {{DFO Benchmark Suite}},
   year      = {2026},
-  version   = {1.0.0},
+  version   = {2.0.0},
   publisher = {Zenodo},
-  doi       = {10.5281/zenodo.20782893},
-  url       = {https://doi.org/10.5281/zenodo.20782893}
+  url       = {https://github.com/aguilarmadeira/DFO_Benchmark_Suite}
 }
 ```
 
-Continuous-variable suite:
-
-```bibtex
-@article{Madeira2026GLODSSI,
-  author  = {Madeira, J. F. A.},
-  title   = {{GLODS-SI}: Scale-Invariant {Global--Local} Direct Search
-             for Engineering Design Optimization},
-  journal = {Journal of Computational Design and Engineering},
-  year    = {2026},
-  note    = {qwag049},
-  doi     = {10.1093/jcde/qwag049}
-}
-```
-
-Mixed-variable suite (GLODS-SI-Mix):
-
-```bibtex
-@unpublished{MadeiraGLODSSIMix,
-  author = {Madeira, J. F. A.},
-  title  = {{GLODS-SI-Mix}: Scale-Invariant Direct Search for
-            Mixed-Variable Derivative-Free Optimization},
-  note   = {Manuscript under review}
-}
-```
-
-A `CITATION.cff` file is also provided for tools that consume that
-metadata format (GitHub, Zenodo, etc.).
-
-### Underlying framework
+The DOI 10.5281/zenodo.20782892 cites all versions and resolves to the latest;
+each version has its own DOI on Zenodo (v1.0.0: 10.5281/zenodo.20782893).
+`CITATION.cff` carries the same metadata for GitHub and Zenodo.
 
 > Custódio, A. L., Madeira, J. F. A. (2015). *GLODS: Global and Local
 > Optimization using Direct Search.* Journal of Global Optimization, 62,
 > 1–28. [doi:10.1007/s10898-014-0224-9](https://doi.org/10.1007/s10898-014-0224-9)
-
-The Cat-Suite problems used in the mixed-variable comparison are due to the
-CatMADS authors (`github.com/bbopt/CatMADS_prototype`; report G-2025-39).
-
----
 
 ## Acknowledgments
 
 This work was supported by *Fundação para a Ciência e a Tecnologia* (FCT)
 through LAETA (project [UID/50022/2025](https://doi.org/10.54499/UID/50022/2025)).
 
----
-
 ## Contact
 
-**J. F. A. Madeira** — IDMEC, Instituto Superior Técnico,
-Universidade de Lisboa; ISEL, Instituto Politécnico de Lisboa.
+**J. F. A. Madeira** — IDMEC, Instituto Superior Técnico, Universidade de
+Lisboa; ISEL, Instituto Politécnico de Lisboa.
 Email: <aguilarmadeira@tecnico.ulisboa.pt> ·
 ORCID: [0000-0001-9523-3808](https://orcid.org/0000-0001-9523-3808)
