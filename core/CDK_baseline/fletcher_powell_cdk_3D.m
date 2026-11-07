@@ -1,20 +1,20 @@
 function PB = fletcher_powell_cdk_3D()
-%FLETCHER_POWELL_CDK_3D  DFO Benchmark Suite v2 core: fletcher_powell, dimension 3, pattern CDK, strategy baseline.
+%FLETCHER_POWELL_CDK_3D  DFO Benchmark Suite v2.1.0 core: fletcher_powell, dimension 3, pattern CDK, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 151 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 151 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:K x3:D
 %
 lb_orig = [-10 -10 -10];
-ub_orig = [10 10 10];
+ub_orig = [7.1000732421875004 7.351917898694305 7.1731327999999994];
 lb_C_work = [-10 -10 -10];
-ub_C_work = [10 10 10];
-T_break = [NaN 0 0];   % breakpoints of T (NaN for continuous)
+ub_C_work = [7.1000732421875004 7.351917898694305 7.1731327999999994];
+T_break = [NaN -0.051567071415265175 -0.039582976000001935];   % breakpoints of T (NaN for continuous)
 T_image = [NaN 0 0];   % their images
 m = 151;
 ProblemData = cell(1, 3);
@@ -25,7 +25,8 @@ PB.name        = 'fletcher_powell_cdk_3D';
 PB.base_function = 'fletcher_powell';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: CDK adaptation of fletcher_powell (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: CDK adaptation of fletcher_powell (F = f o T).';
 PB.nvar        = 3;
 PB.nobj        = 1;
 PB.var_types   = {'C','K','D'};
@@ -45,13 +46,15 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'fletcher_powell_cdk_3D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 3);
+D.cw = [1 NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [1 NaN NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([36 71 104 99 74 107 147 131 93 5 144 41 51 45 16 135 43 129 112 150 35 30 122 138 21 102 62 125 97 67 53 19 87 26 79 80 92 47 143 64 54 109 126 60 39 4 10 142 146 25 57 96 130 134 103 66 91 90 120 94 95 85 7 15 33 48 58 117 118 38 44 2 27 115 68 111 29 110 77 32 59 139 6 56 3 141 22 34 61 69 55 72 116 65 84 151 124 73 88 14 89 42 70 23 106 105 37 8 136 52 121 28 145 82 40 13 148 11 98 137 127 149 108 132 75 119 100 31 114 17 49 9 123 20 1 50 18 128 113 24 83 12 101 63 78 81 140 86 76 133 46])';
 D.fn = @(xh) fletcher_powell_orig(xh);
 PB.f_star      = 0;
 PB.f_star_justification = 'E';   % exact by structure
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [-5.01953125 31 26];   % protocol starting point: Halton point 1020 (index representation)
-PB.x0_alt_idx  = [7.197265625 20 101;-2.646484375 25 56;2.275390625 34 132;-7.568359375 22 85;8.486328125 26 17;-1.357421875 30 115;3.564453125 18 47;-6.279296875 27 146;5.966796875 31 77];   % 9 alternative starting points (Halton indices 1020 + 63 k)
+PB.x0_idx      = [-5.7416809797286987 31 26];   % protocol starting point: Halton point 1020 (index representation)
+PB.x0_alt_idx  = [4.7037250876426686 20 101;-3.712717211246491 25 56;0.49550393819808924 34 132;-7.9209383606910713 22 85;5.8058782458305345 26 17;-2.6105640530586252 30 115;1.5976570963859551 18 47;-6.8187852025032045 27 146;3.6516698002815229 31 77];   % 9 alternative starting points (Halton indices 1020 + 63 k)
 PB.core_pidx   = 20;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -68,8 +71,9 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 3 || ~all(isfinite(z)), error('fletcher_powell_cdk_3D: z must be a finite numeric vector with 3 entries.'); end
 xh = zeros(3, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('fletcher_powell_cdk_3D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('fletcher_powell_cdk_3D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
 k = check_idx(z(2), D.m, D.name, 2); g = D.E{2}(k);
 xh(2) = T_map(g, D.lb(2), D.ub(2), D.Tb(2), D.Ti(2));
 k = check_idx(z(3), D.m, D.name, 3); g = D.lb(3) + (k - 1) * (D.ub(3) - D.lb(3)) / (D.m - 1);
@@ -78,6 +82,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

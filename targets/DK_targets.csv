@@ -11,7 +11,7 @@ exponencial_dk_2D,-1,certified,2026-11-07
 exponencial_dk_4D,-1,certified,2026-11-07
 fifteenn_local_minima_dk_10D,1.349783804395672e-32,f_star,2026-11-07
 fifteenn_local_minima_dk_2D,1.349783804395672e-32,certified,2026-11-07
-fifteenn_local_minima_dk_4D,1.054069165556823e-30,certified,2026-11-07
+fifteenn_local_minima_dk_4D,1.349783804395672e-32,certified,2026-11-07
 fifteenn_local_minima_dk_6D,1.349783804395672e-32,f_star,2026-11-07
 fifteenn_local_minima_dk_8D,1.349783804395672e-32,f_star,2026-11-07
 fletcher_powell_dk_3D,0,certified,2026-11-07
@@ -24,7 +24,7 @@ hartman_4_dk_6D,-3.322368011391339,f_star,2026-11-07
 hosaki_dk_2D,-2.345811576101292,certified,2026-11-07
 kowalik_dk_4D,0.0003074859878056062,certified,2026-11-07
 mccormick_dk_2D,-1.913222954981037,certified,2026-11-07
-miele_cantrell_dk_4D,3.889384548663214e-62,certified,2026-11-07
+miele_cantrell_dk_4D,0,certified,2026-11-07
 multi_gaussian_dk_2D,-1.296954045953779,certified,2026-11-07
 neumaier2_dk_4D,0,certified,2026-11-07
 neumaier3_dk_10D,-210,f_star,2026-11-07
@@ -48,9 +48,9 @@ sinusoidal_dk_10D,-3.5,f_star,2026-11-07
 sixhumpcamel_dk_2D,-1.031628453488552,certified,2026-11-07
 sphere_dk_3D,0,certified,2026-11-07
 tenn_local_minima_dk_2D,2.355817157679958e-31,certified,2026-11-07
-tenn_local_minima_dk_4D,1.180505450386662e-29,certified,2026-11-07
+tenn_local_minima_dk_4D,1.177908578839979e-31,certified,2026-11-07
 tenn_local_minima_dk_6D,7.852723858933194e-32,f_star,2026-11-07
 tenn_local_minima_dk_8D,5.889542894199896e-32,f_star,2026-11-07
 threehumpcamel_dk_2D,0,certified,2026-11-07
 transistor_dk_9D,1.60049326654736e-24,f_star,2026-11-07
-wood_dk_4D,1.502780024446027e-28,certified,2026-11-07
+wood_dk_4D,0,certified,2026-11-07

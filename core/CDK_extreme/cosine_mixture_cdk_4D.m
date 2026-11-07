@@ -1,18 +1,18 @@
 function PB = cosine_mixture_cdk_4D()
-%COSINE_MIXTURE_CDK_4D  DFO Benchmark Suite v2 core: cosine_mixture, dimension 4, pattern CDK, strategy extreme.
+%COSINE_MIXTURE_CDK_4D  DFO Benchmark Suite v2.1.0 core: cosine_mixture, dimension 4, pattern CDK, strategy extreme.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 151 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 151 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -4.4 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:K x3:D x4:C
 %
-lb_orig = [-1 -1 -1 -1];
+lb_orig = [-0.66625732421874995 -0.65395722196819595 -0.62211327999999999 -0.69840899625156183];
 ub_orig = [1 1 1 1];
-lb_C_work = [-1 -1 -1 -100000000];
+lb_C_work = [-0.66625732421874995 -0.65395722196819595 -0.62211327999999999 -69840899.625156194];
 ub_C_work = [1 1 1 100000000];
 T_break = [NaN 1 1 NaN];   % breakpoints of T (NaN for continuous)
 T_image = [NaN 1 1 NaN];   % their images
@@ -26,7 +26,8 @@ PB.name        = 'cosine_mixture_cdk_4D';
 PB.base_function = 'cosine_mixture';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: CDK adaptation of cosine_mixture (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: CDK adaptation of cosine_mixture (F = f o T).';
 PB.nvar        = 4;
 PB.nobj        = 1;
 PB.var_types   = {'C','K','D','C'};
@@ -46,13 +47,15 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'cosine_mixture_cdk_4D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 4);
+D.cw = [1 NaN NaN 100000000];   % anchors of the continuous maps (NaN for finite)
+D.cx = [1 NaN NaN 1];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([38 121 109 75 118 138 137 65 148 147 56 44 35 108 62 26 77 93 17 60 55 33 3 94 36 90 53 98 66 23 103 101 115 119 6 8 124 145 122 149 82 80 37 68 2 150 16 54 141 72 96 81 15 89 128 144 88 70 7 19 39 105 50 58 112 21 29 84 135 120 79 92 86 146 12 125 43 110 116 113 57 74 130 42 69 52 73 85 18 123 102 97 27 71 134 142 91 48 139 106 31 76 127 46 107 117 131 59 95 63 104 9 34 20 64 129 67 49 4 1 51 22 11 13 30 140 100 136 151 83 99 5 132 87 126 32 61 14 111 47 24 40 45 41 114 78 143 28 25 10 133])';
 D.fn = @(xh) cosine_mixture_orig(xh);
 PB.f_star      = -4.4000000000000004;
 PB.f_star_justification = 'E';   % exact by structure
-PB.n_minimizers_documented = 16;
-PB.x0_idx      = [0.123046875 59 128 -51436901.291128702];   % protocol starting point: Halton point 1009 (index representation)
-PB.x0_alt_idx  = [-0.9052734375 63 88 -46688879.633486055;0.9228515625 53 14 -65930862.140774682;-0.0849609375 62 118 -57184506.455643483;0.4306640625 64 43 -48438150.77051229;-0.5888671875 54 147 -67680133.277800918;0.6767578125 58 73 -62932111.62015827;-0.3310546875 68 5 -54185755.935027078;0.1845703125 55 104 -45439400.249895893;-0.8408203125 59 35 -64681382.757184505];   % 9 alternative starting points (Halton indices 1009 + 63 k)
+PB.n_minimizers_documented = 1;
+PB.x0_idx      = [0.26938521623611456 59 128 -28600897.758656383];   % protocol starting point: Halton point 1009 (index representation)
+PB.x0_alt_idx  = [-0.58733790993690482 63 88 -24568856.409787618;0.93572542548179616 53 14 -40909234.507834718;0.096087945699691812 62 118 -33481789.917813309;0.52566991209983827 64 43 -26054345.327791899;-0.32373079419136042 54 147 -42394723.425838992;0.73069766879081732 58 73 -38362682.076970235;-0.10893981099128724 68 5 -30935237.486948825;0.32064215540885932 55 104 -23507792.896927424;-0.53364016413688653 59 35 -39848170.994974509];   % 9 alternative starting points (Halton indices 1009 + 63 k)
 PB.core_pidx   = 9;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -69,18 +72,21 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 4 || ~all(isfinite(z)), error('cosine_mixture_cdk_4D: z must be a finite numeric vector with 4 entries.'); end
 xh = zeros(4, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('cosine_mixture_cdk_4D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('cosine_mixture_cdk_4D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
 k = check_idx(z(2), D.m, D.name, 2); g = D.E{2}(k);
 xh(2) = T_map(g, D.lb(2), D.ub(2), D.Tb(2), D.Ti(2));
 k = check_idx(z(3), D.m, D.name, 3); g = D.lb(3) + (k - 1) * (D.ub(3) - D.lb(3)) / (D.m - 1);
 xh(3) = T_map(g, D.lb(3), D.ub(3), D.Tb(3), D.Ti(3));
-v = z(4); if v < D.lbw(4) || v > D.ubw(4), error('cosine_mixture_cdk_4D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
-xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4));
+v = z(4); tl = 1e-12 * (D.ubw(4) - D.lbw(4)); if v < D.lbw(4) - tl || v > D.ubw(4) + tl, error('cosine_mixture_cdk_4D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
+v = min(max(v, D.lbw(4)), D.ubw(4));
+if abs(v - D.cw(4)) <= 1e-12 * (D.ubw(4) - D.lbw(4)), xh(4) = D.cx(4); else, xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4)); end
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

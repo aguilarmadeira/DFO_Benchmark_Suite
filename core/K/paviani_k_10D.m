@@ -1,20 +1,20 @@
 function PB = paviani_k_10D()
-%PAVIANI_K_10D  DFO Benchmark Suite v2 core: paviani, dimension 10, pattern K, strategy baseline.
+%PAVIANI_K_10D  DFO Benchmark Suite v2.1.0 core: paviani, dimension 10, pattern K, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 9 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 9 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -45.77845205382886 (A: analytic reduction, 1-D root to machine precision); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:K x2:K x3:K x4:K x5:K x6:K x7:K x8:K x9:K x10:K
 %
-lb_orig = [2.0009999999999999 2.0009999999999999 2.0009999999999999 2.0009999999999999 2.0009999999999999 2.0009999999999999 2.0009999999999999 2.0009999999999999 2.0009999999999999 2.0009999999999999];
+lb_orig = [3.1781763354492187 3.3917369212010366 3.2031262732800001 3.1727852811328612 3.4030945768731646 3.1970091754490388 3.545224663737264 3.2314999192762484 3.5588647308292924 3.395080028701464];
 ub_orig = [9.9990000000000006 9.9990000000000006 9.9990000000000006 9.9990000000000006 9.9990000000000006 9.9990000000000006 9.9990000000000006 9.9990000000000006 9.9990000000000006 9.9990000000000006];
-lb_C_work = [2.0009999999999999 2.0009999999999999 2.0009999999999999 2.0009999999999999 2.0009999999999999 2.0009999999999999 2.0009999999999999 2.0009999999999999 2.0009999999999999 2.0009999999999999];
+lb_C_work = [3.1781763354492187 3.3917369212010366 3.2031262732800001 3.1727852811328612 3.4030945768731646 3.1970091754490388 3.545224663737264 3.2314999192762484 3.5588647308292924 3.395080028701464];
 ub_C_work = [9.9990000000000006 9.9990000000000006 9.9990000000000006 9.9990000000000006 9.9990000000000006 9.9990000000000006 9.9990000000000006 9.9990000000000006 9.9990000000000006 9.9990000000000006];
-T_break = [8.99925 8.99925 8.99925 8.99925 8.99925 8.99925 8.99925 8.99925 8.99925 8.99925];   % breakpoints of T (NaN for continuous)
+T_break = [9.1463970419311522 9.1730921151501299 9.1495157841600001 9.1457231601416069 9.174511822109146 9.1487511469311293 9.1922780829671584 9.1530624899095319 9.1939830913536618 9.1735100035876833];   % breakpoints of T (NaN for continuous)
 T_image = [9.3510000000000009 9.3510000000000009 9.3510000000000009 9.3510000000000009 9.3510000000000009 9.3510000000000009 9.3510000000000009 9.3510000000000009 9.3510000000000009 9.3510000000000009];   % their images
 m = 9;
 ProblemData = cell(1, 10);
@@ -32,7 +32,8 @@ PB.name        = 'paviani_k_10D';
 PB.base_function = 'paviani';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: K adaptation of paviani (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: K adaptation of paviani (F = f o T).';
 PB.nvar        = 10;
 PB.nobj        = 1;
 PB.var_types   = {'K','K','K','K','K','K','K','K','K','K'};
@@ -52,6 +53,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'paviani_k_10D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 10);
+D.cw = [NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN];
 g = linspace(lb_orig(1), ub_orig(1), m); D.E{1} = g([3 2 4 8 1 7 5 6 9])';
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([2 5 6 4 8 9 7 1 3])';
 g = linspace(lb_orig(3), ub_orig(3), m); D.E{3} = g([5 3 2 4 9 8 1 6 7])';
@@ -108,6 +111,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

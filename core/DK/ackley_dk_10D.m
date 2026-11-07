@@ -1,20 +1,20 @@
 function PB = ackley_dk_10D()
-%ACKLEY_DK_10D  DFO Benchmark Suite v2 core: ackley, dimension 10, pattern DK, strategy baseline.
+%ACKLEY_DK_10D  DFO Benchmark Suite v2.1.0 core: ackley, dimension 10, pattern DK, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 9 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 9 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 4.440892098500626e-16 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:D x2:K x3:D x4:K x5:D x6:K x7:D x8:K x9:D x10:K
 %
-lb_orig = [-30 -30 -30 -30 -30 -30 -30 -30 -30 -30];
-ub_orig = [30 30 30 30 30 30 30 30 30 30];
-lb_C_work = [-30 -30 -30 -30 -30 -30 -30 -30 -30 -30];
-ub_C_work = [30 30 30 30 30 30 30 30 30 30];
-T_break = [0 0 0 0 0 0 0 0 0 0];   % breakpoints of T (NaN for continuous)
+lb_orig = [-19.659594726562503 -30 -21.351398400000001 -21.050229071220325 -19.970767024110373 -30 -18.691543444163742 -20.12905364446252 -20.512336648311006 -20.415744802984953];
+ub_orig = [30 18.374272214601433 30 30 30 19.809936626868804 30 30 30 30];
+lb_C_work = [-19.659594726562503 -30 -21.351398400000001 -21.050229071220325 -19.970767024110373 -30 -18.691543444163742 -20.12905364446252 -20.512336648311006 -20.415744802984953];
+ub_C_work = [30 18.374272214601433 30 30 30 19.809936626868804 30 30 30 30];
+T_break = [-1.0372467041015625 0.23392013412589563 -2.0946239999999996 -1.9063931695127003 -1.2317293900689847 1.1312103917930045 -0.43221465260234027 -1.3306585277890761 -1.5702104051943806 -1.5098405018655967];   % breakpoints of T (NaN for continuous)
 T_image = [0 0 0 0 0 0 0 0 0 0];   % their images
 m = 9;
 ProblemData = cell(1, 10);
@@ -32,7 +32,8 @@ PB.name        = 'ackley_dk_10D';
 PB.base_function = 'ackley';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: DK adaptation of ackley (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: DK adaptation of ackley (F = f o T).';
 PB.nvar        = 10;
 PB.nobj        = 1;
 PB.var_types   = {'D','K','D','K','D','K','D','K','D','K'};
@@ -52,6 +53,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'ackley_dk_10D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 10);
+D.cw = [NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([8 6 1 4 2 3 7 5 9])';
 g = linspace(lb_orig(4), ub_orig(4), m); D.E{4} = g([1 5 8 2 7 4 3 9 6])';
 g = linspace(lb_orig(6), ub_orig(6), m); D.E{6} = g([6 9 7 1 3 4 5 2 8])';
@@ -103,6 +106,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

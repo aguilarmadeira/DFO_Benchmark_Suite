@@ -1,20 +1,20 @@
 function PB = rosenbrock_dk_2D()
-%ROSENBROCK_DK_2D  DFO Benchmark Suite v2 core: rosenbrock, dimension 2, pattern DK, strategy baseline.
+%ROSENBROCK_DK_2D  DFO Benchmark Suite v2.1.0 core: rosenbrock, dimension 2, pattern DK, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 151 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 151 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:D x2:K
 %
 lb_orig = [-5.1200000000000001 -5.1200000000000001];
-ub_orig = [5.1200000000000001 5.1200000000000001];
+ub_orig = [3.4252375000000002 3.6314412233907434];
 lb_C_work = [-5.1200000000000001 -5.1200000000000001];
-ub_C_work = [5.1200000000000001 5.1200000000000001];
-T_break = [1.024 1.024];   % breakpoints of T (NaN for continuous)
+ub_C_work = [3.4252375000000002 3.6314412233907434];
+T_break = [0.97560275000000019 1.0060088563735201];   % breakpoints of T (NaN for continuous)
 T_image = [1 1];   % their images
 m = 151;
 ProblemData = cell(1, 2);
@@ -24,7 +24,8 @@ PB.name        = 'rosenbrock_dk_2D';
 PB.base_function = 'rosenbrock';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: DK adaptation of rosenbrock (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: DK adaptation of rosenbrock (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'D','K'};
@@ -44,6 +45,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'rosenbrock_dk_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([51 116 145 124 122 144 110 95 39 121 114 117 32 52 104 30 64 85 19 82 4 7 59 136 18 22 150 5 9 12 77 129 26 102 35 141 118 87 23 93 103 41 57 56 108 62 36 81 49 8 106 113 75 128 76 74 97 94 29 125 17 89 91 45 92 96 71 54 61 27 86 1 140 50 11 131 58 10 133 6 40 90 78 60 16 99 127 119 28 137 107 112 46 147 44 21 2 130 34 66 63 111 67 115 139 24 151 68 13 80 31 3 101 25 146 123 47 88 83 84 105 79 70 126 142 14 132 15 55 120 143 100 138 72 73 109 65 42 69 33 43 48 38 148 53 37 20 98 149 134 135])';
 D.fn = @(xh) rosenbrock_orig(xh);
 PB.f_star      = 0;
@@ -75,6 +78,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

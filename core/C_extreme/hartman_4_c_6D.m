@@ -1,19 +1,19 @@
 function PB = hartman_4_c_6D()
-%HARTMAN_4_C_6D  DFO Benchmark Suite v2 core: hartman_4, dimension 6, pattern C, strategy extreme.
+%HARTMAN_4_C_6D  DFO Benchmark Suite v2.1.0 core: hartman_4, dimension 6, pattern C, strategy extreme.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 0 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 0 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -3.322368011391339 (L: literature value at a refined point); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:C x3:C x4:C x5:C x6:C
 %
-lb_orig = [0 0 0 0 0 0];
-ub_orig = [1 1 1 1 1 1];
-lb_C_work = [0 0 0 0 0 0];
-ub_C_work = [1 1 1 100000000 100000000 100000000];
+lb_orig = [0 0.14795966062084032 0.14470336 0 0.18109077248821803 0.16527817653443508];
+ub_orig = [0.84844116210937504 1 1 0.816347355268638 1 1];
+lb_C_work = [0 0.14795966062084037 0.14470336000000006 0 18109077.24882181 16527817.653443515];
+ub_C_work = [0.84844116210937504 1 1 81634735.526863798 100000000 100000000];
 T_break = [NaN NaN NaN NaN NaN NaN];   % breakpoints of T (NaN for continuous)
 T_image = [NaN NaN NaN NaN NaN NaN];   % their images
 m = 0;
@@ -28,7 +28,8 @@ PB.name        = 'hartman_4_c_6D';
 PB.base_function = 'hartman_4';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: C adaptation of hartman_4 (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: C adaptation of hartman_4 (F = f o T).';
 PB.nvar        = 6;
 PB.nobj        = 1;
 PB.var_types   = {'C','C','C','C','C','C'};
@@ -48,12 +49,14 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'hartman_4_c_6D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 6);
+D.cw = [0.20169000000000001 0.15001100000000006 0.47687400000000008 27533200.000000004 31165200.000000004 65730000];   % anchors of the continuous maps (NaN for finite)
+D.cx = [0.20169000000000001 0.15001100000000001 0.47687400000000002 0.27533200000000002 0.31165199999999998 0.6573];
 D.fn = @(xh) hartman_4_orig(xh);
 PB.f_star      = -3.322368011391339;
 PB.f_star_justification = 'L';   % literature value at a refined point
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [0.25048828125 0.026520347508001824 0.21312 71220324.864639744 32006010.518407207 92580791.989076018];   % protocol starting point: Halton point 1026 (index representation)
-PB.x0_alt_idx  = [0.50830078125 0.055326931870141746 0.90912000000000004 59600166.597251147 676183.3208114201 80154756.486117437;0.00439453125 0.084133516232281658 0.41472000000000003 63973344.439816736 77535687.45304282 67728720.983158857;0.98876953125 0.003200731595793324 0.15071999999999997 68346522.282382339 46205860.255447038 47655894.401456535;0.49658203125 0.064929126657521707 0.60864000000000007 58725531.028738029 23891810.668670174 35229858.898497954;0.73681640625 0.093735711019661619 0.34464 63098708.871303633 90915921.043644562 22803823.395539373;0.24462890625 0.023776863283036118 0.81024000000000007 65472719.700124934 68601871.456867695 2730996.8138370509;0.86572265625 0.037951531778692267 0.54624000000000006 69845897.542690545 37272044.259271905 89713245.334547117;0.37353515625 0.099679926840420666 0.051840000000000004 60224906.28904622 14957994.672495048 69640418.752844796;0.61083984375 0.029721079103795151 0.74784000000000006 64598084.131611809 82801721.193907514 57214383.249886222];   % 9 alternative starting points (Halton indices 1026 + 63 k)
+PB.x0_idx      = [0.21252456843852999 0.17055606651201149 0.32698417991680007 58140523.844621867 44319094.598184623 93807025.160451204];   % protocol starting point: Halton point 1026 (index representation)
+PB.x0_alt_idx  = [0.4312633055448532 0.19510043842828359 0.92227064135680004 48654438.375236191 18662810.009723842 83434742.146973774;0.0037285012006759645 0.21964481034455569 0.49941198254080005 52224470.541134022 81603767.165588066 73062459.133496344;0.83891277015209198 0.15068681305598172 0.27361366958080002 55794502.707031853 55947482.577127285 56307232.727109715;0.421320635676384 0.20328189573370761 0.66527110696960012 47940431.942056626 37674301.467360251 45934949.713632286;0.62514536798000342 0.22782626764997968 0.43947279400960004 51510464.107954465 92560963.919194937 35562666.700154856;0.20755323350429536 0.16821850728189033 0.83769890959360005 53448481.569441848 74287782.809427887 18807440.293768227;0.73451473653316501 0.1802958966375163 0.61190059663360008 57018513.735339679 48631498.220967114 91413421.388110265;0.31692260205745698 0.23289097931524219 0.18904193781760006 49164442.970364444 30358317.111200079 74658194.981723636;0.51826166689395903 0.17328321894715285 0.78432839925760012 52734475.136262275 85916170.78837055 64285911.968246214];   % 9 alternative starting points (Halton indices 1026 + 63 k)
 PB.core_pidx   = 26;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -70,22 +73,29 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 6 || ~all(isfinite(z)), error('hartman_4_c_6D: z must be a finite numeric vector with 6 entries.'); end
 xh = zeros(6, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('hartman_4_c_6D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
-v = z(2); if v < D.lbw(2) || v > D.ubw(2), error('hartman_4_c_6D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
-xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2));
-v = z(3); if v < D.lbw(3) || v > D.ubw(3), error('hartman_4_c_6D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
-xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3));
-v = z(4); if v < D.lbw(4) || v > D.ubw(4), error('hartman_4_c_6D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
-xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4));
-v = z(5); if v < D.lbw(5) || v > D.ubw(5), error('hartman_4_c_6D: x5 = %g outside [%g, %g].', v, D.lbw(5), D.ubw(5)); end
-xh(5) = map_work_to_orig(v, D.lbw(5), D.ubw(5), D.lb(5), D.ub(5));
-v = z(6); if v < D.lbw(6) || v > D.ubw(6), error('hartman_4_c_6D: x6 = %g outside [%g, %g].', v, D.lbw(6), D.ubw(6)); end
-xh(6) = map_work_to_orig(v, D.lbw(6), D.ubw(6), D.lb(6), D.ub(6));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('hartman_4_c_6D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
+v = z(2); tl = 1e-12 * (D.ubw(2) - D.lbw(2)); if v < D.lbw(2) - tl || v > D.ubw(2) + tl, error('hartman_4_c_6D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
+v = min(max(v, D.lbw(2)), D.ubw(2));
+if abs(v - D.cw(2)) <= 1e-12 * (D.ubw(2) - D.lbw(2)), xh(2) = D.cx(2); else, xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2)); end
+v = z(3); tl = 1e-12 * (D.ubw(3) - D.lbw(3)); if v < D.lbw(3) - tl || v > D.ubw(3) + tl, error('hartman_4_c_6D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
+v = min(max(v, D.lbw(3)), D.ubw(3));
+if abs(v - D.cw(3)) <= 1e-12 * (D.ubw(3) - D.lbw(3)), xh(3) = D.cx(3); else, xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3)); end
+v = z(4); tl = 1e-12 * (D.ubw(4) - D.lbw(4)); if v < D.lbw(4) - tl || v > D.ubw(4) + tl, error('hartman_4_c_6D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
+v = min(max(v, D.lbw(4)), D.ubw(4));
+if abs(v - D.cw(4)) <= 1e-12 * (D.ubw(4) - D.lbw(4)), xh(4) = D.cx(4); else, xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4)); end
+v = z(5); tl = 1e-12 * (D.ubw(5) - D.lbw(5)); if v < D.lbw(5) - tl || v > D.ubw(5) + tl, error('hartman_4_c_6D: x5 = %g outside [%g, %g].', v, D.lbw(5), D.ubw(5)); end
+v = min(max(v, D.lbw(5)), D.ubw(5));
+if abs(v - D.cw(5)) <= 1e-12 * (D.ubw(5) - D.lbw(5)), xh(5) = D.cx(5); else, xh(5) = map_work_to_orig(v, D.lbw(5), D.ubw(5), D.lb(5), D.ub(5)); end
+v = z(6); tl = 1e-12 * (D.ubw(6) - D.lbw(6)); if v < D.lbw(6) - tl || v > D.ubw(6) + tl, error('hartman_4_c_6D: x6 = %g outside [%g, %g].', v, D.lbw(6), D.ubw(6)); end
+v = min(max(v, D.lbw(6)), D.ubw(6));
+if abs(v - D.cw(6)) <= 1e-12 * (D.ubw(6) - D.lbw(6)), xh(6) = D.cx(6); else, xh(6) = map_work_to_orig(v, D.lbw(6), D.ubw(6), D.lb(6), D.ub(6)); end
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

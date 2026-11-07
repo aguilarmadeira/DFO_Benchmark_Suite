@@ -1,20 +1,20 @@
 function PB = rastrigin_cdk_10D()
-%RASTRIGIN_CDK_10D  DFO Benchmark Suite v2 core: rastrigin, dimension 10, pattern CDK, strategy extreme.
+%RASTRIGIN_CDK_10D  DFO Benchmark Suite v2.1.0 core: rastrigin, dimension 10, pattern CDK, strategy extreme.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 17 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 17 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:K x3:D x4:C x5:D x6:K x7:C x8:K x9:D x10:C
 %
-lb_orig = [-5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001];
-ub_orig = [5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001];
-lb_C_work = [-5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -512000000 -5.1200000000000001 -5.1200000000000001 -512000000];
-ub_C_work = [5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 512000000 5.1200000000000001 5.1200000000000001 512000000];
-T_break = [NaN 0 0 NaN 0 0 NaN 0 0 NaN];   % breakpoints of T (NaN for continuous)
+lb_orig = [-5.1200000000000001 -5.1200000000000001 -3.6955815936 -3.2101397750937108 -3.775091646745441 -3.3681715906305802 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001];
+ub_orig = [3.7836375000000002 3.2332190011685213 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 3.6885590546090206 3.3936609817297292 3.7162186241472837 3.2362623805814099];
+lb_C_work = [-5.1200000000000001 -5.1200000000000001 -3.6955815936 -3.2101397750937108 -3.775091646745441 -3.3681715906305802 -512000000 -5.1200000000000001 -5.1200000000000001 -511999999.99999994];
+ub_C_work = [3.7836375000000002 3.2332190011685213 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 368855905.46090198 3.3936609817297292 3.7162186241472837 323626238.05814093];
+T_break = [NaN 0.1007618757303268 0.16123535360000041 NaN 0.1165109487056899 -0.18510724414411239 NaN 0.20103811358108015 -0.14962702391715332 NaN];   % breakpoints of T (NaN for continuous)
 T_image = [NaN 0 0 NaN 0 0 NaN 0 0 NaN];   % their images
 m = 17;
 ProblemData = cell(1, 10);
@@ -32,7 +32,8 @@ PB.name        = 'rastrigin_cdk_10D';
 PB.base_function = 'rastrigin';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: CDK adaptation of rastrigin (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: CDK adaptation of rastrigin (F = f o T).';
 PB.nvar        = 10;
 PB.nobj        = 1;
 PB.var_types   = {'C','K','D','C','D','K','C','K','D','C'};
@@ -52,6 +53,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'rastrigin_cdk_10D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 10);
+D.cw = [0 NaN NaN 0 NaN NaN 0 NaN NaN 0];   % anchors of the continuous maps (NaN for finite)
+D.cx = [0 NaN NaN 0 NaN NaN 0 NaN NaN 0];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([14 3 15 13 9 4 2 11 1 6 8 10 5 12 16 17 7])';
 g = linspace(lb_orig(6), ub_orig(6), m); D.E{6} = g([11 12 15 16 14 7 8 13 10 9 4 3 5 2 17 1 6])';
 g = linspace(lb_orig(8), ub_orig(8), m); D.E{8} = g([17 10 5 15 13 7 16 14 9 1 6 11 4 3 12 8 2])';
@@ -59,8 +62,8 @@ D.fn = @(xh) rastrigin_orig(xh);
 PB.f_star      = 0;
 PB.f_star_justification = 'E';   % exact by structure
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [-4.7949999999999999 14 3 0.95320283215326995 11 1 -295236311.82576835 14 5 378106195.41596627];   % protocol starting point: Halton point 1040 (index representation)
-PB.x0_alt_idx  = [4.5650000000000004 15 11 1.4010162432319859 6 15 438216975.37146354 2 16 -465689286.15359384;-0.59499999999999975 14 6 1.8488296543107037 2 13 91186647.669448495 7 12 -286702365.8206569;2.0449999999999999 14 14 0.86364014993752569 13 10 -195816812.53816408 12 8 -107715445.48771995;-3.1749999999999998 15 9 1.3114535610162443 9 8 -482820272.74577653 1 4 71271474.845217109;3.3050000000000006 14 2 1.7592669720949603 4 5 250633014.45145535 7 16 250258395.17815411;-1.855 14 13 2.0023656809662631 16 3 -36370445.75615716 12 12 429245315.51109111;0.78500000000000014 15 5 1.0171761765930851 11 17 -383400773.4581722 16 8 -414550166.05846894;-4.4649999999999999 14 16 1.464989587671802 8 13 350052513.73905969 5 4 -235563245.72553205;3.9349999999999996 15 9 1.9128029987505188 3 11 63049053.531447291 11 15 -56576325.392595053];   % 9 alternative starting points (Halton indices 1040 + 63 k)
+PB.x0_idx      = [-4.8374138488769534 14 3 1.7303512868527466 11 1 -325537524.59203374 14 5 214363370.65203935];   % protocol starting point: Halton point 1040 (index representation)
+PB.x0_alt_idx  = [3.3010673034667972 15 11 2.0946431137518884 6 15 305386947.48549807 2 16 -474208547.2722075;-1.1855312805175782 14 6 2.4589349406510301 2 13 6867695.9910137653 7 12 -328147837.4094885;1.1099377624511719 14 14 1.6574929214729179 13 10 -240015793.08280313 12 8 -182087127.5467695;-3.4288305725097654 15 9 2.0217847483720606 9 8 -486899282.15661991 1 4 -36026417.684050441;2.2055025329589846 14 2 2.3860765752712023 4 5 144025189.92091191 7 16 110034292.17866868;-2.2810960510253908 14 13 2.5838349955878783 16 3 -102858299.15290493 12 12 256095002.04138774;0.014372991943359281 15 5 1.7823929764097661 11 17 -401377550.64738929 16 8 -432476915.88285923;-4.550480218505859 14 16 2.146684803308907 8 13 229546921.43014264 5 4 -286416206.02014023;2.7532849182128905 15 9 2.5109766302080496 3 11 -17336567.643674135 11 15 -140355496.15742117];   % 9 alternative starting points (Halton indices 1040 + 63 k)
 PB.core_pidx   = 40;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -77,30 +80,35 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 10 || ~all(isfinite(z)), error('rastrigin_cdk_10D: z must be a finite numeric vector with 10 entries.'); end
 xh = zeros(10, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('rastrigin_cdk_10D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('rastrigin_cdk_10D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
 k = check_idx(z(2), D.m, D.name, 2); g = D.E{2}(k);
 xh(2) = T_map(g, D.lb(2), D.ub(2), D.Tb(2), D.Ti(2));
 k = check_idx(z(3), D.m, D.name, 3); g = D.lb(3) + (k - 1) * (D.ub(3) - D.lb(3)) / (D.m - 1);
 xh(3) = T_map(g, D.lb(3), D.ub(3), D.Tb(3), D.Ti(3));
-v = z(4); if v < D.lbw(4) || v > D.ubw(4), error('rastrigin_cdk_10D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
-xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4));
+v = z(4); tl = 1e-12 * (D.ubw(4) - D.lbw(4)); if v < D.lbw(4) - tl || v > D.ubw(4) + tl, error('rastrigin_cdk_10D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
+v = min(max(v, D.lbw(4)), D.ubw(4));
+if abs(v - D.cw(4)) <= 1e-12 * (D.ubw(4) - D.lbw(4)), xh(4) = D.cx(4); else, xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4)); end
 k = check_idx(z(5), D.m, D.name, 5); g = D.lb(5) + (k - 1) * (D.ub(5) - D.lb(5)) / (D.m - 1);
 xh(5) = T_map(g, D.lb(5), D.ub(5), D.Tb(5), D.Ti(5));
 k = check_idx(z(6), D.m, D.name, 6); g = D.E{6}(k);
 xh(6) = T_map(g, D.lb(6), D.ub(6), D.Tb(6), D.Ti(6));
-v = z(7); if v < D.lbw(7) || v > D.ubw(7), error('rastrigin_cdk_10D: x7 = %g outside [%g, %g].', v, D.lbw(7), D.ubw(7)); end
-xh(7) = map_work_to_orig(v, D.lbw(7), D.ubw(7), D.lb(7), D.ub(7));
+v = z(7); tl = 1e-12 * (D.ubw(7) - D.lbw(7)); if v < D.lbw(7) - tl || v > D.ubw(7) + tl, error('rastrigin_cdk_10D: x7 = %g outside [%g, %g].', v, D.lbw(7), D.ubw(7)); end
+v = min(max(v, D.lbw(7)), D.ubw(7));
+if abs(v - D.cw(7)) <= 1e-12 * (D.ubw(7) - D.lbw(7)), xh(7) = D.cx(7); else, xh(7) = map_work_to_orig(v, D.lbw(7), D.ubw(7), D.lb(7), D.ub(7)); end
 k = check_idx(z(8), D.m, D.name, 8); g = D.E{8}(k);
 xh(8) = T_map(g, D.lb(8), D.ub(8), D.Tb(8), D.Ti(8));
 k = check_idx(z(9), D.m, D.name, 9); g = D.lb(9) + (k - 1) * (D.ub(9) - D.lb(9)) / (D.m - 1);
 xh(9) = T_map(g, D.lb(9), D.ub(9), D.Tb(9), D.Ti(9));
-v = z(10); if v < D.lbw(10) || v > D.ubw(10), error('rastrigin_cdk_10D: x10 = %g outside [%g, %g].', v, D.lbw(10), D.ubw(10)); end
-xh(10) = map_work_to_orig(v, D.lbw(10), D.ubw(10), D.lb(10), D.ub(10));
+v = z(10); tl = 1e-12 * (D.ubw(10) - D.lbw(10)); if v < D.lbw(10) - tl || v > D.ubw(10) + tl, error('rastrigin_cdk_10D: x10 = %g outside [%g, %g].', v, D.lbw(10), D.ubw(10)); end
+v = min(max(v, D.lbw(10)), D.ubw(10));
+if abs(v - D.cw(10)) <= 1e-12 * (D.ubw(10) - D.lbw(10)), xh(10) = D.cx(10); else, xh(10) = map_work_to_orig(v, D.lbw(10), D.ubw(10), D.lb(10), D.ub(10)); end
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

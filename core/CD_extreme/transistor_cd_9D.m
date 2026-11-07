@@ -1,20 +1,20 @@
 function PB = transistor_cd_9D()
-%TRANSISTOR_CD_9D  DFO Benchmark Suite v2 core: transistor, dimension 9, pattern CD, strategy extreme.
+%TRANSISTOR_CD_9D  DFO Benchmark Suite v2.1.0 core: transistor, dimension 9, pattern CD, strategy extreme.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 25 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 25 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 1.60049326654736e-24 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:D x3:C x4:D x5:C x6:D x7:C x8:D x9:C
 %
-lb_orig = [-10 -10 -10 -10 -10 -10 -10 -10 -10];
-ub_orig = [10 10 10 10 10 10 10 10 10];
-lb_C_work = [-10 -10 -10 -10 -1000000000 -10 -1000000000 -10 -1000000000];
-ub_C_work = [10 10 10 10 1000000000 10 1000000000 10 1000000000];
-T_break = [NaN 0.83333333333333337 NaN 1.6666666666666667 NaN 8.3333333333333339 NaN 0.83333333333333337 NaN];   % breakpoints of T (NaN for continuous)
+lb_orig = [-10 -10 -10 -10 -7.3500853766819212 -6.9926613213823039 -10 -10 -10];
+ub_orig = [6.8211669921875 7.0331250317532898 6.7027327999999997 6.1800083298625577 10 10 6.7876079069934505 6.4033133570184386 7.3164625626695159];
+lb_C_work = [-10 -10 -10 -10 -735008537.66819215 -6.9926613213823039 -1000000000 -10 -999999999.99999988];
+ub_C_work = [6.8211669921875 7.0331250317532898 6.7027327999999997 6.1800083298625577 1000000000 10 678760790.69934511 6.4033133570184386 731646256.26695144];
+T_break = [NaN 0.64570314484580571 NaN 2.1350062473969214 NaN 7.8759173348272125 NaN 0.93554223801229419 NaN];   % breakpoints of T (NaN for continuous)
 T_image = [NaN 0.44998747198158512 NaN 2.000068541623683 NaN 7.9996926842185427 NaN 0.99998772345678977 NaN];   % their images
 m = 25;
 ProblemData = cell(1, 9);
@@ -31,7 +31,8 @@ PB.name        = 'transistor_cd_9D';
 PB.base_function = 'transistor';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: CD adaptation of transistor (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: CD adaptation of transistor (F = f o T).';
 PB.nvar        = 9;
 PB.nobj        = 1;
 PB.var_types   = {'C','D','C','D','C','D','C','D','C'};
@@ -51,12 +52,14 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'transistor_cd_9D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 9);
+D.cw = [0.89999995261685584 NaN 1.0000064824653876 NaN 799997144.0507853 NaN 500003127.59296727 NaN 200005248.3486191];   % anchors of the continuous maps (NaN for finite)
+D.cx = [0.8999999526168565 NaN 1.0000064824653869 NaN 7.9999714405078528 NaN 5.0000312759296719 NaN 2.0000524834861899];
 D.fn = @(xh) transistor_orig(xh);
 PB.f_star      = 1.6004932665473596e-24;
 PB.f_star_justification = 'E';   % exact by structure
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [-2.177734375 2 0.022400000000001086 20 235161532.68219376 18 18522287.807856798 24 -651845154.92726231];   % protocol starting point: Halton point 1062 (index representation)
-PB.x0_alt_idx  = [2.978515625 4 -9.8656000000000006 21 -391435011.26972198 15 -542031345.41013634 6 833977151.31092286;-7.099609375 2 4.0544000000000011 19 -837716003.00525916 10 773254630.5719521 14 323580175.88559198;5.556640625 2 -5.9871999999999996 20 519158527.42299032 7 212700997.35395908 22 -186816799.53973877;-4.638671875 3 7.9328000000000003 21 72877535.687453151 4 -347852635.8640343 6 -697213774.96506941;0.517578125 1 -1.9551999999999996 18 -570111331.19322443 23 -908406269.08202732 13 788608531.27311563;-9.560546875 3 -7.2351999999999999 19 967078751.45140362 20 524119682.47506595 21 278211555.847785;9.658203125 3 2.0768000000000004 20 340482207.49948788 17 -153673926.31793213 4 -232185419.57754576;-0.595703125 1 -3.2032000000000007 21 -105798784.23604953 13 -714227559.53592515 12 -742582395.00287652;4.560546875 2 6.1088000000000022 19 -732395328.18796527 10 718298392.02116823 19 656447768.55428624];   % 9 alternative starting points (Halton indices 1062 + 63 k)
+PB.x0_idx      = [-3.4210181832313538 2 -1.6299265392639999 20 336499364.63327587 18 -145072359.38738823 24 -698559482.96429658];   % protocol starting point: Halton point 1062 (index representation)
+PB.x0_alt_idx  = [0.91568893194198608 4 -9.8877576355840002 21 -207075812.08170241 15 -615590089.65260267 6 587899834.07334387;-7.5606022477149963 2 1.7373443932160004 19 -594226477.51179492 10 488435172.8651228 14 145986328.22071946;3.084042489528656 2 -6.6487636910079999 20 582867969.90697122 7 17917442.599908352 22 -295927177.63190532;-5.490810215473175 3 4.976338337791999 21 195717304.47687876 4 -452600287.66530621 6 -737840683.48452973;-1.1541031002998352 1 -3.2814927585280005 18 -362078282.35490745 23 -923118017.93052053 13 548618633.55311072;-9.6303942799568176 3 -7.6910142177280001 19 971440676.34874439 20 279316181.6361382 21 106705127.70048606;6.5336958765983582 3 0.085778173952000714 20 427865499.63376594 17 -289610485.67800975 4 -335208378.15213847;-2.0904375910758972 1 -4.3237432852480007 21 40714834.203673482 13 -760128215.94322407 12 -777121884.00476313;2.2462695240974426 2 3.453049106432001 19 -502860342.51130474 10 442305983.62343478 19 434190788.5593878];   % 9 alternative starting points (Halton indices 1062 + 63 k)
 PB.core_pidx   = 62;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -73,28 +76,34 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 9 || ~all(isfinite(z)), error('transistor_cd_9D: z must be a finite numeric vector with 9 entries.'); end
 xh = zeros(9, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('transistor_cd_9D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('transistor_cd_9D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
 k = check_idx(z(2), D.m, D.name, 2); g = D.lb(2) + (k - 1) * (D.ub(2) - D.lb(2)) / (D.m - 1);
 xh(2) = T_map(g, D.lb(2), D.ub(2), D.Tb(2), D.Ti(2));
-v = z(3); if v < D.lbw(3) || v > D.ubw(3), error('transistor_cd_9D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
-xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3));
+v = z(3); tl = 1e-12 * (D.ubw(3) - D.lbw(3)); if v < D.lbw(3) - tl || v > D.ubw(3) + tl, error('transistor_cd_9D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
+v = min(max(v, D.lbw(3)), D.ubw(3));
+if abs(v - D.cw(3)) <= 1e-12 * (D.ubw(3) - D.lbw(3)), xh(3) = D.cx(3); else, xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3)); end
 k = check_idx(z(4), D.m, D.name, 4); g = D.lb(4) + (k - 1) * (D.ub(4) - D.lb(4)) / (D.m - 1);
 xh(4) = T_map(g, D.lb(4), D.ub(4), D.Tb(4), D.Ti(4));
-v = z(5); if v < D.lbw(5) || v > D.ubw(5), error('transistor_cd_9D: x5 = %g outside [%g, %g].', v, D.lbw(5), D.ubw(5)); end
-xh(5) = map_work_to_orig(v, D.lbw(5), D.ubw(5), D.lb(5), D.ub(5));
+v = z(5); tl = 1e-12 * (D.ubw(5) - D.lbw(5)); if v < D.lbw(5) - tl || v > D.ubw(5) + tl, error('transistor_cd_9D: x5 = %g outside [%g, %g].', v, D.lbw(5), D.ubw(5)); end
+v = min(max(v, D.lbw(5)), D.ubw(5));
+if abs(v - D.cw(5)) <= 1e-12 * (D.ubw(5) - D.lbw(5)), xh(5) = D.cx(5); else, xh(5) = map_work_to_orig(v, D.lbw(5), D.ubw(5), D.lb(5), D.ub(5)); end
 k = check_idx(z(6), D.m, D.name, 6); g = D.lb(6) + (k - 1) * (D.ub(6) - D.lb(6)) / (D.m - 1);
 xh(6) = T_map(g, D.lb(6), D.ub(6), D.Tb(6), D.Ti(6));
-v = z(7); if v < D.lbw(7) || v > D.ubw(7), error('transistor_cd_9D: x7 = %g outside [%g, %g].', v, D.lbw(7), D.ubw(7)); end
-xh(7) = map_work_to_orig(v, D.lbw(7), D.ubw(7), D.lb(7), D.ub(7));
+v = z(7); tl = 1e-12 * (D.ubw(7) - D.lbw(7)); if v < D.lbw(7) - tl || v > D.ubw(7) + tl, error('transistor_cd_9D: x7 = %g outside [%g, %g].', v, D.lbw(7), D.ubw(7)); end
+v = min(max(v, D.lbw(7)), D.ubw(7));
+if abs(v - D.cw(7)) <= 1e-12 * (D.ubw(7) - D.lbw(7)), xh(7) = D.cx(7); else, xh(7) = map_work_to_orig(v, D.lbw(7), D.ubw(7), D.lb(7), D.ub(7)); end
 k = check_idx(z(8), D.m, D.name, 8); g = D.lb(8) + (k - 1) * (D.ub(8) - D.lb(8)) / (D.m - 1);
 xh(8) = T_map(g, D.lb(8), D.ub(8), D.Tb(8), D.Ti(8));
-v = z(9); if v < D.lbw(9) || v > D.ubw(9), error('transistor_cd_9D: x9 = %g outside [%g, %g].', v, D.lbw(9), D.ubw(9)); end
-xh(9) = map_work_to_orig(v, D.lbw(9), D.ubw(9), D.lb(9), D.ub(9));
+v = z(9); tl = 1e-12 * (D.ubw(9) - D.lbw(9)); if v < D.lbw(9) - tl || v > D.ubw(9) + tl, error('transistor_cd_9D: x9 = %g outside [%g, %g].', v, D.lbw(9), D.ubw(9)); end
+v = min(max(v, D.lbw(9)), D.ubw(9));
+if abs(v - D.cw(9)) <= 1e-12 * (D.ubw(9) - D.lbw(9)), xh(9) = D.cx(9); else, xh(9) = map_work_to_orig(v, D.lbw(9), D.ubw(9), D.lb(9), D.ub(9)); end
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

@@ -1,20 +1,20 @@
 function PB = wood_k_4D()
-%WOOD_K_4D  DFO Benchmark Suite v2 core: wood, dimension 4, pattern K, strategy baseline.
+%WOOD_K_4D  DFO Benchmark Suite v2.1.0 core: wood, dimension 4, pattern K, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 25 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 25 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:K x2:K x3:K x4:K
 %
 lb_orig = [-10 -10 -10 -10];
-ub_orig = [10 10 10 10];
+ub_orig = [6.1211669921874998 6.5664583650866231 6.4227327999999995 7.3514369012911285];
 lb_C_work = [-10 -10 -10 -10];
-ub_C_work = [10 10 10 10];
-T_break = [0.83333333333333337 0.83333333333333337 0.83333333333333337 0.83333333333333337];   % breakpoints of T (NaN for continuous)
+ub_C_work = [6.1211669921874998 6.5664583650866231 6.4227327999999995 7.3514369012911285];
+T_break = [0.74744466145833321 1.0443055767244172 0.94848853333333238 0.84464806330695552];   % breakpoints of T (NaN for continuous)
 T_image = [1 1 1 1];   % their images
 m = 25;
 ProblemData = cell(1, 4);
@@ -26,7 +26,8 @@ PB.name        = 'wood_k_4D';
 PB.base_function = 'wood';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: K adaptation of wood (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: K adaptation of wood (F = f o T).';
 PB.nvar        = 4;
 PB.nobj        = 1;
 PB.var_types   = {'K','K','K','K'};
@@ -46,6 +47,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'wood_k_4D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 4);
+D.cw = [NaN NaN NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN NaN NaN];
 g = linspace(lb_orig(1), ub_orig(1), m); D.E{1} = g([11 17 7 19 2 13 1 3 5 23 15 18 21 24 20 9 10 25 6 12 4 22 14 16 8])';
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([20 6 12 4 16 14 21 5 7 17 10 22 8 13 3 23 1 25 18 9 24 11 15 2 19])';
 g = linspace(lb_orig(3), ub_orig(3), m); D.E{3} = g([13 20 16 1 4 17 10 6 15 14 12 23 18 21 8 5 9 24 11 7 3 25 22 19 2])';
@@ -84,6 +87,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

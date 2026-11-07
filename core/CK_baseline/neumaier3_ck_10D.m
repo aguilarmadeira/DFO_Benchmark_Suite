@@ -1,20 +1,20 @@
 function PB = neumaier3_ck_10D()
-%NEUMAIER3_CK_10D  DFO Benchmark Suite v2 core: neumaier3, dimension 10, pattern CK, strategy baseline.
+%NEUMAIER3_CK_10D  DFO Benchmark Suite v2.1.0 core: neumaier3, dimension 10, pattern CK, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 17 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 17 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -210 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:K x3:C x4:K x5:C x6:K x7:C x8:K x9:C x10:K
 %
-lb_orig = [-100 -100 -100 -100 -100 -100 -100 -100 -100 -100];
-ub_orig = [100 100 100 100 100 100 100 100 100 100];
-lb_C_work = [-100 -100 -100 -100 -100 -100 -100 -100 -100 -100];
-ub_C_work = [100 100 100 100 100 100 100 100 100 100];
-T_break = [NaN 12.5 NaN 25 NaN 25 NaN 25 NaN 12.5];   % breakpoints of T (NaN for continuous)
+lb_orig = [-100 -100 -100 -72.698042482299044 -66.211597568472087 -71.1692167641189 -100 -100 -100 -100];
+ub_orig = [61.813232421875 69.889549357313427 72.739328 100 100 100 62.208259000730351 69.966651575724555 61.652338292101582 65.622042724178925];
+lb_C_work = [-100 -100 -100 -72.698042482299044 -66.211597568472087 -71.1692167641189 -100 -100 -100 -100];
+ub_C_work = [61.813232421875 69.889549357313427 72.739328 100 100 100 62.208259000730351 69.966651575724555 61.652338292101582 65.622042724178925];
+T_break = [NaN 16.799065183152976 NaN 24.44460641399418 NaN 25.113467665697996 NaN 27.474988681793405 NaN 13.865154372873008];   % breakpoints of T (NaN for continuous)
 T_image = [NaN 18 NaN 28 NaN 30 NaN 24 NaN 10];   % their images
 m = 17;
 ProblemData = cell(1, 10);
@@ -32,7 +32,8 @@ PB.name        = 'neumaier3_ck_10D';
 PB.base_function = 'neumaier3';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: CK adaptation of neumaier3 (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: CK adaptation of neumaier3 (F = f o T).';
 PB.nvar        = 10;
 PB.nobj        = 1;
 PB.var_types   = {'C','K','C','K','C','K','C','K','C','K'};
@@ -52,6 +53,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'neumaier3_ck_10D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 10);
+D.cw = [10 NaN 24 NaN 30.000000000000014 NaN 27.999999999999986 NaN 18 NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [10 NaN 24 NaN 30 NaN 28 NaN 18 NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([6 5 10 12 14 3 16 11 17 1 2 7 4 15 8 13 9])';
 g = linspace(lb_orig(4), ub_orig(4), m); D.E{4} = g([12 6 13 7 11 8 10 1 15 2 17 3 4 9 14 5 16])';
 g = linspace(lb_orig(6), ub_orig(6), m); D.E{6} = g([3 6 1 10 2 15 14 16 9 13 8 11 4 17 5 7 12])';
@@ -61,8 +64,8 @@ D.fn = @(xh) neumaier3_orig(xh);
 PB.f_star      = -210;
 PB.f_star_justification = 'E';   % exact by structure
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [62.59765625 2 -81.376000000000005 15 -70.698722764838465 11 82.821086912273557 9 -91.665981753924555 12];   % protocol starting point: Halton point 1035 (index representation)
-PB.x0_alt_idx  = [-35.83984375 2 57.824000000000041 15 64.988730277986491 9 26.765723590474266 14 48.23703460179172 15;13.37890625 1 -41.05599999999999 16 20.360631104432755 7 -41.013637288825564 3 -2.8026629407413424 2;-85.05859375 2 98.144000000000005 17 -42.299023290758839 4 -97.069000610624869 8 -53.842360483274433 5;75.48828125 3 -2.2719999999999914 15 -86.927122464312546 2 46.183594545084475 13 94.739870140544099 7;-22.94921875 2 -93.471999999999994 16 47.121098285636208 16 -9.8717687767148448 2 43.700172598010994 10;26.26953125 2 38.048000000000002 16 2.492999112082515 13 -65.927132098514136 8 -7.3395249445220685 13;-72.16796875 2 -53.152000000000001 15 -60.16665528310908 11 65.601465499694712 12 -58.379222487055152 16;50.29296875 1 78.367999999999995 16 93.552352981353749 7 9.5461021778953921 1 90.203008136763373 3;-48.14453125 2 -12.831999999999994 16 30.89269858616214 5 -46.509261143903935 6 30.484096326128054 5];   % 9 alternative starting points (Halton indices 1035 + 63 k)
+PB.x0_idx      = [31.552261710166931 2 -83.914513776640007 15 -41.860537068207577 11 48.275451083305512 9 -93.263932315764322 12];   % protocol starting point: Halton point 1035 (index representation)
+PB.x0_alt_idx  = [-48.09018862247467 2 36.312058511360021 15 70.903604633017295 9 2.8122366228932094 14 19.814316324334001 15;-8.2689634561538696 1 -49.090265251839995 16 33.815066332614421 7 -52.159623999173974 3 -21.439115943026493 2;-87.911413788795471 2 71.136307036160019 17 -18.258739967951229 4 -97.622838459586291 8 -62.69254821038701 5;41.981630206108093 3 -15.592654766080003 15 -55.347278268354074 2 18.560931828134073 13 57.400776834595831 7;-37.660820126533508 2 -94.361788334080003 16 56.054566341946895 16 -26.902282632278244 2 16.147344567235294 10;2.1604050397872925 2 19.23159375872001 16 18.96602804154405 13 -72.365497092690561 8 -25.106087700125215 13;-77.482045292854309 2 -59.537539809279998 15 -33.1077782590216 11 34.309627033374937 12 -66.359519967485724 16;21.596955418586731 1 54.055842283520008 16 94.641631442366048 7 -11.153587427037365 1 53.733805077497095 3;-58.045494914054871 2 -24.713291284479993 16 42.567825141800398 5 -56.616801887449697 6 5.4652964052521043 5];   % 9 alternative starting points (Halton indices 1035 + 63 k)
 PB.core_pidx   = 35;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -79,30 +82,36 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 10 || ~all(isfinite(z)), error('neumaier3_ck_10D: z must be a finite numeric vector with 10 entries.'); end
 xh = zeros(10, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('neumaier3_ck_10D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('neumaier3_ck_10D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
 k = check_idx(z(2), D.m, D.name, 2); g = D.E{2}(k);
 xh(2) = T_map(g, D.lb(2), D.ub(2), D.Tb(2), D.Ti(2));
-v = z(3); if v < D.lbw(3) || v > D.ubw(3), error('neumaier3_ck_10D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
-xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3));
+v = z(3); tl = 1e-12 * (D.ubw(3) - D.lbw(3)); if v < D.lbw(3) - tl || v > D.ubw(3) + tl, error('neumaier3_ck_10D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
+v = min(max(v, D.lbw(3)), D.ubw(3));
+if abs(v - D.cw(3)) <= 1e-12 * (D.ubw(3) - D.lbw(3)), xh(3) = D.cx(3); else, xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3)); end
 k = check_idx(z(4), D.m, D.name, 4); g = D.E{4}(k);
 xh(4) = T_map(g, D.lb(4), D.ub(4), D.Tb(4), D.Ti(4));
-v = z(5); if v < D.lbw(5) || v > D.ubw(5), error('neumaier3_ck_10D: x5 = %g outside [%g, %g].', v, D.lbw(5), D.ubw(5)); end
-xh(5) = map_work_to_orig(v, D.lbw(5), D.ubw(5), D.lb(5), D.ub(5));
+v = z(5); tl = 1e-12 * (D.ubw(5) - D.lbw(5)); if v < D.lbw(5) - tl || v > D.ubw(5) + tl, error('neumaier3_ck_10D: x5 = %g outside [%g, %g].', v, D.lbw(5), D.ubw(5)); end
+v = min(max(v, D.lbw(5)), D.ubw(5));
+if abs(v - D.cw(5)) <= 1e-12 * (D.ubw(5) - D.lbw(5)), xh(5) = D.cx(5); else, xh(5) = map_work_to_orig(v, D.lbw(5), D.ubw(5), D.lb(5), D.ub(5)); end
 k = check_idx(z(6), D.m, D.name, 6); g = D.E{6}(k);
 xh(6) = T_map(g, D.lb(6), D.ub(6), D.Tb(6), D.Ti(6));
-v = z(7); if v < D.lbw(7) || v > D.ubw(7), error('neumaier3_ck_10D: x7 = %g outside [%g, %g].', v, D.lbw(7), D.ubw(7)); end
-xh(7) = map_work_to_orig(v, D.lbw(7), D.ubw(7), D.lb(7), D.ub(7));
+v = z(7); tl = 1e-12 * (D.ubw(7) - D.lbw(7)); if v < D.lbw(7) - tl || v > D.ubw(7) + tl, error('neumaier3_ck_10D: x7 = %g outside [%g, %g].', v, D.lbw(7), D.ubw(7)); end
+v = min(max(v, D.lbw(7)), D.ubw(7));
+if abs(v - D.cw(7)) <= 1e-12 * (D.ubw(7) - D.lbw(7)), xh(7) = D.cx(7); else, xh(7) = map_work_to_orig(v, D.lbw(7), D.ubw(7), D.lb(7), D.ub(7)); end
 k = check_idx(z(8), D.m, D.name, 8); g = D.E{8}(k);
 xh(8) = T_map(g, D.lb(8), D.ub(8), D.Tb(8), D.Ti(8));
-v = z(9); if v < D.lbw(9) || v > D.ubw(9), error('neumaier3_ck_10D: x9 = %g outside [%g, %g].', v, D.lbw(9), D.ubw(9)); end
-xh(9) = map_work_to_orig(v, D.lbw(9), D.ubw(9), D.lb(9), D.ub(9));
+v = z(9); tl = 1e-12 * (D.ubw(9) - D.lbw(9)); if v < D.lbw(9) - tl || v > D.ubw(9) + tl, error('neumaier3_ck_10D: x9 = %g outside [%g, %g].', v, D.lbw(9), D.ubw(9)); end
+v = min(max(v, D.lbw(9)), D.ubw(9));
+if abs(v - D.cw(9)) <= 1e-12 * (D.ubw(9) - D.lbw(9)), xh(9) = D.cx(9); else, xh(9) = map_work_to_orig(v, D.lbw(9), D.ubw(9), D.lb(9), D.ub(9)); end
 k = check_idx(z(10), D.m, D.name, 10); g = D.E{10}(k);
 xh(10) = T_map(g, D.lb(10), D.ub(10), D.Tb(10), D.Ti(10));
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

@@ -1,20 +1,20 @@
 function PB = salomon_cdk_5D()
-%SALOMON_CDK_5D  DFO Benchmark Suite v2 core: salomon, dimension 5, pattern CDK, strategy extreme.
+%SALOMON_CDK_5D  DFO Benchmark Suite v2.1.0 core: salomon, dimension 5, pattern CDK, strategy extreme.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 41 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 41 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:K x3:D x4:C x5:D
 %
-lb_orig = [-100 -100 -100 -100 -100];
-ub_orig = [100 100 100 100 100];
-lb_C_work = [-100 -100 -100 -10000000000 -100];
-ub_C_work = [100 100 100 10000000000 100];
-T_break = [NaN 0 0 NaN 0];   % breakpoints of T (NaN for continuous)
+lb_orig = [-70.399169921875 -100 -66.579328000000004 -100 -71.186804180042344];
+ub_orig = [100 66.259919727683794 100 72.412328196584753 100];
+lb_C_work = [-70.399169921875 -100 -66.579328000000004 -10000000000 -71.186804180042344];
+ub_C_work = [100 66.259919727683794 100 7241232819.6584749 100];
+T_break = [NaN -0.2440481633897349 0.052403200000000538 NaN 1.5675875964756472];   % breakpoints of T (NaN for continuous)
 T_image = [NaN 0 0 NaN 0];   % their images
 m = 41;
 ProblemData = cell(1, 5);
@@ -27,7 +27,8 @@ PB.name        = 'salomon_cdk_5D';
 PB.base_function = 'salomon';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: CDK adaptation of salomon (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: CDK adaptation of salomon (F = f o T).';
 PB.nvar        = 5;
 PB.nobj        = 1;
 PB.var_types   = {'C','K','D','C','D'};
@@ -47,13 +48,15 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'salomon_cdk_5D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 5);
+D.cw = [0 NaN NaN 0 NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [0 NaN NaN 0 NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([11 38 21 8 10 36 29 9 23 27 19 7 6 1 25 2 31 37 12 32 40 24 18 41 5 33 15 39 30 34 14 22 17 26 4 28 35 20 16 13 3])';
 D.fn = @(xh) salomon_orig(xh);
 PB.f_star      = 0;
 PB.f_star_justification = 'E';   % exact by structure
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [-43.65234375 26 22 7576009995.8350677 32];   % protocol starting point: Halton point 1042 (index representation)
-PB.x0_alt_idx  = [7.91015625 27 4 8450645564.3481865 20;-92.87109375 24 30 9325281132.8613091 11;89.94140625 25 12 7401082882.1324425 38;-12.01171875 27 38 8275718450.645565 29;39.55078125 25 20 9150354019.1586838 16;-61.23046875 26 8 9625156184.9229469 7;65.33203125 26 28 7700957934.1940842 34;-37.20703125 23 16 8575593502.7072029 25;14.35546875 26 36 9450229071.2203217 13];   % 9 alternative starting points (Halton indices 1042 + 63 k)
+PB.x0_idx      = [-22.391200661659241 26 22 5151604018.9418488 32];   % protocol starting point: Halton point 1042 (index representation)
+PB.x0_alt_idx  = [21.539835333824158 27 4 5905593792.3963013 20;-64.325371384620667 24 30 6659583565.8507538 11;91.430119872093201 25 12 5000806064.2509575 38;4.5664805173873901 27 38 5754795837.7054119 29;48.497516512870789 25 20 6508785611.1598625 16;-37.367690205574036 26 8 6918094345.3208504 7;70.463034510612488 26 28 5259316843.7210541 34;-16.899821162223816 23 16 6013306617.1755066 25;27.031214833259583 26 36 6767296390.6299591 13];   % 9 alternative starting points (Halton indices 1042 + 63 k)
 PB.core_pidx   = 42;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -70,20 +73,23 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 5 || ~all(isfinite(z)), error('salomon_cdk_5D: z must be a finite numeric vector with 5 entries.'); end
 xh = zeros(5, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('salomon_cdk_5D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('salomon_cdk_5D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
 k = check_idx(z(2), D.m, D.name, 2); g = D.E{2}(k);
 xh(2) = T_map(g, D.lb(2), D.ub(2), D.Tb(2), D.Ti(2));
 k = check_idx(z(3), D.m, D.name, 3); g = D.lb(3) + (k - 1) * (D.ub(3) - D.lb(3)) / (D.m - 1);
 xh(3) = T_map(g, D.lb(3), D.ub(3), D.Tb(3), D.Ti(3));
-v = z(4); if v < D.lbw(4) || v > D.ubw(4), error('salomon_cdk_5D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
-xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4));
+v = z(4); tl = 1e-12 * (D.ubw(4) - D.lbw(4)); if v < D.lbw(4) - tl || v > D.ubw(4) + tl, error('salomon_cdk_5D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
+v = min(max(v, D.lbw(4)), D.ubw(4));
+if abs(v - D.cw(4)) <= 1e-12 * (D.ubw(4) - D.lbw(4)), xh(4) = D.cx(4); else, xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4)); end
 k = check_idx(z(5), D.m, D.name, 5); g = D.lb(5) + (k - 1) * (D.ub(5) - D.lb(5)) / (D.m - 1);
 xh(5) = T_map(g, D.lb(5), D.ub(5), D.Tb(5), D.Ti(5));
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

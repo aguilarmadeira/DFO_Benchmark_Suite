@@ -1,19 +1,19 @@
 function PB = mccormick_c_2D()
-%MCCORMICK_C_2D  DFO Benchmark Suite v2 core: mccormick, dimension 2, pattern C, strategy baseline.
+%MCCORMICK_C_2D  DFO Benchmark Suite v2.1.0 core: mccormick, dimension 2, pattern C, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 0 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 0 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -1.913222954981037 (L: literature value at a refined point); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:C
 %
 lb_orig = [-1.5 -3];
-ub_orig = [4 3];
+ub_orig = [3.1183013916015625 2.0500198140527357];
 lb_C_work = [-1.5 -3];
-ub_C_work = [4 3];
+ub_C_work = [3.1183013916015625 2.0500198140527357];
 T_break = [NaN NaN];   % breakpoints of T (NaN for continuous)
 T_image = [NaN NaN];   % their images
 m = 0;
@@ -24,7 +24,8 @@ PB.name        = 'mccormick_c_2D';
 PB.base_function = 'mccormick';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: C adaptation of mccormick (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: C adaptation of mccormick (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'C','C'};
@@ -44,12 +45,14 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'mccormick_c_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [-0.54719755371679324 -1.547197552675593];   % anchors of the continuous maps (NaN for finite)
+D.cx = [-0.54719755371679324 -1.547197552675593];
 D.fn = @(xh) mccormick_orig(xh);
 PB.f_star      = -1.9132229549810367;
 PB.f_star_justification = 'L';   % literature value at a refined point
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [0.565185546875 -0.1742112482853222];   % protocol starting point: Halton point 1030 (index representation)
-PB.x0_alt_idx  = [1.983154296875 -0.00137174211248281;-0.788330078125 0.17146776406035613;2.692138671875 -0.31412894375857325;-0.111572265625 0.056241426611797429;1.306396484375 0.22908093278463593;-1.465087890625 -0.19067215363511636;3.948974609375 -0.10562414266117992;1.241943359375 0.26474622770919076;2.547119140625 -0.15500685871056286];   % 9 alternative starting points (Halton indices 1030 + 63 k)
+PB.x0_idx      = [0.23411805182695389 -0.62161846891892214];   % protocol starting point: Halton point 1030 (index representation)
+PB.x0_alt_idx  = [1.4247738793492317 -0.47614464711493376;-0.90241705626249313 -0.33067082531094583;2.0201017931103706 -0.73938299133167451;-0.33414950221776962 -0.42765337318027052;0.85650632530450821 -0.28217955137628303;-1.4706846103072166 -0.6354731186145397;3.0754558220505714 -0.56389076185384779;0.8023856058716774 -0.2521611437024438;1.8983301743865013 -0.60545471094070136];   % 9 alternative starting points (Halton indices 1030 + 63 k)
 PB.core_pidx   = 30;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -66,14 +69,17 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 2 || ~all(isfinite(z)), error('mccormick_c_2D: z must be a finite numeric vector with 2 entries.'); end
 xh = zeros(2, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('mccormick_c_2D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
-v = z(2); if v < D.lbw(2) || v > D.ubw(2), error('mccormick_c_2D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
-xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('mccormick_c_2D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
+v = z(2); tl = 1e-12 * (D.ubw(2) - D.lbw(2)); if v < D.lbw(2) - tl || v > D.ubw(2) + tl, error('mccormick_c_2D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
+v = min(max(v, D.lbw(2)), D.ubw(2));
+if abs(v - D.cw(2)) <= 1e-12 * (D.ubw(2) - D.lbw(2)), xh(2) = D.cx(2); else, xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2)); end
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

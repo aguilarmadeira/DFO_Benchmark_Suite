@@ -1,20 +1,20 @@
 function PB = becker_lago_k_2D()
-%BECKER_LAGO_K_2D  DFO Benchmark Suite v2 core: becker_lago, dimension 2, pattern K, strategy baseline.
+%BECKER_LAGO_K_2D  DFO Benchmark Suite v2.1.0 core: becker_lago, dimension 2, pattern K, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 151 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 151 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:K x2:K
 %
-lb_orig = [-10 -10];
+lb_orig = [-6.2031982421874998 -6.8506833307930703];
 ub_orig = [10 10];
-lb_C_work = [-10 -10];
+lb_C_work = [-6.2031982421874998 -6.8506833307930703];
 ub_C_work = [10 10];
-T_break = [-4.9333333333333336 -4.9333333333333336];   % breakpoints of T (NaN for continuous)
+T_break = [-5.0149637044270836 -5.0532771088418098];   % breakpoints of T (NaN for continuous)
 T_image = [-5 -5];   % their images
 m = 151;
 ProblemData = cell(1, 2);
@@ -24,7 +24,8 @@ PB.name        = 'becker_lago_k_2D';
 PB.base_function = 'becker_lago';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: K adaptation of becker_lago (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: K adaptation of becker_lago (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'K','K'};
@@ -44,6 +45,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'becker_lago_k_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN];
 g = linspace(lb_orig(1), ub_orig(1), m); D.E{1} = g([51 29 150 135 120 30 20 146 49 60 92 55 66 11 107 40 95 41 86 3 110 121 34 44 12 43 100 38 129 74 99 138 4 141 46 94 15 114 109 50 56 35 103 108 104 132 93 87 106 26 57 72 136 10 23 31 79 71 76 88 22 28 32 39 53 126 6 137 21 42 47 70 78 27 48 151 101 130 36 142 122 96 24 97 2 149 82 5 25 9 67 123 105 54 148 102 62 147 1 133 77 16 37 81 116 111 98 52 83 33 117 73 127 125 89 144 134 18 84 58 91 113 80 69 61 64 145 143 115 17 85 90 19 124 118 8 112 139 140 45 7 119 75 14 131 128 13 68 63 59 65])';
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([125 83 70 18 89 62 45 117 132 33 109 111 53 103 147 47 108 143 112 121 4 60 63 130 13 51 114 128 123 40 56 126 81 88 46 59 16 61 100 146 142 136 79 52 122 10 134 113 116 118 119 43 135 148 25 32 37 48 54 6 69 30 34 133 55 107 7 73 23 44 49 95 101 29 50 67 2 96 38 64 140 131 26 65 127 115 85 137 28 12 71 84 98 141 72 20 66 17 5 24 124 21 42 86 19 75 104 58 90 39 76 138 93 120 144 22 151 27 94 68 102 129 92 139 74 77 99 91 3 35 149 110 41 15 9 36 8 145 82 87 57 150 1 97 80 106 14 11 105 31 78])';
 D.fn = @(xh) becker_lago_orig(xh);
@@ -76,6 +79,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

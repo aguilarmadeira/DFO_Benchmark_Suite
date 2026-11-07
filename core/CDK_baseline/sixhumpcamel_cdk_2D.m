@@ -1,20 +1,20 @@
 function PB = sixhumpcamel_cdk_2D()
-%SIXHUMPCAMEL_CDK_2D  DFO Benchmark Suite v2 core: sixhumpcamel, dimension 2, pattern CDK, strategy baseline.
+%SIXHUMPCAMEL_CDK_2D  DFO Benchmark Suite v2.1.0 core: sixhumpcamel, dimension 2, pattern CDK, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 65 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 65 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -1.031628453488552 (A: analytic reduction, 1-D root to machine precision); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:K
 %
-lb_orig = [-3 -2];
+lb_orig = [-2.03322509765625 -1.3236620433876949];
 ub_orig = [3 2];
-lb_C_work = [-3 -2];
+lb_C_work = [-2.03322509765625 -1.3236620433876949];
 ub_C_work = [3 2];
-T_break = [NaN -0.6875];   % breakpoints of T (NaN for continuous)
+T_break = [NaN -0.70047541025250215];   % breakpoints of T (NaN for continuous)
 T_image = [NaN -0.71265599999999996];   % their images
 m = 65;
 ProblemData = cell(1, 2);
@@ -24,7 +24,8 @@ PB.name        = 'sixhumpcamel_cdk_2D';
 PB.base_function = 'sixhumpcamel';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: CDK adaptation of sixhumpcamel (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: CDK adaptation of sixhumpcamel (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'C','K'};
@@ -44,13 +45,15 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'sixhumpcamel_cdk_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [0.089841999999999977 NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [0.089842000000000005 NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([37 3 5 51 44 23 10 47 21 15 19 52 8 53 60 13 22 1 20 38 58 4 40 54 61 9 34 31 62 36 41 43 50 42 28 29 63 35 25 46 32 12 27 39 26 24 57 65 56 30 16 59 14 17 55 45 7 64 33 18 49 48 6 2 11])';
 D.fn = @(xh) sixhumpcamel_orig(xh);
 PB.f_star      = -1.0316284534885518;
 PB.f_star_justification = 'A';   % analytic reduction, 1-D root to machine precision
 PB.n_minimizers_documented = 2;
-PB.x0_idx      = [-0.1845703125 23];   % protocol starting point: Halton point 1054 (index representation)
-PB.x0_alt_idx  = [1.3623046875 27;-1.6611328125 29;2.1357421875 23;-0.9228515625 25;0.6240234375 29;-2.3994140625 25;2.5224609375 26;-0.5537109375 27;0.9931640625 23];   % 9 alternative starting points (Halton indices 1054 + 63 k)
+PB.x0_idx      = [0.32855679631233192 23];   % protocol starting point: Halton point 1054 (index representation)
+PB.x0_alt_idx  = [1.6261851418018343 27;-0.91008844256401056 29;2.2749993145465854 23;-0.29076582312583921 25;1.0068625223636629 29;-1.5294110620021821 25;2.5994064009189604 26;0.018895486593246247 27;1.3165238320827486 23];   % 9 alternative starting points (Halton indices 1054 + 63 k)
 PB.core_pidx   = 54;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -67,14 +70,16 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 2 || ~all(isfinite(z)), error('sixhumpcamel_cdk_2D: z must be a finite numeric vector with 2 entries.'); end
 xh = zeros(2, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('sixhumpcamel_cdk_2D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('sixhumpcamel_cdk_2D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
 k = check_idx(z(2), D.m, D.name, 2); g = D.E{2}(k);
 xh(2) = T_map(g, D.lb(2), D.ub(2), D.Tb(2), D.Ti(2));
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

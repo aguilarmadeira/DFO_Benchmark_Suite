@@ -1,20 +1,20 @@
 function PB = schwefel_d_10D()
-%SCHWEFEL_D_10D  DFO Benchmark Suite v2 core: schwefel, dimension 10, pattern D, strategy baseline.
+%SCHWEFEL_D_10D  DFO Benchmark Suite v2.1.0 core: schwefel, dimension 10, pattern D, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 9 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 9 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -4189.828872721624 (A: analytic reduction, 1-D root to machine precision); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:D x2:D x3:D x4:D x5:D x6:D x7:D x8:D x9:D x10:D
 %
-lb_orig = [-500 -500 -500 -500 -500 -500 -500 -500 -500 -500];
+lb_orig = [-343.245849609375 -300.18848752730781 -344.09663999999998 -322.06164098292379 -330.47947544566625 -366.20111340639335 -335.50496282372097 -309.30694208914912 -344.65110544916581 -301.55848948296364];
 ub_orig = [500 500 500 500 500 500 500 500 500 500];
-lb_C_work = [-500 -500 -500 -500 -500 -500 -500 -500 -500 -500];
+lb_C_work = [-343.245849609375 -300.18848752730781 -344.09663999999998 -322.06164098292379 -330.47947544566625 -366.20111340639335 -335.50496282372097 -309.30694208914912 -344.65110544916581 -301.55848948296364];
 ub_C_work = [500 500 500 500 500 500 500 500 500 500];
-T_break = [375 375 375 375 375 375 375 375 375 375];   % breakpoints of T (NaN for continuous)
+T_break = [394.59426879882812 399.97643905908654 394.48792000000003 397.24229487713455 396.19006556929173 391.72486082420085 395.5618796470348 398.83663223885634 394.41861181885429 399.80518881462956];   % breakpoints of T (NaN for continuous)
 T_image = [420.96870000000001 420.96870000000001 420.96870000000001 420.96870000000001 420.96870000000001 420.96870000000001 420.96870000000001 420.96870000000001 420.96870000000001 420.96870000000001];   % their images
 m = 9;
 ProblemData = cell(1, 10);
@@ -32,7 +32,8 @@ PB.name        = 'schwefel_d_10D';
 PB.base_function = 'schwefel';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: D adaptation of schwefel (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: D adaptation of schwefel (F = f o T).';
 PB.nvar        = 10;
 PB.nobj        = 1;
 PB.var_types   = {'D','D','D','D','D','D','D','D','D','D'};
@@ -52,6 +53,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'schwefel_d_10D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 10);
+D.cw = [NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN];
 D.fn = @(xh) schwefel_orig(xh);
 PB.f_star      = -4189.8288727216241;
 PB.f_star_justification = 'A';   % analytic reduction, 1-D root to machine precision
@@ -98,6 +101,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

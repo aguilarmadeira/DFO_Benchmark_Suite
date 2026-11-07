@@ -1,20 +1,20 @@
 function PB = powell_dk_4D()
-%POWELL_DK_4D  DFO Benchmark Suite v2 core: powell, dimension 4, pattern DK, strategy baseline.
+%POWELL_DK_4D  DFO Benchmark Suite v2.1.0 core: powell, dimension 4, pattern DK, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 25 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 25 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:D x2:K x3:D x4:K
 %
-lb_orig = [-10 -10 -10 -10];
-ub_orig = [10 10 10 10];
-lb_C_work = [-10 -10 -10 -10];
-ub_C_work = [10 10 10 10];
-T_break = [0 0 0 0];   % breakpoints of T (NaN for continuous)
+lb_orig = [-6.0063232421875004 -6.7815475283239337 -10 -10];
+ub_orig = [10 10 6.1539327999999998 6.4698042482299041];
+lb_C_work = [-6.0063232421875004 -6.7815475283239337 -10 -10];
+ub_C_work = [10 10 6.1539327999999998 6.4698042482299041];
+T_break = [-0.0039520263671883882 0.21076394181103808 0.096207999999998961 0.29362765514369116];   % breakpoints of T (NaN for continuous)
 T_image = [0 0 0 0];   % their images
 m = 25;
 ProblemData = cell(1, 4);
@@ -26,7 +26,8 @@ PB.name        = 'powell_dk_4D';
 PB.base_function = 'powell';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: DK adaptation of powell (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: DK adaptation of powell (F = f o T).';
 PB.nvar        = 4;
 PB.nobj        = 1;
 PB.var_types   = {'D','K','D','K'};
@@ -46,6 +47,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'powell_dk_4D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 4);
+D.cw = [NaN NaN NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN NaN NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([18 5 6 22 20 25 16 9 3 23 24 13 10 14 1 11 15 8 19 7 12 21 2 4 17])';
 g = linspace(lb_orig(4), ub_orig(4), m); D.E{4} = g([15 20 2 24 5 3 8 17 18 19 23 13 4 9 21 7 14 11 6 25 12 1 10 16 22])';
 D.fn = @(xh) powell_orig(xh);
@@ -82,6 +85,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

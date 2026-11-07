@@ -1,20 +1,20 @@
 function PB = sixhumpcamel_k_2D()
-%SIXHUMPCAMEL_K_2D  DFO Benchmark Suite v2 core: sixhumpcamel, dimension 2, pattern K, strategy baseline.
+%SIXHUMPCAMEL_K_2D  DFO Benchmark Suite v2.1.0 core: sixhumpcamel, dimension 2, pattern K, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 151 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 151 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -1.031628453488552 (A: analytic reduction, 1-D root to machine precision); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:K x2:K
 %
-lb_orig = [-3 -2];
+lb_orig = [-2.03322509765625 -1.3236620433876949];
 ub_orig = [3 2];
-lb_C_work = [-3 -2];
+lb_C_work = [-2.03322509765625 -1.3236620433876949];
 ub_C_work = [3 2];
-T_break = [0.080000000000000002 -0.72000000000000008];   % breakpoints of T (NaN for continuous)
+T_break = [0.08072944335937482 -0.70324512862199184];   % breakpoints of T (NaN for continuous)
 T_image = [0.089842000000000005 -0.71265599999999996];   % their images
 m = 151;
 ProblemData = cell(1, 2);
@@ -24,7 +24,8 @@ PB.name        = 'sixhumpcamel_k_2D';
 PB.base_function = 'sixhumpcamel';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: K adaptation of sixhumpcamel (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: K adaptation of sixhumpcamel (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'K','K'};
@@ -44,6 +45,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'sixhumpcamel_k_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN];
 g = linspace(lb_orig(1), ub_orig(1), m); D.E{1} = g([145 150 39 49 14 140 75 129 124 34 26 109 70 144 77 6 55 95 80 57 19 79 42 30 108 17 127 48 113 7 103 18 23 40 71 68 62 56 126 119 122 59 72 13 52 36 83 147 137 128 96 138 32 37 8 22 118 51 81 67 76 66 15 112 110 9 24 46 106 25 115 123 41 105 148 58 134 38 74 92 107 31 45 141 98 111 125 151 35 114 20 44 1 116 10 94 121 82 139 89 104 78 16 100 61 131 3 12 73 69 120 28 43 101 33 102 93 88 133 29 86 87 5 135 65 142 84 21 63 97 54 47 130 4 99 53 11 50 136 2 143 60 90 146 132 64 117 27 149 91 85])';
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([103 143 53 49 141 87 27 42 142 15 71 20 58 28 64 73 55 128 149 61 122 130 3 72 12 31 65 80 59 8 126 133 91 125 34 1 62 45 132 30 54 100 77 95 113 116 46 147 105 22 39 51 136 84 119 23 98 52 5 70 109 10 123 75 69 11 25 102 56 26 135 7 137 63 134 106 94 120 110 47 6 33 92 89 85 32 68 88 38 121 151 48 117 129 14 104 90 138 57 93 144 83 21 2 66 60 9 18 79 76 36 139 50 108 41 111 101 97 107 40 96 127 17 112 78 131 99 37 145 148 74 67 19 29 124 82 146 86 35 44 140 114 16 150 81 43 118 115 13 4 24])';
 D.fn = @(xh) sixhumpcamel_orig(xh);
@@ -76,6 +79,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

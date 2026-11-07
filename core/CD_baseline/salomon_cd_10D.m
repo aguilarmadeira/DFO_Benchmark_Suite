@@ -1,20 +1,20 @@
 function PB = salomon_cd_10D()
-%SALOMON_CD_10D  DFO Benchmark Suite v2 core: salomon, dimension 10, pattern CD, strategy baseline.
+%SALOMON_CD_10D  DFO Benchmark Suite v2.1.0 core: salomon, dimension 10, pattern CD, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 17 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 17 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:D x3:C x4:D x5:C x6:D x7:C x8:D x9:C x10:D
 %
-lb_orig = [-100 -100 -100 -100 -100 -100 -100 -100 -100 -100];
-ub_orig = [100 100 100 100 100 100 100 100 100 100];
-lb_C_work = [-100 -100 -100 -100 -100 -100 -100 -100 -100 -100];
-ub_C_work = [100 100 100 100 100 100 100 100 100 100];
-T_break = [NaN 0 NaN 0 NaN 0 NaN 0 NaN 0];   % breakpoints of T (NaN for continuous)
+lb_orig = [-100 -100 -63.779328 -70.412328196584753 -69.914076907315078 -62.553832148734287 -100 -100 -100 -100];
+ub_orig = [63.399169921875 61.593253061017123 100 100 100 100 69.571580800038305 64.071914733619295 70.756308046354889 61.759973758661687];
+lb_C_work = [-100 -100 -63.779328 -70.412328196584753 -69.914076907315078 -62.553832148734287 -100 -100 -100 -100];
+ub_C_work = [63.399169921875 61.593253061017123 100 100 100 100 69.571580800038305 64.071914733619295 70.756308046354889 61.759973758661687];
+T_break = [NaN 0.99578316313569815 NaN 4.143065389421082 NaN -1.5961450929589347 NaN 2.5449467085120432 NaN 1.0999835991635507];   % breakpoints of T (NaN for continuous)
 T_image = [NaN 0 NaN 0 NaN 0 NaN 0 NaN 0];   % their images
 m = 17;
 ProblemData = cell(1, 10);
@@ -32,7 +32,8 @@ PB.name        = 'salomon_cd_10D';
 PB.base_function = 'salomon';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: CD adaptation of salomon (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: CD adaptation of salomon (F = f o T).';
 PB.nvar        = 10;
 PB.nobj        = 1;
 PB.var_types   = {'C','D','C','D','C','D','C','D','C','D'};
@@ -52,12 +53,14 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'salomon_cd_10D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 10);
+D.cw = [0 NaN 0 NaN 0 NaN 0 NaN -1.4210854715202004e-14 NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [0 NaN 0 NaN 0 NaN 0 NaN 0 NaN];
 D.fn = @(xh) salomon_orig(xh);
 PB.f_star      = 0;
 PB.f_star_justification = 'E';   % exact by structure
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [56.34765625 16 46.624000000000024 2 74.755822689707003 5 -22.369224506411584 16 -22.100764362620211 17];   % protocol starting point: Halton point 1043 (index representation)
-PB.x0_alt_idx  = [-42.08984375 17 -44.575999999999993 2 12.09616829451538 3 -78.424587828210861 4 -81.81967617325553 3;7.12890625 16 86.943999999999988 3 -32.531930879038313 17 53.104009769997958 10 66.762554450562988 6;-91.30859375 16 -4.2560000000000002 2 -95.191585274229908 14 -2.951353551801347 15 15.722856908029897 9;87.98828125 17 -66.271999999999991 2 58.527422990232935 12 -59.006716873600652 4 -35.316840634503151 12;-10.44921875 16 34.52800000000002 3 -5.7714636978348466 8 84.245878282108691 9 -86.356538177036242 15;38.76953125 16 -25.952000000000012 1 -50.399562871388568 6 28.1905149603094 14 62.225692446782261 1;-59.66796875 16 74.848000000000013 2 85.287890171436374 4 -39.588845918990437 3 11.185994904249185 4;62.79296875 15 14.368000000000009 2 40.659790997882652 1 -95.644209240789735 8 -39.853702638283885 7;-35.64453125 16 -76.831999999999994 3 -21.999863397308928 15 47.608385914919609 13 -99.572614448919211 10];   % 9 alternative starting points (Halton indices 1043 + 63 k)
+PB.x0_idx      = [27.735386252403259 16 56.290572943360011 2 78.553294575184864 5 -34.180133404096694 16 -33.491070614639952 17];   % protocol starting point: Halton point 1043 (index representation)
+PB.x0_alt_idx  = [-52.687642693519592 17 -18.392800624639996 2 25.319507895733025 3 -81.707116258086643 4 -84.477975121289674 3;-12.476128220558167 16 89.308485468160001 3 -12.595203480279416 17 29.81044481761532 10 42.37879059178681 6;-92.899157166481018 16 14.62511190016 2 -65.828990159731248 14 -17.716538036374658 15 -1.1979609890409932 9;53.58564555644989 17 -36.159582126079997 2 64.766126802089431 12 -65.243520890364636 4 -44.774712569868775 12;-26.837383389472961 16 46.385199185920023 3 10.139696913234019 8 56.214324180943095 9 -88.351464150696586 15;13.374131083488464 16 -3.1416696012800074 1 -27.775014462778429 6 8.687341326953117 14 38.505301562379913 1;-67.048897862434387 16 79.403111710720026 2 87.501027195602873 4 -48.779925522642614 3 -5.071450018447905 4;33.001179814338684 15 29.876242923520003 2 49.586315819590411 1 -96.306908376632592 8 -48.648201599275701 7;-47.421849131584167 16 -44.807130644479997 3 -3.6474708598614143 15 25.150936694675124 13 -99.635106105925431 10];   % 9 alternative starting points (Halton indices 1043 + 63 k)
 PB.core_pidx   = 43;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -74,30 +77,36 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 10 || ~all(isfinite(z)), error('salomon_cd_10D: z must be a finite numeric vector with 10 entries.'); end
 xh = zeros(10, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('salomon_cd_10D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('salomon_cd_10D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
 k = check_idx(z(2), D.m, D.name, 2); g = D.lb(2) + (k - 1) * (D.ub(2) - D.lb(2)) / (D.m - 1);
 xh(2) = T_map(g, D.lb(2), D.ub(2), D.Tb(2), D.Ti(2));
-v = z(3); if v < D.lbw(3) || v > D.ubw(3), error('salomon_cd_10D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
-xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3));
+v = z(3); tl = 1e-12 * (D.ubw(3) - D.lbw(3)); if v < D.lbw(3) - tl || v > D.ubw(3) + tl, error('salomon_cd_10D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
+v = min(max(v, D.lbw(3)), D.ubw(3));
+if abs(v - D.cw(3)) <= 1e-12 * (D.ubw(3) - D.lbw(3)), xh(3) = D.cx(3); else, xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3)); end
 k = check_idx(z(4), D.m, D.name, 4); g = D.lb(4) + (k - 1) * (D.ub(4) - D.lb(4)) / (D.m - 1);
 xh(4) = T_map(g, D.lb(4), D.ub(4), D.Tb(4), D.Ti(4));
-v = z(5); if v < D.lbw(5) || v > D.ubw(5), error('salomon_cd_10D: x5 = %g outside [%g, %g].', v, D.lbw(5), D.ubw(5)); end
-xh(5) = map_work_to_orig(v, D.lbw(5), D.ubw(5), D.lb(5), D.ub(5));
+v = z(5); tl = 1e-12 * (D.ubw(5) - D.lbw(5)); if v < D.lbw(5) - tl || v > D.ubw(5) + tl, error('salomon_cd_10D: x5 = %g outside [%g, %g].', v, D.lbw(5), D.ubw(5)); end
+v = min(max(v, D.lbw(5)), D.ubw(5));
+if abs(v - D.cw(5)) <= 1e-12 * (D.ubw(5) - D.lbw(5)), xh(5) = D.cx(5); else, xh(5) = map_work_to_orig(v, D.lbw(5), D.ubw(5), D.lb(5), D.ub(5)); end
 k = check_idx(z(6), D.m, D.name, 6); g = D.lb(6) + (k - 1) * (D.ub(6) - D.lb(6)) / (D.m - 1);
 xh(6) = T_map(g, D.lb(6), D.ub(6), D.Tb(6), D.Ti(6));
-v = z(7); if v < D.lbw(7) || v > D.ubw(7), error('salomon_cd_10D: x7 = %g outside [%g, %g].', v, D.lbw(7), D.ubw(7)); end
-xh(7) = map_work_to_orig(v, D.lbw(7), D.ubw(7), D.lb(7), D.ub(7));
+v = z(7); tl = 1e-12 * (D.ubw(7) - D.lbw(7)); if v < D.lbw(7) - tl || v > D.ubw(7) + tl, error('salomon_cd_10D: x7 = %g outside [%g, %g].', v, D.lbw(7), D.ubw(7)); end
+v = min(max(v, D.lbw(7)), D.ubw(7));
+if abs(v - D.cw(7)) <= 1e-12 * (D.ubw(7) - D.lbw(7)), xh(7) = D.cx(7); else, xh(7) = map_work_to_orig(v, D.lbw(7), D.ubw(7), D.lb(7), D.ub(7)); end
 k = check_idx(z(8), D.m, D.name, 8); g = D.lb(8) + (k - 1) * (D.ub(8) - D.lb(8)) / (D.m - 1);
 xh(8) = T_map(g, D.lb(8), D.ub(8), D.Tb(8), D.Ti(8));
-v = z(9); if v < D.lbw(9) || v > D.ubw(9), error('salomon_cd_10D: x9 = %g outside [%g, %g].', v, D.lbw(9), D.ubw(9)); end
-xh(9) = map_work_to_orig(v, D.lbw(9), D.ubw(9), D.lb(9), D.ub(9));
+v = z(9); tl = 1e-12 * (D.ubw(9) - D.lbw(9)); if v < D.lbw(9) - tl || v > D.ubw(9) + tl, error('salomon_cd_10D: x9 = %g outside [%g, %g].', v, D.lbw(9), D.ubw(9)); end
+v = min(max(v, D.lbw(9)), D.ubw(9));
+if abs(v - D.cw(9)) <= 1e-12 * (D.ubw(9) - D.lbw(9)), xh(9) = D.cx(9); else, xh(9) = map_work_to_orig(v, D.lbw(9), D.ubw(9), D.lb(9), D.ub(9)); end
 k = check_idx(z(10), D.m, D.name, 10); g = D.lb(10) + (k - 1) * (D.ub(10) - D.lb(10)) / (D.m - 1);
 xh(10) = T_map(g, D.lb(10), D.ub(10), D.Tb(10), D.Ti(10));
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

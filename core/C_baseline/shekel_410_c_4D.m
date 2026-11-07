@@ -1,18 +1,18 @@
 function PB = shekel_410_c_4D()
-%SHEKEL_410_C_4D  DFO Benchmark Suite v2 core: shekel_410, dimension 4, pattern C, strategy baseline.
+%SHEKEL_410_C_4D  DFO Benchmark Suite v2.1.0 core: shekel_410, dimension 4, pattern C, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 0 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 0 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -10.53640981669204 (L: literature value at a refined point); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:C x3:C x4:C
 %
-lb_orig = [0 0 0 0];
+lb_orig = [1.69879150390625 1.7686226693085405 1.9790336000000002 1.3936693044564765];
 ub_orig = [10 10 10 10];
-lb_C_work = [0 0 0 0];
+lb_C_work = [1.69879150390625 1.7686226693085405 1.9790336000000002 1.3936693044564765];
 ub_C_work = [10 10 10 10];
 T_break = [NaN NaN NaN NaN];   % breakpoints of T (NaN for continuous)
 T_image = [NaN NaN NaN NaN];   % their images
@@ -26,7 +26,8 @@ PB.name        = 'shekel_410_c_4D';
 PB.base_function = 'shekel_410';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: C adaptation of shekel_410 (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: C adaptation of shekel_410 (F = f o T).';
 PB.nvar        = 4;
 PB.nobj        = 1;
 PB.var_types   = {'C','C','C','C'};
@@ -46,12 +47,14 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'shekel_410_c_4D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 4);
+D.cw = [4.0007465311135322 4.0005929374560214 3.9996633977086971 3.9995098024822462];   % anchors of the continuous maps (NaN for finite)
+D.cx = [4.0007465311135322 4.0005929374560214 3.9996633977086971 3.9995098024822462];
 D.fn = @(xh) shekel_410_orig(xh);
 PB.f_star      = -10.536409816692045;
 PB.f_star_justification = 'L';   % literature value at a refined point
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [5.9423828125 8.7837219935985349 9.7312000000000012 8.9920866305705953];   % protocol starting point: Halton point 1049 (index representation)
-PB.x0_alt_idx  = [1.0205078125 8.0841335162322796 5.1712000000000007 9.4294044148271556;9.1064453125 8.3721993598536795 0.22720000000000001 9.8667221990837142;4.1845703125 8.550525834476451 7.1872000000000007 8.904623073719284;6.5869140625 7.8509373571101957 2.1664000000000003 9.3419408579758425;1.6650390625 8.4682213077274788 9.1264000000000003 9.7792586422324028;7.8759765625 8.7562871513488787 4.1824000000000003 8.6172428154935439;2.9541015625 7.9103795153177874 1.5423999999999998 9.0545605997501042;5.3271484375 8.1984453589391855 6.1984000000000004 9.4918783840066627;0.4052734375 8.8157293095564686 3.5583999999999993 9.929196168263223];   % 9 alternative starting points (Halton indices 1049 + 63 k)
+PB.x0_idx      = [6.6316873729228973 8.9988356790288382 9.7843964231680012 9.132556423023102];   % protocol starting point: Halton point 1049 (index representation)
+PB.x0_alt_idx  = [2.5459363162517548 8.4229780056882841 6.126835744768 9.5089265700585326;9.2582416236400604 8.6600958711814524 2.1612699566080003 9.8852967170939632;5.1724905669689178 8.8068831212486547 7.743862571008 9.0572823936160152;7.1667262017726898 8.2310254479080989 3.7166957608960001 9.4336525406514458;3.0809751451015472 8.7391351596791775 9.2992883752959994 9.8100226876868781;8.2368038594722748 8.9762530251723458 5.3337225871360001 8.809953439849874;4.1510528028011322 8.279954531263833 3.2161874575359999 9.1863235868853046;6.1209684908390045 8.5170723967570012 6.9507494133760002 9.5626937339207352;2.0352174341678619 9.0251821085280799 4.8332142837759999 9.9390638809561676];   % 9 alternative starting points (Halton indices 1049 + 63 k)
 PB.core_pidx   = 49;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -68,18 +71,23 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 4 || ~all(isfinite(z)), error('shekel_410_c_4D: z must be a finite numeric vector with 4 entries.'); end
 xh = zeros(4, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('shekel_410_c_4D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
-v = z(2); if v < D.lbw(2) || v > D.ubw(2), error('shekel_410_c_4D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
-xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2));
-v = z(3); if v < D.lbw(3) || v > D.ubw(3), error('shekel_410_c_4D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
-xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3));
-v = z(4); if v < D.lbw(4) || v > D.ubw(4), error('shekel_410_c_4D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
-xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('shekel_410_c_4D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
+v = z(2); tl = 1e-12 * (D.ubw(2) - D.lbw(2)); if v < D.lbw(2) - tl || v > D.ubw(2) + tl, error('shekel_410_c_4D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
+v = min(max(v, D.lbw(2)), D.ubw(2));
+if abs(v - D.cw(2)) <= 1e-12 * (D.ubw(2) - D.lbw(2)), xh(2) = D.cx(2); else, xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2)); end
+v = z(3); tl = 1e-12 * (D.ubw(3) - D.lbw(3)); if v < D.lbw(3) - tl || v > D.ubw(3) + tl, error('shekel_410_c_4D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
+v = min(max(v, D.lbw(3)), D.ubw(3));
+if abs(v - D.cw(3)) <= 1e-12 * (D.ubw(3) - D.lbw(3)), xh(3) = D.cx(3); else, xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3)); end
+v = z(4); tl = 1e-12 * (D.ubw(4) - D.lbw(4)); if v < D.lbw(4) - tl || v > D.ubw(4) + tl, error('shekel_410_c_4D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
+v = min(max(v, D.lbw(4)), D.ubw(4));
+if abs(v - D.cw(4)) <= 1e-12 * (D.ubw(4) - D.lbw(4)), xh(4) = D.cx(4); else, xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4)); end
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

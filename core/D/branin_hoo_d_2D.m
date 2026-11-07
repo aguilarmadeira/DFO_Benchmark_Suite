@@ -1,20 +1,20 @@
 function PB = branin_hoo_d_2D()
-%BRANIN_HOO_D_2D  DFO Benchmark Suite v2 core: branin_hoo, dimension 2, pattern D, strategy baseline.
+%BRANIN_HOO_D_2D  DFO Benchmark Suite v2.1.0 core: branin_hoo, dimension 2, pattern D, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 151 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 151 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0.3978873577297382 (A: analytic reduction, 1-D root to machine precision); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:D x2:D
 %
-lb_orig = [-5 0];
-ub_orig = [10 15];
-lb_C_work = [-5 0];
-ub_C_work = [10 15];
-T_break = [-3.1000000000000001 12.300000000000001];   % breakpoints of T (NaN for continuous)
+lb_orig = [-5 2.1286541685718641];
+ub_orig = [7.2836486816406252 15];
+lb_C_work = [-5 2.1286541685718641];
+ub_C_work = [7.2836486816406252 15];
+T_break = [-3.1165072021484379 12.254112889295332];   % breakpoints of T (NaN for continuous)
 T_image = [-3.1415926535897931 12.275];   % their images
 m = 151;
 ProblemData = cell(1, 2);
@@ -24,7 +24,8 @@ PB.name        = 'branin_hoo_d_2D';
 PB.base_function = 'branin_hoo';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: D adaptation of branin_hoo (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: D adaptation of branin_hoo (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'D','D'};
@@ -44,10 +45,12 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'branin_hoo_d_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN];
 D.fn = @(xh) branin_hoo_orig(xh);
 PB.f_star      = 0.39788735772973816;
 PB.f_star_justification = 'A';   % analytic reduction, 1-D root to machine precision
-PB.n_minimizers_documented = 3;
+PB.n_minimizers_documented = 2;
 PB.x0_idx      = [109 36];   % protocol starting point: Halton point 1005 (index representation)
 PB.x0_alt_idx  = [32 41;126 50;51 40;90 42;13 47;136 36;61 45;99 47;22 37];   % 9 alternative starting points (Halton indices 1005 + 63 k)
 PB.core_pidx   = 5;
@@ -74,6 +77,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

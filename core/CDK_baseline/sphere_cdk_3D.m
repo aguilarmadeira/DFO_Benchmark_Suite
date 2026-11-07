@@ -1,20 +1,20 @@
 function PB = sphere_cdk_3D()
-%SPHERE_CDK_3D  DFO Benchmark Suite v2 core: sphere, dimension 3, pattern CDK, strategy baseline.
+%SPHERE_CDK_3D  DFO Benchmark Suite v2.1.0 core: sphere, dimension 3, pattern CDK, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 151 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 151 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:K x3:D
 %
-lb_orig = [-5.1200000000000001 -5.1200000000000001 -5.1200000000000001];
-ub_orig = [5.1200000000000001 5.1200000000000001 5.1200000000000001];
-lb_C_work = [-5.1200000000000001 -5.1200000000000001 -5.1200000000000001];
-ub_C_work = [5.1200000000000001 5.1200000000000001 5.1200000000000001];
-T_break = [NaN 0 0];   % breakpoints of T (NaN for continuous)
+lb_orig = [-3.1116375000000001 -5.1200000000000001 -3.7471911936];
+ub_orig = [5.1200000000000001 3.1496414977391658 5.1200000000000001];
+lb_C_work = [-3.1116375000000001 -5.1200000000000001 -3.7471911936];
+ub_C_work = [5.1200000000000001 3.1496414977391658 5.1200000000000001];
+T_break = [NaN 0.0071777285982825845 -0.022970892287999867];   % breakpoints of T (NaN for continuous)
 T_image = [NaN 0 0];   % their images
 m = 151;
 ProblemData = cell(1, 3);
@@ -25,7 +25,8 @@ PB.name        = 'sphere_cdk_3D';
 PB.base_function = 'sphere';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: CDK adaptation of sphere (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: CDK adaptation of sphere (F = f o T).';
 PB.nvar        = 3;
 PB.nobj        = 1;
 PB.var_types   = {'C','K','D'};
@@ -45,13 +46,15 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'sphere_cdk_3D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 3);
+D.cw = [0 NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [0 NaN NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([2 17 50 49 147 14 35 78 130 75 33 134 148 142 90 83 73 53 85 19 82 41 67 145 93 39 88 151 9 12 101 84 45 1 135 139 136 122 31 36 132 51 13 150 29 57 74 146 91 80 54 87 64 95 20 124 44 6 16 38 11 23 127 70 106 77 40 63 113 43 137 129 140 7 104 123 115 60 141 138 28 56 125 107 109 58 120 27 66 32 55 133 111 144 128 37 30 26 97 34 46 24 65 47 10 5 114 119 110 25 96 98 3 62 112 126 118 61 72 8 68 81 4 100 149 69 99 143 102 15 117 116 79 108 76 59 52 121 86 131 18 22 48 21 42 105 89 92 71 94 103])';
 D.fn = @(xh) sphere_orig(xh);
 PB.f_star      = 0;
 PB.f_star_justification = 'E';   % exact by structure
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [4.8050000000000006 102 10];   % protocol starting point: Halton point 1055 (index representation)
-PB.x0_alt_idx  = [-0.23500000000000032 111 115;2.2850000000000001 115 40;-2.7549999999999999 103 145;3.5450000000000008 108 69;-1.4950000000000001 117 30;1.0250000000000004 106 100;-4.0150000000000006 109 60;4.1749999999999998 113 130;-0.86500000000000021 102 90];   % 9 alternative starting points (Halton indices 1055 + 63 k)
+PB.x0_idx      = [4.8667806823730473 102 10];   % protocol starting point: Halton point 1055 (index representation)
+PB.x0_alt_idx  = [0.8152716003417968 111 115;2.8410261413574216 115 40;-1.2104829406738282 103 145;3.8539034118652338 108 69;-0.19760567016601582 117 30;1.8281488708496094 106 100;-2.2233602111816406 109 60;4.3603420471191399 113 130;0.30883296508789027 102 90];   % 9 alternative starting points (Halton indices 1055 + 63 k)
 PB.core_pidx   = 55;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -68,8 +71,9 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 3 || ~all(isfinite(z)), error('sphere_cdk_3D: z must be a finite numeric vector with 3 entries.'); end
 xh = zeros(3, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('sphere_cdk_3D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('sphere_cdk_3D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
 k = check_idx(z(2), D.m, D.name, 2); g = D.E{2}(k);
 xh(2) = T_map(g, D.lb(2), D.ub(2), D.Tb(2), D.Ti(2));
 k = check_idx(z(3), D.m, D.name, 3); g = D.lb(3) + (k - 1) * (D.ub(3) - D.lb(3)) / (D.m - 1);
@@ -78,6 +82,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

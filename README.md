@@ -1,7 +1,6 @@
-# DFO Benchmark Suite — version 2.0.0
+# DFO Benchmark Suite — version 2.1.0
 
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
-[![DOI v2.0.0](https://zenodo.org/badge/DOI/10.5281/zenodo.24037856.svg)](https://doi.org/10.5281/zenodo.24037856)
 [![DOI (all versions)](https://img.shields.io/badge/DOI_(all_versions)-10.5281%2Fzenodo.20782892-blue.svg)](https://doi.org/10.5281/zenodo.20782892)
 
 A reproducible collection of deterministic black-box optimisation problems
@@ -9,7 +8,14 @@ with continuous (C), ordered discrete (D) and categorical (K) variables,
 independent of any solver. Every problem has a **known global optimum** with a
 stated justification, every file is a self-contained MATLAB/Octave function,
 and the evaluation protocol uses only the points and values a solver
-evaluates.
+evaluates. The domains are chosen so that the centre of the box is never the
+optimum (no advantage for methods that evaluate the centre first).
+
+**Version 2.0.0** (tag [`v2.0.0`](https://github.com/aguilarmadeira/DFO_Benchmark_Suite/tree/v2.0.0),
+doi:10.5281/zenodo.24037856) is superseded: it had the same construction on
+the classical boxes, where the optimum is the centre of the box for 105 of
+the 841 problems. Version 2.1.0 crops each classical box asymmetrically
+(`docs/CORE_SPEC.md`); optimum values and minimisers are unchanged.
 
 **Version 1.0.0** — the continuous-variable suite (504 scaled wrappers and
 the scaling toolkit) and the mixed-variable suite used in the GLODS-SI
@@ -89,10 +95,9 @@ definitions come. See [`LICENSE`](LICENSE).
   author    = {Madeira, J. F. A.},
   title     = {{DFO Benchmark Suite}},
   year      = {2026},
-  version   = {2.0.0},
+  version   = {2.1.0},
   publisher = {Zenodo},
-  doi       = {10.5281/zenodo.24037856},
-  url       = {https://doi.org/10.5281/zenodo.24037856}
+  url       = {https://github.com/aguilarmadeira/DFO_Benchmark_Suite}
 }
 ```
 

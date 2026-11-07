@@ -1,19 +1,19 @@
 function PB = kowalik_c_4D()
-%KOWALIK_C_4D  DFO Benchmark Suite v2 core: kowalik, dimension 4, pattern C, strategy moderate.
+%KOWALIK_C_4D  DFO Benchmark Suite v2.1.0 core: kowalik, dimension 4, pattern C, strategy moderate.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 0 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 0 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0.0003074859878056062 (L: literature value at a refined point); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:C x3:C x4:C
 %
-lb_orig = [0 0 0 0];
-ub_orig = [0.41999999999999998 0.41999999999999998 0.41999999999999998 0.41999999999999998];
-lb_C_work = [0 0 0 0];
-ub_C_work = [0.41999999999999998 42 0.0041999999999999997 0.41999999999999998];
+lb_orig = [0.059979711914062504 0.081743057460752944 0 0.056734110787172012];
+ub_orig = [0.41999999999999998 0.41999999999999998 0.34746458879999997 0.41999999999999998];
+lb_C_work = [0.059979711914062483 8.1743057460752944 0 0.056734110787171999];
+ub_C_work = [0.41999999999999998 42 0.0034746458879999997 0.41999999999999998];
 T_break = [NaN NaN NaN NaN];   % breakpoints of T (NaN for continuous)
 T_image = [NaN NaN NaN NaN];   % their images
 m = 0;
@@ -26,7 +26,8 @@ PB.name        = 'kowalik_c_4D';
 PB.base_function = 'kowalik';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: C adaptation of kowalik (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: C adaptation of kowalik (F = f o T).';
 PB.nvar        = 4;
 PB.nobj        = 1;
 PB.var_types   = {'C','C','C','C'};
@@ -46,12 +47,14 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'kowalik_c_4D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 4);
+D.cw = [0.19283345290075488 19.08362411132952 0.0012311730009947439 0.13576599043790777];   % anchors of the continuous maps (NaN for finite)
+D.cx = [0.1928334529007549 0.1908362411132952 0.1231173000994744 0.1357659904379078];
 D.fn = @(xh) kowalik_orig(xh);
 PB.f_star      = 0.00030748598780560617;
 PB.f_star_justification = 'L';   % literature value at a refined point
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [0.052705078124999999 29.113854595336075 0.0025751040000000004 0.4191253644314869];   % protocol starting point: Halton point 1028 (index representation)
-PB.x0_alt_idx  = [0.318486328125 30.323731138545956 0.0014663040000000001 0.37032069970845483;0.106845703125 31.533607681755825 0.003421824 0.38868804664723028;0.21512695312499999 28.134430727023322 0.0023130239999999999 0.40705539358600579;0.001025390625 30.727023319615913 0.00020428800000000001 0.36664723032069974;0.41446289062499997 31.93689986282579 0.0031274880000000003 0.38501457725947524;0.20774414062499999 28.998628257887514 0.001051008 0.39498542274052473;0.31110351562499999 29.593964334705078 0.0039742079999999999 0.41335276967930024;0.104384765625 32.186556927297666 0.0018977279999999998 0.37294460641399413;0.36155273437499996 29.248285322359397 0.00078892799999999994 0.39131195335276958];   % 9 alternative starting points (Halton indices 1028 + 63 k)
+PB.x0_idx      = [0.10515803908109664 31.621837748338603 0.00213037488685056 0.41924351126777837];   % protocol starting point: Halton point 1028 (index representation)
+PB.x0_alt_idx  = [0.33298337763547897 32.596240463472242 0.0012130683724185601 0.37703144000981126;0.15156690434217451 33.570643178605863 0.0028308634978713599 0.39291770338646553;0.24438463486433026 30.833035550373282 0.0019135569834393597 0.40880396676311981;0.060858667695522291 32.921041368516782 0.00016900677599231999 0.37385418733448039;0.41525363878011701 33.895444083650418 0.0025873603140403201 0.38974045071113472;0.23805615323781965 31.529037489754447 0.00086949538701311998 0.39836442225846125;0.32665489600896835 32.008505492439255 0.0032878489250611201 0.41425068563511552;0.14945741046667099 34.096511310582756 0.0015699839980339197 0.37930090620647611;0.36989952045679092 31.730104716686785 0.00065267748360191996 0.39518716958313038];   % 9 alternative starting points (Halton indices 1028 + 63 k)
 PB.core_pidx   = 28;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -68,18 +71,23 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 4 || ~all(isfinite(z)), error('kowalik_c_4D: z must be a finite numeric vector with 4 entries.'); end
 xh = zeros(4, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('kowalik_c_4D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
-v = z(2); if v < D.lbw(2) || v > D.ubw(2), error('kowalik_c_4D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
-xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2));
-v = z(3); if v < D.lbw(3) || v > D.ubw(3), error('kowalik_c_4D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
-xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3));
-v = z(4); if v < D.lbw(4) || v > D.ubw(4), error('kowalik_c_4D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
-xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('kowalik_c_4D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
+v = z(2); tl = 1e-12 * (D.ubw(2) - D.lbw(2)); if v < D.lbw(2) - tl || v > D.ubw(2) + tl, error('kowalik_c_4D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
+v = min(max(v, D.lbw(2)), D.ubw(2));
+if abs(v - D.cw(2)) <= 1e-12 * (D.ubw(2) - D.lbw(2)), xh(2) = D.cx(2); else, xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2)); end
+v = z(3); tl = 1e-12 * (D.ubw(3) - D.lbw(3)); if v < D.lbw(3) - tl || v > D.ubw(3) + tl, error('kowalik_c_4D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
+v = min(max(v, D.lbw(3)), D.ubw(3));
+if abs(v - D.cw(3)) <= 1e-12 * (D.ubw(3) - D.lbw(3)), xh(3) = D.cx(3); else, xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3)); end
+v = z(4); tl = 1e-12 * (D.ubw(4) - D.lbw(4)); if v < D.lbw(4) - tl || v > D.ubw(4) + tl, error('kowalik_c_4D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
+v = min(max(v, D.lbw(4)), D.ubw(4));
+if abs(v - D.cw(4)) <= 1e-12 * (D.ubw(4) - D.lbw(4)), xh(4) = D.cx(4); else, xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4)); end
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

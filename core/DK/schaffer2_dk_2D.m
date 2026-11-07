@@ -1,20 +1,20 @@
 function PB = schaffer2_dk_2D()
-%SCHAFFER2_DK_2D  DFO Benchmark Suite v2 core: schaffer2, dimension 2, pattern DK, strategy baseline.
+%SCHAFFER2_DK_2D  DFO Benchmark Suite v2.1.0 core: schaffer2, dimension 2, pattern DK, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 151 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 151 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:D x2:K
 %
-lb_orig = [-100 -100];
-ub_orig = [100 100];
-lb_C_work = [-100 -100];
-ub_C_work = [100 100];
-T_break = [0 0];   % breakpoints of T (NaN for continuous)
+lb_orig = [-100 -64.704364172128237];
+ub_orig = [65.149169921875 100];
+lb_C_work = [-100 -64.704364172128237];
+ub_C_work = [65.149169921875 100];
+T_break = [0.19049641927082916 0.079352402242193421];   % breakpoints of T (NaN for continuous)
 T_image = [0 0];   % their images
 m = 151;
 ProblemData = cell(1, 2);
@@ -24,7 +24,8 @@ PB.name        = 'schaffer2_dk_2D';
 PB.base_function = 'schaffer2';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: DK adaptation of schaffer2 (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: DK adaptation of schaffer2 (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'D','K'};
@@ -44,6 +45,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'schaffer2_dk_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([89 65 148 76 84 77 151 119 27 93 85 22 73 41 3 90 55 32 75 44 133 34 127 2 6 11 91 141 138 111 56 144 98 62 57 82 49 58 142 131 116 96 71 103 45 66 107 113 33 43 9 106 51 117 25 115 114 94 88 36 7 146 23 35 59 78 26 47 54 21 29 130 101 81 104 39 60 129 46 12 48 74 5 149 145 53 87 109 97 4 123 38 83 128 86 67 105 40 110 28 121 140 37 122 52 125 70 69 136 95 50 132 143 68 124 20 1 64 63 80 112 10 139 92 19 134 137 147 13 108 79 30 15 120 150 17 100 42 135 102 118 99 24 8 31 18 61 14 72 16 126])';
 D.fn = @(xh) schaffer2_orig(xh);
 PB.f_star      = 0;
@@ -75,6 +78,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

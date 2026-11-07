@@ -1,20 +1,20 @@
 function PB = branin_hoo_k_2D()
-%BRANIN_HOO_K_2D  DFO Benchmark Suite v2 core: branin_hoo, dimension 2, pattern K, strategy baseline.
+%BRANIN_HOO_K_2D  DFO Benchmark Suite v2.1.0 core: branin_hoo, dimension 2, pattern K, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 151 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 151 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0.3978873577297382 (A: analytic reduction, 1-D root to machine precision); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:K x2:K
 %
-lb_orig = [-5 0];
-ub_orig = [10 15];
-lb_C_work = [-5 0];
-ub_C_work = [10 15];
-T_break = [-3.1000000000000001 12.300000000000001];   % breakpoints of T (NaN for continuous)
+lb_orig = [-5 2.1286541685718641];
+ub_orig = [7.2836486816406252 15];
+lb_C_work = [-5 2.1286541685718641];
+ub_C_work = [7.2836486816406252 15];
+T_break = [-3.1165072021484379 12.254112889295332];   % breakpoints of T (NaN for continuous)
 T_image = [-3.1415926535897931 12.275];   % their images
 m = 151;
 ProblemData = cell(1, 2);
@@ -24,7 +24,8 @@ PB.name        = 'branin_hoo_k_2D';
 PB.base_function = 'branin_hoo';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: K adaptation of branin_hoo (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: K adaptation of branin_hoo (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'K','K'};
@@ -44,12 +45,14 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'branin_hoo_k_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN];
 g = linspace(lb_orig(1), ub_orig(1), m); D.E{1} = g([37 57 67 119 24 96 18 105 23 124 56 144 50 33 28 95 128 61 42 145 31 117 13 65 151 113 84 146 83 133 75 11 14 141 20 21 123 121 36 142 51 7 139 93 74 147 114 72 107 132 3 71 106 86 150 90 102 12 17 29 89 126 59 2 16 137 35 48 73 4 9 32 109 63 10 94 91 58 78 148 138 62 70 26 92 129 49 101 81 69 39 108 111 27 110 112 131 88 80 100 149 120 135 68 6 66 97 52 127 41 122 87 103 82 1 47 104 64 134 115 34 79 53 125 46 54 85 136 30 143 38 55 5 15 22 98 130 116 8 76 45 77 140 40 43 118 99 25 60 44 19])';
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([110 79 44 135 119 53 17 88 144 8 145 21 36 127 80 77 128 147 96 43 87 32 14 16 38 23 61 2 51 70 71 132 15 50 20 22 107 35 136 40 57 7 151 108 140 26 62 117 134 141 98 10 66 148 46 69 3 138 19 30 68 92 78 4 18 76 37 81 83 6 105 34 54 101 12 89 41 60 1 28 49 64 104 29 116 33 52 63 84 106 146 56 82 31 121 109 42 93 85 102 123 120 133 73 11 72 103 131 122 129 86 142 111 90 9 55 113 74 24 5 139 91 143 125 59 149 99 114 47 94 58 75 27 39 48 126 25 13 45 118 95 130 65 124 137 97 100 112 67 150 115])';
 D.fn = @(xh) branin_hoo_orig(xh);
 PB.f_star      = 0.39788735772973816;
 PB.f_star_justification = 'A';   % analytic reduction, 1-D root to machine precision
-PB.n_minimizers_documented = 3;
+PB.n_minimizers_documented = 2;
 PB.x0_idx      = [109 36];   % protocol starting point: Halton point 1005 (index representation)
 PB.x0_alt_idx  = [32 41;126 50;51 40;90 42;13 47;136 36;61 45;99 47;22 37];   % 9 alternative starting points (Halton indices 1005 + 63 k)
 PB.core_pidx   = 5;
@@ -76,6 +79,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

@@ -1,20 +1,20 @@
 function PB = fifteenn_local_minima_dk_10D()
-%FIFTEENN_LOCAL_MINIMA_DK_10D  DFO Benchmark Suite v2 core: fifteenn_local_minima, dimension 10, pattern DK, strategy baseline.
+%FIFTEENN_LOCAL_MINIMA_DK_10D  DFO Benchmark Suite v2.1.0 core: fifteenn_local_minima, dimension 10, pattern DK, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 9 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 9 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 1.349783804395672e-32 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:D x2:K x3:D x4:K x5:D x6:K x7:D x8:K x9:D x10:K
 %
 lb_orig = [-10 -10 -10 -10 -10 -10 -10 -10 -10 -10];
-ub_orig = [10 10 10 10 10 10 10 10 10 10];
+ub_orig = [6.2250732421875004 6.0210537011634404 6.1091328000000003 6.3555185339441902 7.26909364114473 6.0565666468260915 6.1433172495540047 6.7794906423369987 7.1391468726884195 7.334618065521342];
 lb_C_work = [-10 -10 -10 -10 -10 -10 -10 -10 -10 -10];
-ub_C_work = [10 10 10 10 10 10 10 10 10 10];
-T_break = [0 0 0 0 0 0 0 0 0 0];   % breakpoints of T (NaN for continuous)
+ub_C_work = [6.2250732421875004 6.0210537011634404 6.1091328000000003 6.3555185339441902 7.26909364114473 6.0565666468260915 6.1433172495540047 6.7794906423369987 7.1391468726884195 7.334618065521342];
+T_break = [0.1406707763671875 0.013158563227149145 0.068208000000000268 0.22219908371511998 0.79318352571545603 0.035354154266308058 0.089573280971253055 0.48718165146062375 0.7119667954302642 0.83413629095083763];   % breakpoints of T (NaN for continuous)
 T_image = [1 1 1 1 1 1 1 1 1 1];   % their images
 m = 9;
 ProblemData = cell(1, 10);
@@ -32,7 +32,8 @@ PB.name        = 'fifteenn_local_minima_dk_10D';
 PB.base_function = 'fifteenn_local_minima';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: DK adaptation of fifteenn_local_minima (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: DK adaptation of fifteenn_local_minima (F = f o T).';
 PB.nvar        = 10;
 PB.nobj        = 1;
 PB.var_types   = {'D','K','D','K','D','K','D','K','D','K'};
@@ -52,6 +53,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'fifteenn_local_minima_dk_10D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 10);
+D.cw = [NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([7 4 3 6 1 8 2 9 5])';
 g = linspace(lb_orig(4), ub_orig(4), m); D.E{4} = g([2 3 5 7 1 8 4 6 9])';
 g = linspace(lb_orig(6), ub_orig(6), m); D.E{6} = g([5 4 2 8 9 1 6 3 7])';
@@ -103,6 +106,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

@@ -11,19 +11,15 @@ authors:
       IDMEC, Instituto Superior Técnico, Universidade de Lisboa;
       ISEL, Instituto Politécnico de Lisboa
     orcid: 'https://orcid.org/0000-0001-9523-3808'
-version: 2.0.0
+version: 2.1.0
 date-released: '2026-11-07'
 repository-code: 'https://github.com/aguilarmadeira/DFO_Benchmark_Suite'
-doi: 10.5281/zenodo.24037856
 identifiers:
-  - type: doi
-    value: 10.5281/zenodo.24037856
-    description: Version 2.0.0
   - type: doi
     value: 10.5281/zenodo.20782892
     description: All versions (resolves to the latest)
 abstract: >-
-  Version 2.0.0: 841 deterministic black-box optimization problems with
+  Version 2.1.0: 841 deterministic black-box optimization problems with
   continuous, ordered discrete and categorical variables, independent of any
   solver. 697 problems derive from 55 classical base instances in seven
   variable-type patterns (C, D, K, DK, CD, CK, CDK) and three scale
@@ -31,7 +27,8 @@ abstract: >-
   a controlled continuous-categorical interaction). Every problem has a
   known global optimum with a stated justification; self-contained
   MATLAB/Octave wrappers, reference optima, versioned targets and a
-  solver-independent evaluation protocol are included. Version 1.0.0
+  solver-independent evaluation protocol are included. The domains are
+  chosen so that the centre of the box is never the optimum. Version 1.0.0
   (continuous and mixed-variable suites of the GLODS-SI and GLODS-SI-Mix
   studies) remains available under tag v1.0.0.
 keywords:

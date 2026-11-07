@@ -1,20 +1,20 @@
 function PB = hosaki_k_2D()
-%HOSAKI_K_2D  DFO Benchmark Suite v2 core: hosaki, dimension 2, pattern K, strategy baseline.
+%HOSAKI_K_2D  DFO Benchmark Suite v2.1.0 core: hosaki, dimension 2, pattern K, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 151 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 151 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -2.345811576101292 (L: literature value at a refined point); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:K x2:K
 %
-lb_orig = [0 0];
-ub_orig = [5 6];
-lb_C_work = [0 0];
-ub_C_work = [5 6];
-T_break = [4 2];   % breakpoints of T (NaN for continuous)
+lb_orig = [0 1.027757963725042];
+ub_orig = [4.0672058105468754 6];
+lb_C_work = [0 1.027757963725042];
+ub_C_work = [4.0672058105468754 6];
+T_break = [4.0129763997395838 1.9890580907382005];   % breakpoints of T (NaN for continuous)
 T_image = [4 2];   % their images
 m = 151;
 ProblemData = cell(1, 2);
@@ -24,7 +24,8 @@ PB.name        = 'hosaki_k_2D';
 PB.base_function = 'hosaki';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: K adaptation of hosaki (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: K adaptation of hosaki (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'K','K'};
@@ -44,6 +45,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'hosaki_k_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN];
 g = linspace(lb_orig(1), ub_orig(1), m); D.E{1} = g([97 61 111 68 42 81 38 59 139 73 100 117 29 22 14 41 145 34 118 52 149 60 112 135 72 113 96 127 8 46 57 19 143 27 31 87 150 13 99 75 24 116 53 39 103 130 105 20 28 84 131 86 108 107 55 121 74 32 98 56 80 129 128 45 122 89 26 43 49 9 92 146 3 17 91 82 125 36 132 21 50 71 136 54 5 6 102 47 101 4 88 94 51 15 35 2 67 124 66 114 76 140 64 141 110 37 79 58 104 18 115 134 78 93 126 138 25 106 83 30 10 65 1 40 11 70 144 147 120 77 151 63 119 12 44 133 48 62 142 33 23 148 109 85 123 137 95 16 7 90 69])';
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([61 124 140 26 42 66 128 35 150 120 63 59 48 22 118 68 45 27 4 103 107 10 46 16 62 106 79 147 113 56 108 20 110 67 31 117 76 123 15 82 136 30 114 130 119 12 126 121 29 54 72 7 60 87 91 99 151 33 41 58 131 32 37 47 132 138 148 127 88 11 17 50 5 94 149 141 13 102 65 105 139 74 2 57 90 9 134 51 80 129 109 18 55 112 39 6 116 44 135 98 137 38 142 28 23 43 85 64 1 125 122 19 86 101 78 71 143 146 93 40 21 77 14 52 144 84 100 111 133 95 89 83 8 36 70 25 81 97 53 75 145 69 34 24 73 115 96 104 49 3 92])';
 D.fn = @(xh) hosaki_orig(xh);
@@ -76,6 +79,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

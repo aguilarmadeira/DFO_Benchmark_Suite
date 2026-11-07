@@ -1,20 +1,20 @@
 function PB = hartman_4_dk_3D()
-%HARTMAN_4_DK_3D  DFO Benchmark Suite v2 core: hartman_4, dimension 3, pattern DK, strategy baseline.
+%HARTMAN_4_DK_3D  DFO Benchmark Suite v2.1.0 core: hartman_4, dimension 3, pattern DK, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 41 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 41 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -3.862782147819745 (L: literature value at a refined point); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:D x2:K x3:D
 %
 lb_orig = [0 0 0];
-ub_orig = [1 1 1];
+ub_orig = [0.83094116210937496 0.81315145049027082 0.86929663999999995];
 lb_C_work = [0 0 0];
-ub_C_work = [1 1 1];
-T_break = [0.125 0.55000000000000004 0.84999999999999998];   % breakpoints of T (NaN for continuous)
+ub_C_work = [0.83094116210937496 0.81315145049027082 0.86929663999999995];
+T_break = [0.12464117431640624 0.54887722908093273 0.84756422399999987];   % breakpoints of T (NaN for continuous)
 T_image = [0.11461399999999999 0.55564899999999995 0.85254700000000005];   % their images
 m = 41;
 ProblemData = cell(1, 3);
@@ -25,7 +25,8 @@ PB.name        = 'hartman_4_dk_3D';
 PB.base_function = 'hartman_4';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: DK adaptation of hartman_4 (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: DK adaptation of hartman_4 (F = f o T).';
 PB.nvar        = 3;
 PB.nobj        = 1;
 PB.var_types   = {'D','K','D'};
@@ -45,6 +46,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'hartman_4_dk_3D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 3);
+D.cw = [NaN NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([10 21 40 16 37 24 7 18 39 17 36 11 15 30 5 12 29 32 33 25 1 20 35 2 28 14 13 6 19 9 8 27 26 34 4 31 3 41 23 22 38])';
 D.fn = @(xh) hartman_4_orig(xh);
 PB.f_star      = -3.862782147819745;
@@ -78,6 +81,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

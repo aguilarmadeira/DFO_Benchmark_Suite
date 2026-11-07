@@ -1,20 +1,20 @@
 function PB = gulf_dk_3D()
-%GULF_DK_3D  DFO Benchmark Suite v2 core: gulf, dimension 3, pattern DK, strategy baseline.
+%GULF_DK_3D  DFO Benchmark Suite v2.1.0 core: gulf, dimension 3, pattern DK, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 41 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 41 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 9.709124424797534e-31 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:D x2:K x3:D
 %
-lb_orig = [0.10000000000000001 0 0];
-ub_orig = [100 25.600000000000001 5];
-lb_C_work = [0.10000000000000001 0 0];
-ub_C_work = [100 25.600000000000001 5];
-T_break = [50.050000000000004 24.960000000000001 1.5];   % breakpoints of T (NaN for continuous)
+lb_orig = [0.10000000000000001 4.1859895341157349 0];
+ub_orig = [86.607522094726562 25.600000000000001 4.0132832000000001];
+lb_C_work = [0.10000000000000001 4.1859895341157349 0];
+ub_C_work = [86.607522094726562 25.600000000000001 4.0132832000000001];
+T_break = [49.841825204467781 25.064649738352895 1.5049812];   % breakpoints of T (NaN for continuous)
 T_image = [50 25 1.5];   % their images
 m = 41;
 ProblemData = cell(1, 3);
@@ -25,7 +25,8 @@ PB.name        = 'gulf_dk_3D';
 PB.base_function = 'gulf';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: DK adaptation of gulf (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: DK adaptation of gulf (F = f o T).';
 PB.nvar        = 3;
 PB.nobj        = 1;
 PB.var_types   = {'D','K','D'};
@@ -45,6 +46,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'gulf_dk_3D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 3);
+D.cw = [NaN NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([26 7 31 22 29 5 3 8 32 39 23 34 21 37 6 24 35 19 28 38 25 12 17 13 15 41 11 27 9 33 4 36 20 30 14 16 40 1 2 10 18])';
 D.fn = @(xh) gulf_orig(xh);
 PB.f_star      = 9.7091244247975338e-31;
@@ -78,6 +81,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

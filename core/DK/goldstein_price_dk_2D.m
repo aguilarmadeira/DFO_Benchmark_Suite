@@ -1,20 +1,20 @@
 function PB = goldstein_price_dk_2D()
-%GOLDSTEIN_PRICE_DK_2D  DFO Benchmark Suite v2 core: goldstein_price, dimension 2, pattern DK, strategy baseline.
+%GOLDSTEIN_PRICE_DK_2D  DFO Benchmark Suite v2.1.0 core: goldstein_price, dimension 2, pattern DK, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 151 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 151 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 3 (L: literature value at a refined point); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:D x2:K
 %
 lb_orig = [-2 -2];
-ub_orig = [2 2];
+ub_orig = [1.2800146484374999 1.3770502464055276];
 lb_C_work = [-2 -2];
-ub_C_work = [2 2];
-T_break = [0 -0.98666666666666669];   % breakpoints of T (NaN for continuous)
+ub_C_work = [1.2800146484374999 1.3770502464055276];
+T_break = [-0.01012444661458356 -1.009398594387712];   % breakpoints of T (NaN for continuous)
 T_image = [0 -1];   % their images
 m = 151;
 ProblemData = cell(1, 2);
@@ -24,7 +24,8 @@ PB.name        = 'goldstein_price_dk_2D';
 PB.base_function = 'goldstein_price';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: DK adaptation of goldstein_price (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: DK adaptation of goldstein_price (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'D','K'};
@@ -44,6 +45,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'goldstein_price_dk_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([139 64 37 126 70 145 4 149 141 39 72 132 44 43 41 52 94 76 121 118 92 14 17 55 112 60 67 10 98 15 74 123 77 113 35 110 129 148 106 125 138 32 50 40 56 75 18 108 53 34 65 3 104 59 109 2 151 22 101 78 8 16 20 83 130 116 6 21 136 84 142 79 117 124 103 33 135 73 82 127 96 19 134 144 28 24 115 62 89 146 86 12 97 5 150 81 46 13 29 54 30 85 11 69 48 51 90 119 105 1 143 91 31 36 140 88 45 131 63 107 71 58 95 122 68 114 100 42 7 47 93 57 49 99 87 137 27 26 25 147 102 61 133 80 38 9 111 66 128 23 120])';
 D.fn = @(xh) goldstein_price_orig(xh);
 PB.f_star      = 3;
@@ -75,6 +78,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

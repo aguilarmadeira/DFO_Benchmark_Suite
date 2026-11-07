@@ -1,19 +1,19 @@
 function PB = rastrigin_c_10D()
-%RASTRIGIN_C_10D  DFO Benchmark Suite v2 core: rastrigin, dimension 10, pattern C, strategy extreme.
+%RASTRIGIN_C_10D  DFO Benchmark Suite v2.1.0 core: rastrigin, dimension 10, pattern C, strategy extreme.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 0 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 0 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:C x3:C x4:C x5:C x6:C x7:C x8:C x9:C x10:C
 %
-lb_orig = [-5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001];
-ub_orig = [5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001];
-lb_C_work = [-5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -512000000 -512000000 -512000000 -512000000 -512000000];
-ub_C_work = [5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 512000000 512000000 512000000 512000000 512000000];
+lb_orig = [-5.1200000000000001 -5.1200000000000001 -3.6955815936 -3.2101397750937108 -3.775091646745441 -3.3681715906305802 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001];
+ub_orig = [3.7836375000000002 3.2332190011685213 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 3.6885590546090206 3.3936609817297292 3.7162186241472837 3.2362623805814099];
+lb_C_work = [-5.1200000000000001 -5.120000000000001 -3.6955815936000005 -3.2101397750937108 -3.7750916467454414 -336817159.06305802 -512000000 -511999999.99999994 -512000000 -511999999.99999994];
+ub_C_work = [3.7836375000000002 3.2332190011685218 5.120000000000001 5.1200000000000001 5.120000000000001 512000000 368855905.46090198 339366098.17297286 371621862.4147284 323626238.05814093];
 T_break = [NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN];   % breakpoints of T (NaN for continuous)
 T_image = [NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN];   % their images
 m = 0;
@@ -32,7 +32,8 @@ PB.name        = 'rastrigin_c_10D';
 PB.base_function = 'rastrigin';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: C adaptation of rastrigin (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: C adaptation of rastrigin (F = f o T).';
 PB.nvar        = 10;
 PB.nobj        = 1;
 PB.var_types   = {'C','C','C','C','C','C','C','C','C','C'};
@@ -52,12 +53,14 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'rastrigin_c_10D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 10);
+D.cw = [0 -8.8817841970012523e-16 -4.4408920985006262e-16 0 -4.4408920985006262e-16 0 0 0 5.9604644775390625e-08 0];   % anchors of the continuous maps (NaN for finite)
+D.cx = [0 0 0 0 0 0 0 0 0 0];
 D.fn = @(xh) rastrigin_orig(xh);
 PB.f_star      = 0;
 PB.f_star_justification = 'E';   % exact by structure
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [-4.7949999999999999 3.4952720621856406 -3.7568512000000003 0.95320283215326995 1.0347708489857261 -497085116.06736457 -295236311.82576835 288209943.14039946 -246721130.92791983 378106195.41596627];   % protocol starting point: Halton point 1040 (index representation)
-PB.x0_alt_idx  = [4.5650000000000004 3.7902514860539531 1.4041088000000013 1.4010162432319859 -2.1734034560480846 393613108.78470647 438216975.37146354 -454820819.36142296 469582312.81334758 -465689286.15359384;-0.59499999999999975 3.0738728852309096 -1.6924671999999998 1.8488296543107037 -4.4583621337340347 266370505.23441052 91186647.669448495 -122942703.01793265 208259061.39557815 -286702365.8206569;2.0449999999999999 3.2564791952446255 3.4684928000000008 0.86364014993752569 2.4888354620586028 60824761.037778854 -195816812.53816408 208935413.32555759 -53064190.022191167 -107715445.48771995;-3.1749999999999998 3.8885779606767263 0.29327360000000002 1.3114535610162443 0.20387678437265322 -66417842.512517035 -482820272.74577653 -480349905.23399913 -314387441.43996054 71271474.845217109;3.3050000000000006 3.1721993598536793 -4.3761663999999998 1.7592669720949603 -3.0882262140564167 -271963586.70914882 250633014.45145535 -148471788.89050883 446353579.3539902 250258395.17815411;-1.855 3.4671787837219936 2.3576576000000014 2.0023656809662631 4.7821870090840806 -399206190.25944471 -36370445.75615716 183406327.45298147 185030327.93622088 429245315.51109111;0.78500000000000014 3.6123273891175129 -2.3117824000000002 1.0171761765930851 1.5740127040502703 491492034.59262645 -383400773.4581722 461538999.85420609 -76292923.481548488 -414550166.05846894;-4.4649999999999999 2.8959487882944659 4.4220416000000009 1.464989587671802 -0.71094597363568113 285946290.39599466 350052513.73905969 -227746318.7053507 -337616174.8993178 -235563245.72553205;3.9349999999999996 3.528047553726565 -0.24739840000000068 1.9128029987505188 -3.9191202786694896 158703686.84569871 63049053.531447291 104131797.63813972 378687268.84194946 -56576325.392595053];   % 9 alternative starting points (Halton indices 1040 + 63 k)
+PB.x0_idx      = [-4.8374138488769534 1.9078568642661526 -2.5220513718599684 1.7303512868527466 1.5713195609152302 -324453868.62609041 -325537524.59203374 153304313.48697108 -283087687.15942931 214363370.65203935];   % protocol starting point: Halton point 1040 (index representation)
+PB.x0_alt_idx  = [3.3010673034667972 2.1484845721187433 1.9210017513144337 2.0946431137518884 -1.2154972810778957 413866382.1565696 305386947.48549807 -464460531.33106154 335019132.18895185 -474208547.2722075;-1.1855312805175782 1.5641029959053085 -0.74483012259020809 2.4589349406510301 -3.2003524419219191 308392060.61618948 6867695.9910137653 -188533014.7486853 109520169.19086421 -328147837.4094885;1.1099377624511719 1.7130630055283413 3.6982230005841923 1.6574929214729179 2.8344092087250634 138010464.28172964 -240015793.08280313 87394501.833690941 -115978793.80722332 -182087127.5467695;-3.4288305725097654 2.2286938080696084 0.96468746004070427 2.0217847483720606 0.84955404788104039 32536142.741349578 -486899282.15661991 -485685724.91432124 -341477756.80531085 -36026417.684050441;2.2055025329589846 1.6443122318561727 -3.0552177466408965 2.3860765752712023 -2.0101684014892767 -137845453.59311038 144025189.92091191 -209758208.331945 314974779.92245507 110034292.17866868;-2.2810960510253908 1.8849399397087634 2.7419087093104655 2.5838349955878783 4.8265549303068074 -243319775.13349038 -102858299.15290493 66169308.25043124 89475816.924367666 256095002.04138774;0.014372991943359281 2.0033440499219441 -1.2779964973711362 1.7823929764097661 2.0397380883136829 495000475.64916956 -401377550.64738929 297412206.76278692 -136023146.07372004 -432476915.88285923;-4.550480218505859 1.4189624737085076 4.5191299585802245 2.146684803308907 0.054882927469657616 324618879.31470966 229546921.43014264 -275668019.9852252 -361522109.07180756 -286416206.02014023;2.7532849182128905 1.9345932762497746 0.4992247518986237 2.5109766302080496 -2.7319339145234673 219144557.77432954 -17336567.643674135 259496.59715110064 256584710.27657354 -140355496.15742117];   % 9 alternative starting points (Halton indices 1040 + 63 k)
 PB.core_pidx   = 40;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -74,30 +77,41 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 10 || ~all(isfinite(z)), error('rastrigin_c_10D: z must be a finite numeric vector with 10 entries.'); end
 xh = zeros(10, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('rastrigin_c_10D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
-v = z(2); if v < D.lbw(2) || v > D.ubw(2), error('rastrigin_c_10D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
-xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2));
-v = z(3); if v < D.lbw(3) || v > D.ubw(3), error('rastrigin_c_10D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
-xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3));
-v = z(4); if v < D.lbw(4) || v > D.ubw(4), error('rastrigin_c_10D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
-xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4));
-v = z(5); if v < D.lbw(5) || v > D.ubw(5), error('rastrigin_c_10D: x5 = %g outside [%g, %g].', v, D.lbw(5), D.ubw(5)); end
-xh(5) = map_work_to_orig(v, D.lbw(5), D.ubw(5), D.lb(5), D.ub(5));
-v = z(6); if v < D.lbw(6) || v > D.ubw(6), error('rastrigin_c_10D: x6 = %g outside [%g, %g].', v, D.lbw(6), D.ubw(6)); end
-xh(6) = map_work_to_orig(v, D.lbw(6), D.ubw(6), D.lb(6), D.ub(6));
-v = z(7); if v < D.lbw(7) || v > D.ubw(7), error('rastrigin_c_10D: x7 = %g outside [%g, %g].', v, D.lbw(7), D.ubw(7)); end
-xh(7) = map_work_to_orig(v, D.lbw(7), D.ubw(7), D.lb(7), D.ub(7));
-v = z(8); if v < D.lbw(8) || v > D.ubw(8), error('rastrigin_c_10D: x8 = %g outside [%g, %g].', v, D.lbw(8), D.ubw(8)); end
-xh(8) = map_work_to_orig(v, D.lbw(8), D.ubw(8), D.lb(8), D.ub(8));
-v = z(9); if v < D.lbw(9) || v > D.ubw(9), error('rastrigin_c_10D: x9 = %g outside [%g, %g].', v, D.lbw(9), D.ubw(9)); end
-xh(9) = map_work_to_orig(v, D.lbw(9), D.ubw(9), D.lb(9), D.ub(9));
-v = z(10); if v < D.lbw(10) || v > D.ubw(10), error('rastrigin_c_10D: x10 = %g outside [%g, %g].', v, D.lbw(10), D.ubw(10)); end
-xh(10) = map_work_to_orig(v, D.lbw(10), D.ubw(10), D.lb(10), D.ub(10));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('rastrigin_c_10D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
+v = z(2); tl = 1e-12 * (D.ubw(2) - D.lbw(2)); if v < D.lbw(2) - tl || v > D.ubw(2) + tl, error('rastrigin_c_10D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
+v = min(max(v, D.lbw(2)), D.ubw(2));
+if abs(v - D.cw(2)) <= 1e-12 * (D.ubw(2) - D.lbw(2)), xh(2) = D.cx(2); else, xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2)); end
+v = z(3); tl = 1e-12 * (D.ubw(3) - D.lbw(3)); if v < D.lbw(3) - tl || v > D.ubw(3) + tl, error('rastrigin_c_10D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
+v = min(max(v, D.lbw(3)), D.ubw(3));
+if abs(v - D.cw(3)) <= 1e-12 * (D.ubw(3) - D.lbw(3)), xh(3) = D.cx(3); else, xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3)); end
+v = z(4); tl = 1e-12 * (D.ubw(4) - D.lbw(4)); if v < D.lbw(4) - tl || v > D.ubw(4) + tl, error('rastrigin_c_10D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
+v = min(max(v, D.lbw(4)), D.ubw(4));
+if abs(v - D.cw(4)) <= 1e-12 * (D.ubw(4) - D.lbw(4)), xh(4) = D.cx(4); else, xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4)); end
+v = z(5); tl = 1e-12 * (D.ubw(5) - D.lbw(5)); if v < D.lbw(5) - tl || v > D.ubw(5) + tl, error('rastrigin_c_10D: x5 = %g outside [%g, %g].', v, D.lbw(5), D.ubw(5)); end
+v = min(max(v, D.lbw(5)), D.ubw(5));
+if abs(v - D.cw(5)) <= 1e-12 * (D.ubw(5) - D.lbw(5)), xh(5) = D.cx(5); else, xh(5) = map_work_to_orig(v, D.lbw(5), D.ubw(5), D.lb(5), D.ub(5)); end
+v = z(6); tl = 1e-12 * (D.ubw(6) - D.lbw(6)); if v < D.lbw(6) - tl || v > D.ubw(6) + tl, error('rastrigin_c_10D: x6 = %g outside [%g, %g].', v, D.lbw(6), D.ubw(6)); end
+v = min(max(v, D.lbw(6)), D.ubw(6));
+if abs(v - D.cw(6)) <= 1e-12 * (D.ubw(6) - D.lbw(6)), xh(6) = D.cx(6); else, xh(6) = map_work_to_orig(v, D.lbw(6), D.ubw(6), D.lb(6), D.ub(6)); end
+v = z(7); tl = 1e-12 * (D.ubw(7) - D.lbw(7)); if v < D.lbw(7) - tl || v > D.ubw(7) + tl, error('rastrigin_c_10D: x7 = %g outside [%g, %g].', v, D.lbw(7), D.ubw(7)); end
+v = min(max(v, D.lbw(7)), D.ubw(7));
+if abs(v - D.cw(7)) <= 1e-12 * (D.ubw(7) - D.lbw(7)), xh(7) = D.cx(7); else, xh(7) = map_work_to_orig(v, D.lbw(7), D.ubw(7), D.lb(7), D.ub(7)); end
+v = z(8); tl = 1e-12 * (D.ubw(8) - D.lbw(8)); if v < D.lbw(8) - tl || v > D.ubw(8) + tl, error('rastrigin_c_10D: x8 = %g outside [%g, %g].', v, D.lbw(8), D.ubw(8)); end
+v = min(max(v, D.lbw(8)), D.ubw(8));
+if abs(v - D.cw(8)) <= 1e-12 * (D.ubw(8) - D.lbw(8)), xh(8) = D.cx(8); else, xh(8) = map_work_to_orig(v, D.lbw(8), D.ubw(8), D.lb(8), D.ub(8)); end
+v = z(9); tl = 1e-12 * (D.ubw(9) - D.lbw(9)); if v < D.lbw(9) - tl || v > D.ubw(9) + tl, error('rastrigin_c_10D: x9 = %g outside [%g, %g].', v, D.lbw(9), D.ubw(9)); end
+v = min(max(v, D.lbw(9)), D.ubw(9));
+if abs(v - D.cw(9)) <= 1e-12 * (D.ubw(9) - D.lbw(9)), xh(9) = D.cx(9); else, xh(9) = map_work_to_orig(v, D.lbw(9), D.ubw(9), D.lb(9), D.ub(9)); end
+v = z(10); tl = 1e-12 * (D.ubw(10) - D.lbw(10)); if v < D.lbw(10) - tl || v > D.ubw(10) + tl, error('rastrigin_c_10D: x10 = %g outside [%g, %g].', v, D.lbw(10), D.ubw(10)); end
+v = min(max(v, D.lbw(10)), D.ubw(10));
+if abs(v - D.cw(10)) <= 1e-12 * (D.ubw(10) - D.lbw(10)), xh(10) = D.cx(10); else, xh(10) = map_work_to_orig(v, D.lbw(10), D.ubw(10), D.lb(10), D.ub(10)); end
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

@@ -1,5 +1,5 @@
 function PB = interBK_nC2_K8x2_s3_b0p0514286_l0()
-%INTERBK_NC2_K8X2_S3_B0P0514286_L0  DFO Benchmark Suite v2 core, Family BK: f = ||x_C - x_C* - lambda s(kappa)||^2 + b (1 - h(kappa)/nK).
+%INTERBK_NC2_K8X2_S3_B0P0514286_L0  DFO Benchmark Suite v2.1.0 core, Family BK: f = ||x_C - x_C* - lambda s(kappa)||^2 + b (1 - h(kappa)/nK).
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
@@ -22,7 +22,8 @@ PB.base_function = 'familyBK';
 PB.family      = 'BK';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core, Family BK (controlled categorical dimension): 8 categorical variables x 2 categories.';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core, Family BK (controlled categorical dimension): 8 categorical variables x 2 categories.';
 PB.nvar        = 10;
 PB.nobj        = 1;
 PB.var_types   = {'C','C','K','K','K','K','K','K','K','K'};

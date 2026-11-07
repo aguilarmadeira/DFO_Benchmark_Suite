@@ -1,4 +1,4 @@
-# DFO Benchmark Suite v2 — evaluation protocol
+# DFO Benchmark Suite v2.1.0 — evaluation protocol
 
 This protocol applies to every solver and uses only the sequence of evaluated
 points and values, so that results obtained by different people on the same
@@ -72,6 +72,10 @@ where `f_L` is the target of the instance, read from the versioned file
 every target is the known global optimum `PB.f_star` (`source = f_star`), or
 the same value certified by enumeration of the finite domain
 (`source = certified`). τ = 1e-7 on an instance means the optimum was found.
+The relative test depends on f(x0): when f(x0) − f_L is very large, poor
+points already reach the small τ (miele_cantrell: f(x0) ≈ 10¹⁰, so F ≈ 24
+against f* = 0 passes τ = 1e−7); report the final gap f_best − f*
+(`summary.csv`, column `gap`) next to the profiles.
 For Family BK (f* = 0) report also the absolute levels b, b/10, 1e-6, 1e-9
 (`analyze_interact`).
 
@@ -89,9 +93,9 @@ optimal solution is in `reference_optima.csv` of each folder, used by
 
 A point where the function returns NaN or ±Inf counts as one evaluation and
 is returned to the solver as `+Inf`. `summary.csv` reports how many such
-evaluations each run made (`n_nonfinite`). In the core this happens only for
-fletcher_powell (D, K, DK, 3D) on the grid plane x1 = 0, where the original
-function is +Inf by definition.
+evaluations each run made (`n_nonfinite`). No evaluated point of the v2.1.0
+core is non-finite (in v2.0.0, fletcher_powell D/K/DK had a grid plane where
+the original function is +Inf; the v2.1.0 domain excludes it).
 
 ## Held-out part
 

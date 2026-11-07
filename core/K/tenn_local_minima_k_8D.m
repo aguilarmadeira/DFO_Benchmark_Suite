@@ -1,20 +1,20 @@
 function PB = tenn_local_minima_k_8D()
-%TENN_LOCAL_MINIMA_K_8D  DFO Benchmark Suite v2 core: tenn_local_minima, dimension 8, pattern K, strategy baseline.
+%TENN_LOCAL_MINIMA_K_8D  DFO Benchmark Suite v2.1.0 core: tenn_local_minima, dimension 8, pattern K, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 13 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 13 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 5.889542894199896e-32 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:K x2:K x3:K x4:K x5:K x6:K x7:K x8:K
 %
 lb_orig = [-10 -10 -10 -10 -10 -10 -10 -10];
-ub_orig = [10 10 10 10 10 10 10 10];
+ub_orig = [7.1711669921874996 6.7220139206421781 7.2627328000000002 6.5800083298625571 6.2162010791612587 7.2080459367669203 6.9523137893463911 6.5506817780710698];
 lb_C_work = [-10 -10 -10 -10 -10 -10 -10 -10];
-ub_C_work = [10 10 10 10 10 10 10 10];
-T_break = [1.6666666666666667 1.6666666666666667 1.6666666666666667 1.6666666666666667 1.6666666666666667 1.6666666666666667 1.6666666666666667 1.6666666666666667];   % breakpoints of T (NaN for continuous)
+ub_C_work = [7.1711669921874996 6.7220139206421781 7.2627328000000002 6.5800083298625571 6.2162010791612587 7.2080459367669203 6.9523137893463911 6.5506817780710698];
+T_break = [1.4474446614583343 1.1480092804281181 1.5084885333333347 1.0533388865750393 0.81080071944083976 1.472030624511282 1.3015425262309268 1.0337878520473804];   % breakpoints of T (NaN for continuous)
 T_image = [1 1 1 1 1 1 1 1];   % their images
 m = 13;
 ProblemData = cell(1, 8);
@@ -30,7 +30,8 @@ PB.name        = 'tenn_local_minima_k_8D';
 PB.base_function = 'tenn_local_minima';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: K adaptation of tenn_local_minima (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: K adaptation of tenn_local_minima (F = f o T).';
 PB.nvar        = 8;
 PB.nobj        = 1;
 PB.var_types   = {'K','K','K','K','K','K','K','K'};
@@ -50,6 +51,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'tenn_local_minima_k_8D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 8);
+D.cw = [NaN NaN NaN NaN NaN NaN NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN NaN NaN NaN NaN NaN NaN];
 g = linspace(lb_orig(1), ub_orig(1), m); D.E{1} = g([12 4 9 10 5 1 8 2 7 11 3 6 13])';
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([2 8 13 10 3 12 6 1 11 9 7 4 5])';
 g = linspace(lb_orig(3), ub_orig(3), m); D.E{3} = g([8 3 1 10 5 2 4 13 11 6 7 12 9])';
@@ -100,6 +103,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

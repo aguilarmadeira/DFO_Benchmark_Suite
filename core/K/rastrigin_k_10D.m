@@ -1,20 +1,20 @@
 function PB = rastrigin_k_10D()
-%RASTRIGIN_K_10D  DFO Benchmark Suite v2 core: rastrigin, dimension 10, pattern K, strategy baseline.
+%RASTRIGIN_K_10D  DFO Benchmark Suite v2.1.0 core: rastrigin, dimension 10, pattern K, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 9 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 9 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:K x2:K x3:K x4:K x5:K x6:K x7:K x8:K x9:K x10:K
 %
-lb_orig = [-5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001];
-ub_orig = [5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001];
-lb_C_work = [-5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001];
-ub_C_work = [5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001];
-T_break = [0 0 0 0 0 0 0 0 0 0];   % breakpoints of T (NaN for continuous)
+lb_orig = [-5.1200000000000001 -5.1200000000000001 -3.6955815936 -3.2101397750937108 -3.775091646745441 -3.3681715906305802 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001];
+ub_orig = [3.7836375000000002 3.2332190011685213 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 3.6885590546090206 3.3936609817297292 3.7162186241472837 3.2362623805814099];
+lb_C_work = [-5.1200000000000001 -5.1200000000000001 -3.6955815936 -3.2101397750937108 -3.775091646745441 -3.3681715906305802 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001 -5.1200000000000001];
+ub_C_work = [3.7836375000000002 3.2332190011685213 5.1200000000000001 5.1200000000000001 5.1200000000000001 5.1200000000000001 3.6885590546090206 3.3936609817297292 3.7162186241472837 3.2362623805814099];
+T_break = [0.44477343750000031 0.1007618757303268 -0.38973849599999966 -0.086337359433569461 -0.43943227921590022 -0.18510724414411239 0.38534940913063753 0.20103811358108015 0.40263664009205247 0.10266398786338105];   % breakpoints of T (NaN for continuous)
 T_image = [0 0 0 0 0 0 0 0 0 0];   % their images
 m = 9;
 ProblemData = cell(1, 10);
@@ -32,7 +32,8 @@ PB.name        = 'rastrigin_k_10D';
 PB.base_function = 'rastrigin';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: K adaptation of rastrigin (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: K adaptation of rastrigin (F = f o T).';
 PB.nvar        = 10;
 PB.nobj        = 1;
 PB.var_types   = {'K','K','K','K','K','K','K','K','K','K'};
@@ -52,6 +53,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'rastrigin_k_10D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 10);
+D.cw = [NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN];
 g = linspace(lb_orig(1), ub_orig(1), m); D.E{1} = g([7 5 1 4 6 2 3 9 8])';
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([1 6 7 8 2 5 3 9 4])';
 g = linspace(lb_orig(3), ub_orig(3), m); D.E{3} = g([4 8 7 6 2 3 9 1 5])';
@@ -108,6 +111,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

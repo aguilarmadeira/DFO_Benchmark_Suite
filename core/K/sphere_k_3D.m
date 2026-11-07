@@ -1,20 +1,20 @@
 function PB = sphere_k_3D()
-%SPHERE_K_3D  DFO Benchmark Suite v2 core: sphere, dimension 3, pattern K, strategy baseline.
+%SPHERE_K_3D  DFO Benchmark Suite v2.1.0 core: sphere, dimension 3, pattern K, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 41 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 41 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:K x2:K x3:K
 %
-lb_orig = [-5.1200000000000001 -5.1200000000000001 -5.1200000000000001];
-ub_orig = [5.1200000000000001 5.1200000000000001 5.1200000000000001];
-lb_C_work = [-5.1200000000000001 -5.1200000000000001 -5.1200000000000001];
-ub_C_work = [5.1200000000000001 5.1200000000000001 5.1200000000000001];
-T_break = [0 0 0];   % breakpoints of T (NaN for continuous)
+lb_orig = [-3.1116375000000001 -5.1200000000000001 -3.7471911936];
+ub_orig = [5.1200000000000001 3.1496414977391658 5.1200000000000001];
+lb_C_work = [-3.1116375000000001 -5.1200000000000001 -3.7471911936];
+ub_C_work = [5.1200000000000001 3.1496414977391658 5.1200000000000001];
+T_break = [-0.024773437500000384 0.048525936086978305 0.02136506368000024];   % breakpoints of T (NaN for continuous)
 T_image = [0 0 0];   % their images
 m = 41;
 ProblemData = cell(1, 3);
@@ -25,7 +25,8 @@ PB.name        = 'sphere_k_3D';
 PB.base_function = 'sphere';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: K adaptation of sphere (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: K adaptation of sphere (F = f o T).';
 PB.nvar        = 3;
 PB.nobj        = 1;
 PB.var_types   = {'K','K','K'};
@@ -45,6 +46,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'sphere_k_3D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 3);
+D.cw = [NaN NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN NaN];
 g = linspace(lb_orig(1), ub_orig(1), m); D.E{1} = g([38 40 3 2 9 17 8 27 28 41 26 31 19 35 21 7 12 5 13 30 37 39 36 15 10 6 4 18 11 34 24 25 29 20 23 32 22 1 16 33 14])';
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([21 2 35 22 17 27 31 32 6 13 30 8 1 36 16 9 37 7 15 3 39 38 41 20 14 12 33 40 18 29 4 34 11 5 10 26 23 24 19 25 28])';
 g = linspace(lb_orig(3), ub_orig(3), m); D.E{3} = g([6 12 34 3 36 28 31 20 39 14 8 10 2 13 29 11 16 38 37 5 22 40 18 24 19 35 32 4 26 7 15 17 27 25 33 21 23 9 30 41 1])';
@@ -80,6 +83,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

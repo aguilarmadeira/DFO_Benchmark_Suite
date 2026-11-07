@@ -1,20 +1,20 @@
 function PB = threehumpcamel_k_2D()
-%THREEHUMPCAMEL_K_2D  DFO Benchmark Suite v2 core: threehumpcamel, dimension 2, pattern K, strategy baseline.
+%THREEHUMPCAMEL_K_2D  DFO Benchmark Suite v2.1.0 core: threehumpcamel, dimension 2, pattern K, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 151 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 151 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:K x2:K
 %
-lb_orig = [-5 -5];
-ub_orig = [5 5];
-lb_C_work = [-5 -5];
-ub_C_work = [5 5];
-T_break = [0 0];   % breakpoints of T (NaN for continuous)
+lb_orig = [-5 -3.1276736269877556];
+ub_orig = [3.2355834960937502 5];
+lb_C_work = [-5 -3.1276736269877556];
+ub_C_work = [3.2355834960937502 5];
+T_break = [-0.0037460123697918846 0.015026842114176375];   % breakpoints of T (NaN for continuous)
 T_image = [0 0];   % their images
 m = 151;
 ProblemData = cell(1, 2);
@@ -24,7 +24,8 @@ PB.name        = 'threehumpcamel_k_2D';
 PB.base_function = 'threehumpcamel';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: K adaptation of threehumpcamel (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: K adaptation of threehumpcamel (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'K','K'};
@@ -44,6 +45,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'threehumpcamel_k_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN];
 g = linspace(lb_orig(1), ub_orig(1), m); D.E{1} = g([32 37 9 14 81 139 124 129 90 55 147 67 89 132 3 4 47 30 142 58 40 112 128 29 149 16 134 91 5 110 115 46 79 97 99 85 12 61 63 34 104 151 57 100 136 116 141 10 21 94 113 11 48 96 64 76 72 103 101 49 69 38 66 59 138 130 95 17 144 108 111 52 19 39 121 83 65 109 62 105 78 126 86 36 2 150 80 125 54 27 56 82 43 135 60 106 107 140 35 137 119 118 133 1 145 146 120 68 148 42 114 20 50 6 70 44 41 74 131 51 7 88 33 18 13 26 84 102 87 45 92 122 15 22 31 28 73 143 77 53 75 123 23 25 127 98 71 24 93 117 8])';
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([19 145 40 14 77 97 144 70 117 80 65 137 75 133 36 4 7 149 33 15 98 73 2 129 48 88 23 94 85 47 68 87 25 90 41 3 111 61 130 34 1 9 116 106 82 45 71 11 22 32 119 12 110 147 59 108 53 121 28 51 122 84 66 91 24 93 120 18 151 69 8 54 21 42 132 43 150 141 140 38 81 29 143 127 5 44 128 16 101 124 60 86 123 35 64 107 55 113 126 115 96 79 20 6 89 103 136 74 142 49 139 27 138 13 78 52 50 83 102 62 17 100 134 31 26 39 99 118 104 63 148 10 37 46 56 57 105 58 114 95 125 30 92 109 146 76 72 112 135 67 131])';
 D.fn = @(xh) threehumpcamel_orig(xh);
@@ -76,6 +79,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

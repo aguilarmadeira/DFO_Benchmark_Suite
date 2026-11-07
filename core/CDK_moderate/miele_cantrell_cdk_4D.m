@@ -1,20 +1,20 @@
 function PB = miele_cantrell_cdk_4D()
-%MIELE_CANTRELL_CDK_4D  DFO Benchmark Suite v2 core: miele_cantrell, dimension 4, pattern CDK, strategy moderate.
+%MIELE_CANTRELL_CDK_4D  DFO Benchmark Suite v2.1.0 core: miele_cantrell, dimension 4, pattern CDK, strategy moderate.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 151 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 151 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:K x3:D x4:C
 %
 lb_orig = [-10 -10 -10 -10];
-ub_orig = [10 10 10 10];
+ub_orig = [7.2313232421875 7.1445104912868977 6.7699327999999994 6.4983756768013325];
 lb_C_work = [-10 -10 -10 -1000];
-ub_C_work = [10 10 10 1000];
-T_break = [NaN 1.0666666666666667 1.0666666666666667 NaN];   % breakpoints of T (NaN for continuous)
+ub_C_work = [7.2313232421875 7.1445104912868977 6.7699327999999994 649.83756768013313];
+T_break = [NaN 0.97248671442361534 0.95635609600000038 NaN];   % breakpoints of T (NaN for continuous)
 T_image = [NaN 1 1 NaN];   % their images
 m = 151;
 ProblemData = cell(1, 4);
@@ -26,7 +26,8 @@ PB.name        = 'miele_cantrell_cdk_4D';
 PB.base_function = 'miele_cantrell';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: CDK adaptation of miele_cantrell (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: CDK adaptation of miele_cantrell (F = f o T).';
 PB.nvar        = 4;
 PB.nobj        = 1;
 PB.var_types   = {'C','K','D','C'};
@@ -46,13 +47,15 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'miele_cantrell_cdk_4D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 4);
+D.cw = [0 NaN NaN 100];   % anchors of the continuous maps (NaN for finite)
+D.cx = [0 NaN NaN 1];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([77 122 104 101 150 18 6 128 114 56 57 68 102 78 82 129 36 48 71 19 107 52 111 8 79 123 141 26 127 3 96 110 15 73 66 131 86 121 140 92 16 49 97 31 119 4 11 14 70 139 44 81 134 142 105 9 76 94 41 58 25 137 133 80 7 23 74 53 126 22 28 63 116 148 90 17 34 62 115 51 145 24 35 10 47 124 84 108 42 67 65 85 32 93 20 87 132 37 72 1 106 50 83 138 54 89 27 12 60 99 45 147 151 98 88 95 64 55 38 5 120 112 69 118 130 59 135 39 117 113 43 61 40 29 100 143 125 136 149 91 21 33 46 103 2 13 109 144 30 146 75])';
 D.fn = @(xh) miele_cantrell_orig(xh);
 PB.f_star      = 0;
 PB.f_star_justification = 'E';   % exact by structure
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [-8.740234375 38 69 -140.35818408996261];   % protocol starting point: Halton point 1032 (index representation)
-PB.x0_alt_idx  = [7.666015625 43 29 -52.894627238650628;-2.412109375 47 99 34.56892961266135;2.744140625 35 60 122.03248646397333;-7.451171875 44 128 -70.387338608912955;5.205078125 48 89 17.076218242399136;-4.873046875 38 15 64.55643481882521;0.283203125 40 119 -127.86339025406096;-9.970703125 49 45 -40.399833402748868;9.716796875 39 149 47.063723448562996];   % 9 alternative starting points (Halton indices 1032 + 63 k)
+PB.x0_idx      = [-8.9146285653114319 38 69 -290.86531868142561];   % protocol starting point: Halton point 1032 (index representation)
+PB.x0_alt_idx  = [5.2204412817955017 43 29 -218.71498773331484;-3.4625301957130432 47 99 -146.56465678520385;0.97992032766342163 35 60 -74.414325837093202;-7.8040159344673157 44 128 -233.14505392293688;3.1001808047294617 48 89 -160.994722974826;-5.5827906727790833 38 15 -121.8274004601376;-1.1403401494026184 40 119 -280.55812854598116;-9.9747588038444519 49 45 -208.4077975978704;6.9873250126838684 39 149 -136.25746664975975];   % 9 alternative starting points (Halton indices 1032 + 63 k)
 PB.core_pidx   = 32;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -69,18 +72,21 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 4 || ~all(isfinite(z)), error('miele_cantrell_cdk_4D: z must be a finite numeric vector with 4 entries.'); end
 xh = zeros(4, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('miele_cantrell_cdk_4D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('miele_cantrell_cdk_4D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
 k = check_idx(z(2), D.m, D.name, 2); g = D.E{2}(k);
 xh(2) = T_map(g, D.lb(2), D.ub(2), D.Tb(2), D.Ti(2));
 k = check_idx(z(3), D.m, D.name, 3); g = D.lb(3) + (k - 1) * (D.ub(3) - D.lb(3)) / (D.m - 1);
 xh(3) = T_map(g, D.lb(3), D.ub(3), D.Tb(3), D.Ti(3));
-v = z(4); if v < D.lbw(4) || v > D.ubw(4), error('miele_cantrell_cdk_4D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
-xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4));
+v = z(4); tl = 1e-12 * (D.ubw(4) - D.lbw(4)); if v < D.lbw(4) - tl || v > D.ubw(4) + tl, error('miele_cantrell_cdk_4D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
+v = min(max(v, D.lbw(4)), D.ubw(4));
+if abs(v - D.cw(4)) <= 1e-12 * (D.ubw(4) - D.lbw(4)), xh(4) = D.cx(4); else, xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4)); end
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

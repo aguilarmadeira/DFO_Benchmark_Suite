@@ -1,19 +1,19 @@
 function PB = neumaier2_c_4D()
-%NEUMAIER2_C_4D  DFO Benchmark Suite v2 core: neumaier2, dimension 4, pattern C, strategy extreme.
+%NEUMAIER2_C_4D  DFO Benchmark Suite v2.1.0 core: neumaier2, dimension 4, pattern C, strategy extreme.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 0 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 0 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:C x3:C x4:C
 %
-lb_orig = [0 0 0 0];
-ub_orig = [4 4 4 4];
-lb_C_work = [0 0 0 0];
-ub_C_work = [4 4 400000000 400000000];
+lb_orig = [0 0 0.75801344000000004 0];
+ub_orig = [3.3762646484375001 3.2422354315907129 4 3.2196751353602666];
+lb_C_work = [0 0 75801344 0];
+ub_C_work = [3.3762646484375001 3.2422354315907129 400000000 321967513.53602666];
 T_break = [NaN NaN NaN NaN];   % breakpoints of T (NaN for continuous)
 T_image = [NaN NaN NaN NaN];   % their images
 m = 0;
@@ -26,7 +26,8 @@ PB.name        = 'neumaier2_c_4D';
 PB.base_function = 'neumaier2';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: C adaptation of neumaier2 (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: C adaptation of neumaier2 (F = f o T).';
 PB.nvar        = 4;
 PB.nobj        = 1;
 PB.var_types   = {'C','C','C','C'};
@@ -46,12 +47,14 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'neumaier2_c_4D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 4);
+D.cw = [1 1.9999999999999998 200000000 300000000];   % anchors of the continuous maps (NaN for finite)
+D.cx = [1 2 2 3];
 D.fn = @(xh) neumaier2_orig(xh);
 PB.f_star      = 0;
 PB.f_star_justification = 'E';   % exact by structure
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [1.251953125 3.6616369455875626 341248000.00000006 286214077.46772176];   % protocol starting point: Halton point 1034 (index representation)
-PB.x0_alt_idx  = [2.283203125 3.7768632830361222 235648000.00000003 303706788.83798414;0.267578125 3.8920896204846818 37888000 321199500.20824653;3.548828125 3.5683584819387288 316288000.00000006 338692211.57850891;1.509765625 3.8152720621856422 115456000 300208246.5639317;2.541015625 3.9304983996342018 393856000 317700957.93419409;0.525390625 3.6506630086877001 196096000 327197001.24947935;3.056640625 3.7073616826703244 13696000 288713036.23490202;1.005859375 3.9542752629172382 276736000 306205747.60516447;2.037109375 3.6744398719707361 94336000.000000015 323698458.97542679];   % 9 alternative starting points (Halton indices 1034 + 63 k)
+PB.x0_idx      = [1.0567312693595887 2.9679722606513979 352381701.40672004 230379087.15322521];   % protocol starting point: Halton point 1034 (index representation)
+PB.x0_alt_idx  = [1.9271744990348816 3.0613699891334347 266793256.22272003 244459299.11544213;0.22585364103317263 3.1547677176154716 106509440.69632 258539511.07765901;2.9954457354545596 2.8923645756897489 332151705.27232003 272619723.03987592;1.2743420767784119 3.0925025652941138 169378044.06784001 241643256.72299877;2.1447853064537048 3.1859002937761507 395020308.64384001 255723468.68521565;0.44346444845199584 2.9590772388912039 234736493.11744002 263367012.32184768;2.5800069212913512 3.0050348513188729 86901905.981440008 232390546.00497046;0.84901186227798464 3.2051728409232378 300094942.16703999 246470757.96718737;1.7194550919532776 2.978349786038291 152260355.03104001 260550969.92940426];   % 9 alternative starting points (Halton indices 1034 + 63 k)
 PB.core_pidx   = 34;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -68,18 +71,23 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 4 || ~all(isfinite(z)), error('neumaier2_c_4D: z must be a finite numeric vector with 4 entries.'); end
 xh = zeros(4, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('neumaier2_c_4D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
-v = z(2); if v < D.lbw(2) || v > D.ubw(2), error('neumaier2_c_4D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
-xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2));
-v = z(3); if v < D.lbw(3) || v > D.ubw(3), error('neumaier2_c_4D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
-xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3));
-v = z(4); if v < D.lbw(4) || v > D.ubw(4), error('neumaier2_c_4D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
-xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('neumaier2_c_4D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
+v = z(2); tl = 1e-12 * (D.ubw(2) - D.lbw(2)); if v < D.lbw(2) - tl || v > D.ubw(2) + tl, error('neumaier2_c_4D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
+v = min(max(v, D.lbw(2)), D.ubw(2));
+if abs(v - D.cw(2)) <= 1e-12 * (D.ubw(2) - D.lbw(2)), xh(2) = D.cx(2); else, xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2)); end
+v = z(3); tl = 1e-12 * (D.ubw(3) - D.lbw(3)); if v < D.lbw(3) - tl || v > D.ubw(3) + tl, error('neumaier2_c_4D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
+v = min(max(v, D.lbw(3)), D.ubw(3));
+if abs(v - D.cw(3)) <= 1e-12 * (D.ubw(3) - D.lbw(3)), xh(3) = D.cx(3); else, xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3)); end
+v = z(4); tl = 1e-12 * (D.ubw(4) - D.lbw(4)); if v < D.lbw(4) - tl || v > D.ubw(4) + tl, error('neumaier2_c_4D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
+v = min(max(v, D.lbw(4)), D.ubw(4));
+if abs(v - D.cw(4)) <= 1e-12 * (D.ubw(4) - D.lbw(4)), xh(4) = D.cx(4); else, xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4)); end
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

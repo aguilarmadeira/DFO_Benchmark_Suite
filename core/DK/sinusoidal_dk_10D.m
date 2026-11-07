@@ -1,20 +1,20 @@
 function PB = sinusoidal_dk_10D()
-%SINUSOIDAL_DK_10D  DFO Benchmark Suite v2 core: sinusoidal, dimension 10, pattern DK, strategy baseline.
+%SINUSOIDAL_DK_10D  DFO Benchmark Suite v2.1.0 core: sinusoidal, dimension 10, pattern DK, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 9 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 9 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -3.5 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:D x2:K x3:D x4:K x5:D x6:K x7:D x8:K x9:D x10:K
 %
-lb_orig = [0 0 0 0 0 0 0 0 0 0];
-ub_orig = [180 180 180 180 180 180 180 180 180 180];
-lb_C_work = [0 0 0 0 0 0 0 0 0 0];
-ub_C_work = [180 180 180 180 180 180 180 180 180 180];
-T_break = [112.5 112.5 112.5 112.5 112.5 112.5 112.5 112.5 112.5 112.5];   % breakpoints of T (NaN for continuous)
+lb_orig = [32.153247070312503 26.235208047553726 0 0 0 0 34.797341985847872 26.401758734202474 0 0];
+ub_orig = [180 180 148.8125952 147.71395251978342 153.96399153063317 149.13158502853543 180 180 148.20241637215418 153.82416663249825];
+lb_C_work = [32.153247070312503 26.235208047553726 0 0 0 0 34.797341985847872 26.401758734202474 0 0];
+ub_C_work = [180 180 148.8125952 147.71395251978342 153.96399153063317 149.13158502853543 180 180 148.20241637215418 153.82416663249825];
+T_break = [124.55746765136719 122.33820301783265 111.6094464 110.78546438983756 115.47299364797487 111.84868877140157 125.54900324469295 122.40065952532592 111.15181227911563 115.36812497437369];   % breakpoints of T (NaN for continuous)
 T_image = [120 120 120 120 120 120 120 120 120 120];   % their images
 m = 9;
 ProblemData = cell(1, 10);
@@ -32,7 +32,8 @@ PB.name        = 'sinusoidal_dk_10D';
 PB.base_function = 'sinusoidal';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: DK adaptation of sinusoidal (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: DK adaptation of sinusoidal (F = f o T).';
 PB.nvar        = 10;
 PB.nobj        = 1;
 PB.var_types   = {'D','K','D','K','D','K','D','K','D','K'};
@@ -52,6 +53,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'sinusoidal_dk_10D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 10);
+D.cw = [NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([1 2 3 4 7 9 5 6 8])';
 g = linspace(lb_orig(4), ub_orig(4), m); D.E{4} = g([4 8 9 2 5 7 1 3 6])';
 g = linspace(lb_orig(6), ub_orig(6), m); D.E{6} = g([8 7 6 1 5 2 4 3 9])';
@@ -103,6 +106,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

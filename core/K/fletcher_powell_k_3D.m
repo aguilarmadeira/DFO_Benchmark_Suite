@@ -1,20 +1,20 @@
 function PB = fletcher_powell_k_3D()
-%FLETCHER_POWELL_K_3D  DFO Benchmark Suite v2 core: fletcher_powell, dimension 3, pattern K, strategy baseline.
+%FLETCHER_POWELL_K_3D  DFO Benchmark Suite v2.1.0 core: fletcher_powell, dimension 3, pattern K, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 41 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 41 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:K x2:K x3:K
 %
 lb_orig = [-10 -10 -10];
-ub_orig = [10 10 10];
+ub_orig = [7.1000732421875004 7.351917898694305 7.1731327999999994];
 lb_C_work = [-10 -10 -10];
-ub_C_work = [10 10 10];
-T_break = [1 0 0];   % breakpoints of T (NaN for continuous)
+ub_C_work = [7.1000732421875004 7.351917898694305 7.1731327999999994];
+T_break = [1.1150476074218751 -0.022647208250775819 -0.12544864000000189];   % breakpoints of T (NaN for continuous)
 T_image = [1 0 0];   % their images
 m = 41;
 ProblemData = cell(1, 3);
@@ -25,7 +25,8 @@ PB.name        = 'fletcher_powell_k_3D';
 PB.base_function = 'fletcher_powell';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: K adaptation of fletcher_powell (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: K adaptation of fletcher_powell (F = f o T).';
 PB.nvar        = 3;
 PB.nobj        = 1;
 PB.var_types   = {'K','K','K'};
@@ -45,6 +46,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'fletcher_powell_k_3D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 3);
+D.cw = [NaN NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN NaN];
 g = linspace(lb_orig(1), ub_orig(1), m); D.E{1} = g([4 6 13 3 32 28 27 10 17 1 39 7 11 29 41 14 12 2 15 22 34 20 18 24 21 38 25 19 16 36 33 23 40 30 31 26 35 5 9 8 37])';
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([18 7 29 37 11 16 6 31 41 38 28 21 12 25 9 34 14 30 17 32 8 2 22 27 1 10 4 26 33 5 35 3 24 15 19 39 40 23 20 36 13])';
 g = linspace(lb_orig(3), ub_orig(3), m); D.E{3} = g([18 17 22 4 26 24 20 40 21 39 27 9 13 29 11 19 16 33 34 28 12 25 2 38 5 32 10 6 3 14 30 37 35 1 7 15 36 8 41 23 31])';
@@ -80,6 +83,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

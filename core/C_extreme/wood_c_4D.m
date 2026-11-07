@@ -1,19 +1,19 @@
 function PB = wood_c_4D()
-%WOOD_C_4D  DFO Benchmark Suite v2 core: wood, dimension 4, pattern C, strategy extreme.
+%WOOD_C_4D  DFO Benchmark Suite v2.1.0 core: wood, dimension 4, pattern C, strategy extreme.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 0 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 0 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:C x3:C x4:C
 %
 lb_orig = [-10 -10 -10 -10];
-ub_orig = [10 10 10 10];
-lb_C_work = [-10 -10 -1000000000 -1000000000];
-ub_C_work = [10 10 1000000000 1000000000];
+ub_orig = [6.1211669921874998 6.5664583650866231 6.4227327999999995 7.3514369012911285];
+lb_C_work = [-10 -10 -999999999.99999988 -1000000000];
+ub_C_work = [6.1211669921875007 6.5664583650866239 642273279.99999988 735143690.12911296];
 T_break = [NaN NaN NaN NaN];   % breakpoints of T (NaN for continuous)
 T_image = [NaN NaN NaN NaN];   % their images
 m = 0;
@@ -26,7 +26,8 @@ PB.name        = 'wood_c_4D';
 PB.base_function = 'wood';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: C adaptation of wood (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: C adaptation of wood (F = f o T).';
 PB.nvar        = 4;
 PB.nobj        = 1;
 PB.var_types   = {'C','C','C','C'};
@@ -46,12 +47,14 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'wood_c_4D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 4);
+D.cw = [1 1 100000000.00000012 100000000];   % anchors of the continuous maps (NaN for finite)
+D.cx = [1 1 1 1];
 D.fn = @(xh) wood_orig(xh);
 PB.f_star      = 0;
 PB.f_star_justification = 'E';   % exact by structure
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [7.822265625 -2.4737082761774118 402240000.00000024 880049979.17534351];   % protocol starting point: Halton point 1063 (index representation)
-PB.x0_alt_idx  = [-2.021484375 -1.2391403749428438 -586560000 967513536.02665567;2.900390625 -2.6383173296753535 805440000 775093710.95376921;-6.943359375 -2.2816643804298122 -198720000 862557267.80508113;5.361328125 -1.7055326931870134 -726720000 950020824.65639329;-4.482421875 -3.104709647919524 204480000.00000024 717617659.30862117;0.439453125 -1.8701417466849559 -323520000 805081216.15993333;-9.404296875 -1.5866483767718336 607680000 892544773.01124501;9.404296875 -2.985825331504345 79680000 980008329.86255693;-0.439453125 -2.4096936442615462 -909120000 787588504.78967094];   % 9 alternative starting points (Halton indices 1063 + 63 k)
+PB.x0_idx      = [4.3657860159873962 -3.7658000756898531 151430642.07360017 631078429.2467339];   % protocol starting point: Halton point 1063 (index representation)
+PB.x0_alt_idx  = [-3.5688508629798887 -2.7431791889561108 -660509267.55839992 706959348.64013529;0.39846757650375331 -3.9021495272543509 482512935.32159984 540021325.97465205;-7.5361693024635308 -3.6067257155312697 -342039633.10080004 615902245.36805344;2.3821267962455757 -3.1295026350555242 -775599779.02079988 691783164.76145506;-5.5525100827217102 -4.2884729733537643 -10957339.852799892 490156721.80184531;-1.5851916432380673 -3.265852086620022 -444517485.77279997 566037641.1952467;-9.5198285222053531 -3.031028031147831 320124953.39519989 641918560.58864808;5.6409955143928538 -4.1899983694460721 -113435192.52480006 717799479.98204947;-2.293641364574432 -3.7127752889703256 -925375102.15679991 550861457.31656647];   % 9 alternative starting points (Halton indices 1063 + 63 k)
 PB.core_pidx   = 63;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -68,18 +71,23 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 4 || ~all(isfinite(z)), error('wood_c_4D: z must be a finite numeric vector with 4 entries.'); end
 xh = zeros(4, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('wood_c_4D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
-v = z(2); if v < D.lbw(2) || v > D.ubw(2), error('wood_c_4D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
-xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2));
-v = z(3); if v < D.lbw(3) || v > D.ubw(3), error('wood_c_4D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
-xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3));
-v = z(4); if v < D.lbw(4) || v > D.ubw(4), error('wood_c_4D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
-xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('wood_c_4D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
+v = z(2); tl = 1e-12 * (D.ubw(2) - D.lbw(2)); if v < D.lbw(2) - tl || v > D.ubw(2) + tl, error('wood_c_4D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
+v = min(max(v, D.lbw(2)), D.ubw(2));
+if abs(v - D.cw(2)) <= 1e-12 * (D.ubw(2) - D.lbw(2)), xh(2) = D.cx(2); else, xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2)); end
+v = z(3); tl = 1e-12 * (D.ubw(3) - D.lbw(3)); if v < D.lbw(3) - tl || v > D.ubw(3) + tl, error('wood_c_4D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
+v = min(max(v, D.lbw(3)), D.ubw(3));
+if abs(v - D.cw(3)) <= 1e-12 * (D.ubw(3) - D.lbw(3)), xh(3) = D.cx(3); else, xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3)); end
+v = z(4); tl = 1e-12 * (D.ubw(4) - D.lbw(4)); if v < D.lbw(4) - tl || v > D.ubw(4) + tl, error('wood_c_4D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
+v = min(max(v, D.lbw(4)), D.ubw(4));
+if abs(v - D.cw(4)) <= 1e-12 * (D.ubw(4) - D.lbw(4)), xh(4) = D.cx(4); else, xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4)); end
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

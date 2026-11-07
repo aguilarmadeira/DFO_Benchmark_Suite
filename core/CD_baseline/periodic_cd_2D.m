@@ -1,20 +1,20 @@
 function PB = periodic_cd_2D()
-%PERIODIC_CD_2D  DFO Benchmark Suite v2 core: periodic, dimension 2, pattern CD, strategy baseline.
+%PERIODIC_CD_2D  DFO Benchmark Suite v2.1.0 core: periodic, dimension 2, pattern CD, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 65 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 65 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0.9 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:D
 %
 lb_orig = [-10 -10];
-ub_orig = [10 10];
+ub_orig = [6.3563232421875 6.0556216023980092];
 lb_C_work = [-10 -10];
-ub_C_work = [10 10];
-T_break = [NaN 0];   % breakpoints of T (NaN for continuous)
+ub_C_work = [6.3563232421875 6.0556216023980092];
+T_break = [NaN 0.034763501498755289];   % breakpoints of T (NaN for continuous)
 T_image = [NaN 0];   % their images
 m = 65;
 ProblemData = cell(1, 2);
@@ -24,7 +24,8 @@ PB.name        = 'periodic_cd_2D';
 PB.base_function = 'periodic';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: CD adaptation of periodic (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: CD adaptation of periodic (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'C','D'};
@@ -44,12 +45,14 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'periodic_cd_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [0 NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [0 NaN];
 D.fn = @(xh) periodic_orig(xh);
 PB.f_star      = 0.90000000000000002;
 PB.f_star_justification = 'E';   % exact by structure
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [3.759765625 48];   % protocol starting point: Halton point 1037 (index representation)
-PB.x0_alt_idx  = [-6.083984375 50;6.337890625 45;-3.505859375 46;1.298828125 50;-8.544921875 46;7.626953125 48;-2.216796875 48;2.529296875 44;-7.314453125 48];   % 9 alternative starting points (Halton indices 1037 + 63 k)
+PB.x0_idx      = [1.2529587149620056 48];   % protocol starting point: Halton point 1037 (index representation)
+PB.x0_alt_idx  = [-6.7974191308021545 50;3.361391007900238 45;-4.6889868378639221 46;-0.75963574647903442 50;-8.8100135922431946 46;4.4156071543693542 48;-3.6347706913948059 48;0.2466614842414856 44;-7.8037163615226746 48];   % 9 alternative starting points (Halton indices 1037 + 63 k)
 PB.core_pidx   = 37;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -66,14 +69,16 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 2 || ~all(isfinite(z)), error('periodic_cd_2D: z must be a finite numeric vector with 2 entries.'); end
 xh = zeros(2, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('periodic_cd_2D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('periodic_cd_2D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
 k = check_idx(z(2), D.m, D.name, 2); g = D.lb(2) + (k - 1) * (D.ub(2) - D.lb(2)) / (D.m - 1);
 xh(2) = T_map(g, D.lb(2), D.ub(2), D.Tb(2), D.Ti(2));
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

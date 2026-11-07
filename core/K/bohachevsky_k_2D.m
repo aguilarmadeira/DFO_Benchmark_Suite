@@ -1,20 +1,20 @@
 function PB = bohachevsky_k_2D()
-%BOHACHEVSKY_K_2D  DFO Benchmark Suite v2 core: bohachevsky, dimension 2, pattern K, strategy baseline.
+%BOHACHEVSKY_K_2D  DFO Benchmark Suite v2.1.0 core: bohachevsky, dimension 2, pattern K, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 151 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 151 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:K x2:K
 %
-lb_orig = [-50 -50];
+lb_orig = [-35.3909912109375 -31.920083320632017];
 ub_orig = [50 50];
-lb_C_work = [-50 -50];
+lb_C_work = [-35.3909912109375 -31.920083320632017];
 ub_C_work = [50 50];
-T_break = [0 0];   % breakpoints of T (NaN for continuous)
+T_break = [-0.096048177083332575 -0.24431776998763866];   % breakpoints of T (NaN for continuous)
 T_image = [0 0];   % their images
 m = 151;
 ProblemData = cell(1, 2);
@@ -24,7 +24,8 @@ PB.name        = 'bohachevsky_k_2D';
 PB.base_function = 'bohachevsky';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: K adaptation of bohachevsky (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: K adaptation of bohachevsky (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'K','K'};
@@ -44,6 +45,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'bohachevsky_k_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN];
 g = linspace(lb_orig(1), ub_orig(1), m); D.E{1} = g([105 55 25 50 93 64 140 143 23 54 76 127 11 148 72 82 65 150 151 149 68 99 10 75 36 77 79 120 119 43 102 95 52 12 108 16 21 117 109 33 69 146 97 5 9 118 94 103 29 61 71 122 101 67 73 42 83 134 132 17 35 41 74 89 84 13 110 116 37 124 136 114 34 115 123 145 111 113 57 4 112 90 47 2 142 3 104 32 125 39 129 20 130 87 7 98 1 51 40 60 18 131 81 22 62 14 44 106 30 92 19 24 38 15 45 88 28 100 49 141 63 139 66 58 53 59 85 86 8 46 126 6 78 135 70 137 121 80 96 133 26 27 107 31 91 56 128 48 144 147 138])';
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([139 12 57 149 126 51 104 84 143 106 8 117 142 92 135 82 75 3 124 112 32 9 134 78 83 115 63 26 145 89 44 123 127 148 66 137 125 29 49 105 38 52 58 80 141 70 101 87 85 61 46 1 19 21 88 62 48 2 7 18 121 43 74 54 122 131 77 140 39 150 65 17 118 47 69 10 144 40 119 103 132 90 93 138 30 6 111 35 56 42 95 24 107 91 11 110 5 55 113 128 146 130 86 28 68 20 50 4 36 98 147 31 45 22 53 97 120 109 59 37 73 108 79 71 67 72 99 102 25 64 15 27 100 94 96 13 16 116 133 34 76 81 33 114 151 23 129 136 14 60 41])';
 D.fn = @(xh) bohachevsky_orig(xh);
@@ -76,6 +79,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

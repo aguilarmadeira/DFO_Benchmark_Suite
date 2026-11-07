@@ -1,20 +1,20 @@
 function PB = neumaier2_dk_4D()
-%NEUMAIER2_DK_4D  DFO Benchmark Suite v2 core: neumaier2, dimension 4, pattern DK, strategy baseline.
+%NEUMAIER2_DK_4D  DFO Benchmark Suite v2.1.0 core: neumaier2, dimension 4, pattern DK, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 25 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 25 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:D x2:K x3:D x4:K
 %
-lb_orig = [0 0 0 0];
-ub_orig = [4 4 4 4];
-lb_C_work = [0 0 0 0];
-ub_C_work = [4 4 4 4];
-T_break = [1 2 2 3];   % breakpoints of T (NaN for continuous)
+lb_orig = [0 0 0.75801344000000004 0];
+ub_orig = [3.3762646484375001 3.2422354315907129 4 3.2196751353602666];
+lb_C_work = [0 0 0.75801344000000004 0];
+ub_C_work = [3.3762646484375001 3.2422354315907129 4 3.2196751353602666];
+T_break = [0.98474385579427093 2.0263971447441955 1.9737584000000001 2.9513688740802446];   % breakpoints of T (NaN for continuous)
 T_image = [1 2 2 3];   % their images
 m = 25;
 ProblemData = cell(1, 4);
@@ -26,7 +26,8 @@ PB.name        = 'neumaier2_dk_4D';
 PB.base_function = 'neumaier2';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: DK adaptation of neumaier2 (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: DK adaptation of neumaier2 (F = f o T).';
 PB.nvar        = 4;
 PB.nobj        = 1;
 PB.var_types   = {'D','K','D','K'};
@@ -46,6 +47,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'neumaier2_dk_4D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 4);
+D.cw = [NaN NaN NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN NaN NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([8 3 19 24 23 16 2 4 11 21 20 6 18 13 7 22 14 17 9 25 10 15 5 12 1])';
 g = linspace(lb_orig(4), ub_orig(4), m); D.E{4} = g([12 16 21 3 19 8 9 22 4 5 6 1 14 7 18 25 23 2 20 15 10 17 13 24 11])';
 D.fn = @(xh) neumaier2_orig(xh);
@@ -82,6 +85,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

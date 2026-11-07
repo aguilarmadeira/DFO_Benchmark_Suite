@@ -1,18 +1,18 @@
 function PB = multi_gaussian_c_2D()
-%MULTI_GAUSSIAN_C_2D  DFO Benchmark Suite v2 core: multi_gaussian, dimension 2, pattern C, strategy moderate.
+%MULTI_GAUSSIAN_C_2D  DFO Benchmark Suite v2.1.0 core: multi_gaussian, dimension 2, pattern C, strategy moderate.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 0 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 0 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -1.296954045953779 (L: literature value at a refined point); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:C
 %
-lb_orig = [-2 -2];
+lb_orig = [-1.3062646484375 -1.3355687649240462];
 ub_orig = [2 2];
-lb_C_work = [-2 -200];
+lb_C_work = [-1.3062646484374998 -133.55687649240463];
 ub_C_work = [2 200];
 T_break = [NaN NaN];   % breakpoints of T (NaN for continuous)
 T_image = [NaN NaN];   % their images
@@ -24,7 +24,8 @@ PB.name        = 'multi_gaussian_c_2D';
 PB.base_function = 'multi_gaussian';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: C adaptation of multi_gaussian (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: C adaptation of multi_gaussian (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'C','C'};
@@ -44,12 +45,14 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'multi_gaussian_c_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [-0.01354066395522735 -1.3540663514044411];   % anchors of the continuous maps (NaN for finite)
+D.cx = [-0.01354066395522768 -0.01354066351404425];
 D.fn = @(xh) multi_gaussian_orig(xh);
 PB.f_star      = -1.2969540459537789;
 PB.f_star_justification = 'L';   % literature value at a refined point
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [0.251953125 32.830361225422962];   % protocol starting point: Halton point 1033 (index representation)
-PB.x0_alt_idx  = [-1.716796875 44.352994970278928;1.517578125 55.875628715134866;-0.451171875 23.502514860539577;0.509765625 48.193872885230917;-1.458984375 59.716506630086883;1.025390625 31.7329675354367;-0.943359375 37.402834933699125;0.005859375 62.094192958390522;-1.962890625 34.11065386374031];   % 9 alternative starting points (Halton indices 1033 + 63 k)
+PB.x0_idx      = [0.55512360334396371 60.598543614971277];   % protocol starting point: Halton point 1033 (index representation)
+PB.x0_alt_idx  = [-1.0721785283088683 70.2071779172216;1.6012464022636412 79.815812219471951;-0.026055729389190541 52.820125370292459;0.76822269201278681 73.410056017971726;-0.85907943964004496 83.018690320222049;1.1944208693504335 59.683435586185567;-0.43288126230239854 64.411493734911886;0.35171083688735982 85.00142438259121;-1.2755912947654722 61.666169648554671];   % 9 alternative starting points (Halton indices 1033 + 63 k)
 PB.core_pidx   = 33;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -66,14 +69,17 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 2 || ~all(isfinite(z)), error('multi_gaussian_c_2D: z must be a finite numeric vector with 2 entries.'); end
 xh = zeros(2, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('multi_gaussian_c_2D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
-v = z(2); if v < D.lbw(2) || v > D.ubw(2), error('multi_gaussian_c_2D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
-xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('multi_gaussian_c_2D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
+v = z(2); tl = 1e-12 * (D.ubw(2) - D.lbw(2)); if v < D.lbw(2) - tl || v > D.ubw(2) + tl, error('multi_gaussian_c_2D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
+v = min(max(v, D.lbw(2)), D.ubw(2));
+if abs(v - D.cw(2)) <= 1e-12 * (D.ubw(2) - D.lbw(2)), xh(2) = D.cx(2); else, xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2)); end
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

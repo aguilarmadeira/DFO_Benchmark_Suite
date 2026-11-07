@@ -1,20 +1,20 @@
 function PB = miele_cantrell_dk_4D()
-%MIELE_CANTRELL_DK_4D  DFO Benchmark Suite v2 core: miele_cantrell, dimension 4, pattern DK, strategy baseline.
+%MIELE_CANTRELL_DK_4D  DFO Benchmark Suite v2.1.0 core: miele_cantrell, dimension 4, pattern DK, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 25 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 25 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:D x2:K x3:D x4:K
 %
 lb_orig = [-10 -10 -10 -10];
-ub_orig = [10 10 10 10];
+ub_orig = [7.2313232421875 7.1445104912868977 6.7699327999999994 6.4983756768013325];
 lb_C_work = [-10 -10 -10 -10];
-ub_C_work = [10 10 10 10];
-T_break = [0 0.83333333333333337 0.83333333333333337 0.83333333333333337];   % breakpoints of T (NaN for continuous)
+ub_C_work = [7.2313232421875 7.1445104912868977 6.7699327999999994 6.4983756768013325];
+T_break = [0.051605224609375 0.71531905705431065 1.1799552000000002 0.99891711786755444];   % breakpoints of T (NaN for continuous)
 T_image = [0 1 1 1];   % their images
 m = 25;
 ProblemData = cell(1, 4);
@@ -26,7 +26,8 @@ PB.name        = 'miele_cantrell_dk_4D';
 PB.base_function = 'miele_cantrell';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: DK adaptation of miele_cantrell (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: DK adaptation of miele_cantrell (F = f o T).';
 PB.nvar        = 4;
 PB.nobj        = 1;
 PB.var_types   = {'D','K','D','K'};
@@ -46,6 +47,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'miele_cantrell_dk_4D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 4);
+D.cw = [NaN NaN NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN NaN NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([23 19 17 11 8 9 18 20 7 21 14 12 15 10 3 4 6 25 1 2 16 22 5 24 13])';
 g = linspace(lb_orig(4), ub_orig(4), m); D.E{4} = g([3 22 12 9 14 7 15 11 1 8 17 19 10 4 13 23 24 20 6 21 16 2 18 25 5])';
 D.fn = @(xh) miele_cantrell_orig(xh);
@@ -82,6 +85,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

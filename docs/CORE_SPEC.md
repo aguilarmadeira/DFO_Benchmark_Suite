@@ -1,4 +1,9 @@
-# DFO Benchmark Suite — version 2 core: public specification
+# DFO Benchmark Suite — version 2.1.0 core: public specification
+
+Version 2.1.0 differs from 2.0.0 only in the domains of the 697 classical
+problems (section 2, *Domain*); the construction, grids, cardinalities,
+interfaces, starting-point rule and Family BK are unchanged. Results obtained
+on 2.0.0 and 2.1.0 are not comparable.
 
 A reproducible collection of black-box optimisation problems with continuous
 (C), ordered discrete (D) and categorical (K) variables, independent of any
@@ -25,8 +30,42 @@ two continuous variables, where they change the problem.
 
 ## 2. Construction
 
-For a base function f on the box Ω = Π[a_i, b_i] with a known global
-minimiser x* and value f* = f(x*):
+* **Domain (v2.1.0).** Many classical functions have their optimum at the
+  centre of their classical box Ω₀ (14 of the 55 base instances: ackley,
+  griewank, rastrigin, sphere, …), which favours any method that evaluates
+  the centre. Each classical box is therefore cropped asymmetrically to a
+  sub-box Ω ⊆ Ω₀ that contains x*: since x* ∈ Ω ⊆ Ω₀, min over Ω of f = f* at
+  the same x*, so the optimum value and the reference minimiser are
+  unchanged. The crop uses the location of a known minimiser: the new boxes
+  are a construction choice and are not independent of x*. Rule, for base
+  instance p (index in the original list of 63) and coordinate i, with
+  H = Halton point 7000 + p in dimension 2n: ρ_i = 0.13 + 0.07 H_i ∈
+  [0.13, 0.20] is the fraction of the width removed (0.13 is the smallest
+  fraction that leaves an optimum at the classical centre 7% of the new
+  width away: ρ/(2(1−ρ)) = 0.0747); the candidates are the upper crop
+  [a_i, b_i − ρ_i w_i] and the lower crop [a_i + ρ_i w_i, b_i]; a candidate is
+  admissible if it contains x*_i and its centre is at least 7% of its width
+  away from x*_i; if both are admissible the side is H_{n+i} < 0.5 → upper;
+  if neither, ρ_i is adjusted in steps of 0.01 within [0.13, 0.20] (never
+  needed for the 55 instances). Result: each interval keeps 80–87% of its
+  classical width (volume kept, median: 69% for n = 2, 43% for n = 5, 16% for
+  n = 10); in every coordinate of every classical instance the centre of the
+  domain is at least 7% of the width from x* (minimum 7.2%), so x* is never
+  placed at the central grid index (half a cell is at most 6.25% of the width,
+  m ≥ 9); every other known global minimiser that remains in Ω is at least
+  9.0% (∞-norm) from the centre (for shubert one coordinate of one of them is
+  close to the central value, the other is not). Known minimisers outside Ω
+  are dropped (branin 3 → 2, cosine_mixture 2ⁿ → 1, dekkers_aarts 2 → 1,
+  shubert 18 → 12). The domain is the same for all patterns and strategies of
+  a base instance. Check on the 841 instances: the centre never reaches the
+  convergence level τ = 1e−7 (v2.0.0: 105 instances). Axial points (centre
+  with one coordinate at a bound) are only a diagnostic: none is optimal; one
+  reaches τ = 1e−7 relative to f(x0) — miele_cantrell K 4D, F = 24.3 against
+  f* = 0, because f(x0) ≈ 1.1·10¹⁰ for that function (a property of the
+  relative test, see benchmark/PROTOCOL.md); v2.0.0: 13 instances.
+
+For a base function f on the box Ω = Π[a_i, b_i] (the domain above) with a
+known global minimiser x* and value f* = f(x*):
 
 * **Continuous coordinates** keep their interval (baseline) or an affinely
   rescaled one (moderate, extreme); the wrapper maps the work interval back
@@ -140,7 +179,7 @@ frozen once released.
 
 The complementary research collections (controlled cardinalities and
 proportions, label permutations, further interaction families, diagnostic
-designs) are not part of version 2.0.0. The generators are not distributed;
+designs) are not part of version 2. The generators are not distributed;
 the published files are the reference.
 
 ## 7. Verification (2026-11-07)

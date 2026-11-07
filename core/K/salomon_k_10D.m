@@ -1,20 +1,20 @@
 function PB = salomon_k_10D()
-%SALOMON_K_10D  DFO Benchmark Suite v2 core: salomon, dimension 10, pattern K, strategy baseline.
+%SALOMON_K_10D  DFO Benchmark Suite v2.1.0 core: salomon, dimension 10, pattern K, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 9 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 9 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:K x2:K x3:K x4:K x5:K x6:K x7:K x8:K x9:K x10:K
 %
-lb_orig = [-100 -100 -100 -100 -100 -100 -100 -100 -100 -100];
-ub_orig = [100 100 100 100 100 100 100 100 100 100];
-lb_C_work = [-100 -100 -100 -100 -100 -100 -100 -100 -100 -100];
-ub_C_work = [100 100 100 100 100 100 100 100 100 100];
-T_break = [0 0 0 0 0 0 0 0 0 0];   % breakpoints of T (NaN for continuous)
+lb_orig = [-100 -100 -63.779328 -70.412328196584753 -69.914076907315078 -62.553832148734287 -100 -100 -100 -100];
+ub_orig = [63.399169921875 61.593253061017123 100 100 100 100 69.571580800038305 64.071914733619295 70.756308046354889 61.759973758661687];
+lb_C_work = [-100 -100 -63.779328 -70.412328196584753 -69.914076907315078 -62.553832148734287 -100 -100 -100 -100];
+ub_C_work = [63.399169921875 61.593253061017123 100 100 100 100 69.571580800038305 64.071914733619295 70.756308046354889 61.759973758661687];
+T_break = [2.124481201171875 0.99578316313569815 -2.3620799999999988 -6.5077051228654739 -6.196298067071929 -1.5961450929589347 5.9822380000239406 2.5449467085120432 6.7226925289718054 1.0999835991635507];   % breakpoints of T (NaN for continuous)
 T_image = [0 0 0 0 0 0 0 0 0 0];   % their images
 m = 9;
 ProblemData = cell(1, 10);
@@ -32,7 +32,8 @@ PB.name        = 'salomon_k_10D';
 PB.base_function = 'salomon';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: K adaptation of salomon (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: K adaptation of salomon (F = f o T).';
 PB.nvar        = 10;
 PB.nobj        = 1;
 PB.var_types   = {'K','K','K','K','K','K','K','K','K','K'};
@@ -52,6 +53,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'salomon_k_10D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 10);
+D.cw = [NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN];
 g = linspace(lb_orig(1), ub_orig(1), m); D.E{1} = g([7 3 1 2 8 9 4 6 5])';
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([4 2 7 1 8 3 9 5 6])';
 g = linspace(lb_orig(3), ub_orig(3), m); D.E{3} = g([8 5 9 1 4 7 6 3 2])';
@@ -108,6 +111,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

@@ -1,20 +1,20 @@
 function PB = hartman_4_dk_6D()
-%HARTMAN_4_DK_6D  DFO Benchmark Suite v2 core: hartman_4, dimension 6, pattern DK, strategy baseline.
+%HARTMAN_4_DK_6D  DFO Benchmark Suite v2.1.0 core: hartman_4, dimension 6, pattern DK, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 17 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 17 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -3.322368011391339 (L: literature value at a refined point); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:D x2:K x3:D x4:K x5:D x6:K
 %
-lb_orig = [0 0 0 0 0 0];
-ub_orig = [1 1 1 1 1 1];
-lb_C_work = [0 0 0 0 0 0];
-ub_C_work = [1 1 1 1 1 1];
-T_break = [0.1875 0.125 0.5 0.25 0.3125 0.6875];   % breakpoints of T (NaN for continuous)
+lb_orig = [0 0.14795966062084032 0.14470336 0 0.18109077248821803 0.16527817653443508];
+ub_orig = [0.84844116210937504 1 1 0.816347355268638 1 1];
+lb_C_work = [0 0.14795966062084032 0.14470336 0 0.18109077248821803 0.16527817653443508];
+ub_C_work = [0.84844116210937504 1 1 0.816347355268638 1 1];
+T_break = [0.21211029052734376 0.14795966062084032 0.46543960000000001 0.25510854852144937 0.33463625264667718 0.63480920223381532];   % breakpoints of T (NaN for continuous)
 T_image = [0.20169000000000001 0.15001100000000001 0.47687400000000002 0.27533200000000002 0.31165199999999998 0.6573];   % their images
 m = 17;
 ProblemData = cell(1, 6);
@@ -28,7 +28,8 @@ PB.name        = 'hartman_4_dk_6D';
 PB.base_function = 'hartman_4';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: DK adaptation of hartman_4 (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: DK adaptation of hartman_4 (F = f o T).';
 PB.nvar        = 6;
 PB.nobj        = 1;
 PB.var_types   = {'D','K','D','K','D','K'};
@@ -48,6 +49,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'hartman_4_dk_6D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 6);
+D.cw = [NaN NaN NaN NaN NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN NaN NaN NaN NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([7 13 4 8 11 6 17 2 10 1 9 5 15 16 14 12 3])';
 g = linspace(lb_orig(4), ub_orig(4), m); D.E{4} = g([7 2 5 15 10 16 11 17 9 3 14 1 12 13 6 4 8])';
 g = linspace(lb_orig(6), ub_orig(6), m); D.E{6} = g([17 15 13 14 7 1 8 16 9 4 5 10 12 2 11 6 3])';
@@ -89,6 +92,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

@@ -1,20 +1,20 @@
 function PB = salomon_d_5D()
-%SALOMON_D_5D  DFO Benchmark Suite v2 core: salomon, dimension 5, pattern D, strategy baseline.
+%SALOMON_D_5D  DFO Benchmark Suite v2.1.0 core: salomon, dimension 5, pattern D, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 17 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 17 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:D x2:D x3:D x4:D x5:D
 %
-lb_orig = [-100 -100 -100 -100 -100];
-ub_orig = [100 100 100 100 100];
-lb_C_work = [-100 -100 -100 -100 -100];
-ub_C_work = [100 100 100 100 100];
-T_break = [0 0 0 0 0];   % breakpoints of T (NaN for continuous)
+lb_orig = [-70.399169921875 -100 -66.579328000000004 -100 -71.186804180042344];
+ub_orig = [100 66.259919727683794 100 72.412328196584753 100];
+lb_C_work = [-70.399169921875 -100 -66.579328000000004 -100 -71.186804180042344];
+ub_C_work = [100 66.259919727683794 100 72.412328196584753 100];
+T_break = [4.1504669189453125 3.9124498298023695 -4.112080000000006 -3.018065389421082 3.7074226487261797];   % breakpoints of T (NaN for continuous)
 T_image = [0 0 0 0 0];   % their images
 m = 17;
 ProblemData = cell(1, 5);
@@ -27,7 +27,8 @@ PB.name        = 'salomon_d_5D';
 PB.base_function = 'salomon';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: D adaptation of salomon (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: D adaptation of salomon (F = f o T).';
 PB.nvar        = 5;
 PB.nobj        = 1;
 PB.var_types   = {'D','D','D','D','D'};
@@ -47,6 +48,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'salomon_d_5D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 5);
+D.cw = [NaN NaN NaN NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN NaN NaN NaN];
 D.fn = @(xh) salomon_orig(xh);
 PB.f_star      = 0;
 PB.f_star_justification = 'E';   % exact by structure
@@ -83,6 +86,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

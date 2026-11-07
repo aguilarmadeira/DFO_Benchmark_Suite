@@ -1,18 +1,18 @@
 function PB = cosine_mixture_cd_4D()
-%COSINE_MIXTURE_CD_4D  DFO Benchmark Suite v2 core: cosine_mixture, dimension 4, pattern CD, strategy moderate.
+%COSINE_MIXTURE_CD_4D  DFO Benchmark Suite v2.1.0 core: cosine_mixture, dimension 4, pattern CD, strategy moderate.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 151 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 151 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -4.4 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:D x3:C x4:D
 %
-lb_orig = [-1 -1 -1 -1];
+lb_orig = [-0.66625732421874995 -0.65395722196819595 -0.62211327999999999 -0.69840899625156183];
 ub_orig = [1 1 1 1];
-lb_C_work = [-1 -1 -100 -1];
+lb_C_work = [-0.66625732421874995 -0.65395722196819595 -62.211328000000009 -0.69840899625156183];
 ub_C_work = [1 1 100 1];
 T_break = [NaN 1 NaN 1];   % breakpoints of T (NaN for continuous)
 T_image = [NaN 1 NaN 1];   % their images
@@ -26,7 +26,8 @@ PB.name        = 'cosine_mixture_cd_4D';
 PB.base_function = 'cosine_mixture';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: CD adaptation of cosine_mixture (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: CD adaptation of cosine_mixture (F = f o T).';
 PB.nvar        = 4;
 PB.nobj        = 1;
 PB.var_types   = {'C','D','C','D'};
@@ -46,12 +47,14 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'cosine_mixture_cd_4D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 4);
+D.cw = [1 NaN 100 NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [1 NaN 1 NaN];
 D.fn = @(xh) cosine_mixture_orig(xh);
 PB.f_star      = -4.4000000000000004;
 PB.f_star_justification = 'E';   % exact by structure
-PB.n_minimizers_documented = 16;
-PB.x0_idx      = [0.123046875 59 69.024000000000029 37];   % protocol starting point: Halton point 1009 (index representation)
-PB.x0_alt_idx  = [-0.9052734375 63 16.224000000000018 41;0.9228515625 53 -82.656000000000006 27;-0.0849609375 62 56.544000000000011 33;0.4306640625 64 -43.872 40;-0.5888671875 54 95.328000000000003 25;0.6767578125 58 -3.5519999999999925 29;-0.3310546875 68 -94.751999999999995 35;0.1845703125 55 36.768000000000001 42;-0.8408203125 59 -54.431999999999995 27];   % 9 alternative starting points (Halton indices 1009 + 63 k)
+PB.n_minimizers_documented = 1;
+PB.x0_idx      = [0.26938521623611456 59 74.87670951936002 37];   % protocol starting point: Halton point 1009 (index representation)
+PB.x0_alt_idx  = [-0.58733790993690482 63 32.052918927360011 41;0.93572542548179616 53 -48.144361635840006 27;0.096087945699691812 62 64.754722652160012 33;0.52566991209983827 64 -16.688340910080008 40;-0.32373079419136042 54 96.210743377920011 25;0.73069766879081732 58 16.01346281472 29;-0.10893981099128724 68 -57.95490275328001 35;0.32064215540885932 55 48.715266539520002 42;-0.53364016413688653 59 -25.253099028480001 27];   % 9 alternative starting points (Halton indices 1009 + 63 k)
 PB.core_pidx   = 9;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -68,18 +71,21 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 4 || ~all(isfinite(z)), error('cosine_mixture_cd_4D: z must be a finite numeric vector with 4 entries.'); end
 xh = zeros(4, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('cosine_mixture_cd_4D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('cosine_mixture_cd_4D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
 k = check_idx(z(2), D.m, D.name, 2); g = D.lb(2) + (k - 1) * (D.ub(2) - D.lb(2)) / (D.m - 1);
 xh(2) = T_map(g, D.lb(2), D.ub(2), D.Tb(2), D.Ti(2));
-v = z(3); if v < D.lbw(3) || v > D.ubw(3), error('cosine_mixture_cd_4D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
-xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3));
+v = z(3); tl = 1e-12 * (D.ubw(3) - D.lbw(3)); if v < D.lbw(3) - tl || v > D.ubw(3) + tl, error('cosine_mixture_cd_4D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
+v = min(max(v, D.lbw(3)), D.ubw(3));
+if abs(v - D.cw(3)) <= 1e-12 * (D.ubw(3) - D.lbw(3)), xh(3) = D.cx(3); else, xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3)); end
 k = check_idx(z(4), D.m, D.name, 4); g = D.lb(4) + (k - 1) * (D.ub(4) - D.lb(4)) / (D.m - 1);
 xh(4) = T_map(g, D.lb(4), D.ub(4), D.Tb(4), D.Ti(4));
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

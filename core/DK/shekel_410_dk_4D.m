@@ -1,20 +1,20 @@
 function PB = shekel_410_dk_4D()
-%SHEKEL_410_DK_4D  DFO Benchmark Suite v2 core: shekel_410, dimension 4, pattern DK, strategy baseline.
+%SHEKEL_410_DK_4D  DFO Benchmark Suite v2.1.0 core: shekel_410, dimension 4, pattern DK, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 25 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 25 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -10.53640981669204 (L: literature value at a refined point); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:D x2:K x3:D x4:K
 %
-lb_orig = [0 0 0 0];
+lb_orig = [1.69879150390625 1.7686226693085405 1.9790336000000002 1.3936693044564765];
 ub_orig = [10 10 10 10];
-lb_C_work = [0 0 0 0];
+lb_C_work = [1.69879150390625 1.7686226693085405 1.9790336000000002 1.3936693044564765];
 ub_C_work = [10 10 10 10];
-T_break = [4.166666666666667 4.166666666666667 4.166666666666667 4.166666666666667];   % breakpoints of T (NaN for continuous)
+T_break = [4.1199773152669277 4.1694410574268828 3.9842751999999999 3.9038490906566707];   % breakpoints of T (NaN for continuous)
 T_image = [4.0007465311135322 4.0005929374560214 3.9996633977086971 3.9995098024822462];   % their images
 m = 25;
 ProblemData = cell(1, 4);
@@ -26,7 +26,8 @@ PB.name        = 'shekel_410_dk_4D';
 PB.base_function = 'shekel_410';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: DK adaptation of shekel_410 (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: DK adaptation of shekel_410 (F = f o T).';
 PB.nvar        = 4;
 PB.nobj        = 1;
 PB.var_types   = {'D','K','D','K'};
@@ -46,6 +47,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'shekel_410_dk_4D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 4);
+D.cw = [NaN NaN NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN NaN NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([17 16 12 8 13 10 18 14 7 21 22 4 6 3 5 2 19 25 23 20 15 11 1 9 24])';
 g = linspace(lb_orig(4), ub_orig(4), m); D.E{4} = g([8 3 4 10 19 21 2 5 15 9 6 11 13 18 1 20 17 12 7 23 24 25 14 22 16])';
 D.fn = @(xh) shekel_410_orig(xh);
@@ -82,6 +85,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

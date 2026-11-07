@@ -1,20 +1,20 @@
 function PB = shekel_foxholes_cd_5D()
-%SHEKEL_FOXHOLES_CD_5D  DFO Benchmark Suite v2 core: shekel_foxholes, dimension 5, pattern CD, strategy extreme.
+%SHEKEL_FOXHOLES_CD_5D  DFO Benchmark Suite v2.1.0 core: shekel_foxholes, dimension 5, pattern CD, strategy extreme.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 151 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 151 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -10.40561723899244 (L: literature value at a refined point); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:D x3:C x4:D x5:C
 %
-lb_orig = [0 0 0 0 0];
-ub_orig = [10 10 10 10 10];
-lb_C_work = [0 0 0 0 0];
-ub_C_work = [10 10 1000000000 10 1000000000];
-T_break = [NaN 9.1333333333333329 NaN 7.5999999999999996 NaN];   % breakpoints of T (NaN for continuous)
+lb_orig = [0 1.3797337804196517 0 1.4936693044564764 1.9497507000887921];
+ub_orig = [8.4762084960937507 10 8.6873664000000002 10 10];
+lb_C_work = [0 1.3797337804196517 0 1.4936693044564764 194975070.00887918];
+ub_C_work = [8.4762084960937507 10 868736640 10 1000000000];
+T_break = [NaN 9.1379733780419645 NaN 7.6182274052478132 NaN];   % breakpoints of T (NaN for continuous)
 T_image = [NaN 9.1517257530637934 NaN 7.6208609576192838 NaN];   % their images
 m = 151;
 ProblemData = cell(1, 5);
@@ -27,7 +27,8 @@ PB.name        = 'shekel_foxholes_cd_5D';
 PB.base_function = 'shekel_foxholes';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: CD adaptation of shekel_foxholes (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: CD adaptation of shekel_foxholes (F = f o T).';
 PB.nvar        = 5;
 PB.nobj        = 1;
 PB.var_types   = {'C','D','C','D','C'};
@@ -47,12 +48,14 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'shekel_foxholes_cd_5D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 5);
+D.cw = [8.024914889028711 NaN 511392780.77814585 NaN 456408839.28378618];   % anchors of the continuous maps (NaN for finite)
+D.cx = [8.024914889028711 NaN 5.1139278077814589 NaN 4.5640883928378626];
 D.fn = @(xh) shekel_foxholes_orig(xh);
 PB.f_star      = -10.405617238992441;
 PB.f_star_justification = 'L';   % literature value at a refined point
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [3.4423828125 49 21120000 10 518407212.62208879];   % protocol starting point: Halton point 1050 (index representation)
-PB.x0_alt_idx  = [6.0205078125 39 717120000.00000012 17 205108940.64613071;0.9814453125 43 222720000 2 973703981.96844482;9.1845703125 46 918720000 9 660405709.99248695;4.0869140625 35 416640000 16 437265214.12471825;6.6650390625 45 152640000 22 115770780.68437949;1.6259765625 49 618240000.00000012 5 884365822.0066936;7.9541015625 36 354239999.99999994 11 571067550.03073561;2.8271484375 41 819840000 18 347927054.16296691;5.4052734375 50 555840000 3 34628782.187009089];   % 9 alternative starting points (Halton indices 1050 + 63 k)
+PB.x0_idx      = [2.9178354442119603 49 18347717.836800002 10 612305800.05686831];   % protocol starting point: Halton point 1050 (index representation)
+PB.x0_alt_idx  = [5.1031079471111305 39 622988419.27680004 17 360092880.5930835;0.83189350962638864 43 193485024.46079999 2 978831049.92510211;7.7850332915782934 46 798125725.90079999 9 726618130.46131742;3.4641535699367525 35 361950433.68959999 16 546984468.39718294;5.6494260728359231 45 132603960.7296 22 288173434.62433916;1.3782116353511811 49 537087740.31360006 5 906911603.95635772;6.7420623242855076 36 307741267.35359997 11 654698684.49257302;2.3963499605655674 41 712225046.93760002 18 475065022.42843854;4.5816224634647371 50 482878573.97759998 3 222852102.96465394];   % 9 alternative starting points (Halton indices 1050 + 63 k)
 PB.core_pidx   = 50;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -69,20 +72,24 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 5 || ~all(isfinite(z)), error('shekel_foxholes_cd_5D: z must be a finite numeric vector with 5 entries.'); end
 xh = zeros(5, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('shekel_foxholes_cd_5D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('shekel_foxholes_cd_5D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
 k = check_idx(z(2), D.m, D.name, 2); g = D.lb(2) + (k - 1) * (D.ub(2) - D.lb(2)) / (D.m - 1);
 xh(2) = T_map(g, D.lb(2), D.ub(2), D.Tb(2), D.Ti(2));
-v = z(3); if v < D.lbw(3) || v > D.ubw(3), error('shekel_foxholes_cd_5D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
-xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3));
+v = z(3); tl = 1e-12 * (D.ubw(3) - D.lbw(3)); if v < D.lbw(3) - tl || v > D.ubw(3) + tl, error('shekel_foxholes_cd_5D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
+v = min(max(v, D.lbw(3)), D.ubw(3));
+if abs(v - D.cw(3)) <= 1e-12 * (D.ubw(3) - D.lbw(3)), xh(3) = D.cx(3); else, xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3)); end
 k = check_idx(z(4), D.m, D.name, 4); g = D.lb(4) + (k - 1) * (D.ub(4) - D.lb(4)) / (D.m - 1);
 xh(4) = T_map(g, D.lb(4), D.ub(4), D.Tb(4), D.Ti(4));
-v = z(5); if v < D.lbw(5) || v > D.ubw(5), error('shekel_foxholes_cd_5D: x5 = %g outside [%g, %g].', v, D.lbw(5), D.ubw(5)); end
-xh(5) = map_work_to_orig(v, D.lbw(5), D.ubw(5), D.lb(5), D.ub(5));
+v = z(5); tl = 1e-12 * (D.ubw(5) - D.lbw(5)); if v < D.lbw(5) - tl || v > D.ubw(5) + tl, error('shekel_foxholes_cd_5D: x5 = %g outside [%g, %g].', v, D.lbw(5), D.ubw(5)); end
+v = min(max(v, D.lbw(5)), D.ubw(5));
+if abs(v - D.cw(5)) <= 1e-12 * (D.ubw(5) - D.lbw(5)), xh(5) = D.cx(5); else, xh(5) = map_work_to_orig(v, D.lbw(5), D.ubw(5), D.lb(5), D.ub(5)); end
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

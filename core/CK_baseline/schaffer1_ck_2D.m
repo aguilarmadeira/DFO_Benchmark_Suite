@@ -1,20 +1,20 @@
 function PB = schaffer1_ck_2D()
-%SCHAFFER1_CK_2D  DFO Benchmark Suite v2 core: schaffer1, dimension 2, pattern CK, strategy baseline.
+%SCHAFFER1_CK_2D  DFO Benchmark Suite v2.1.0 core: schaffer1, dimension 2, pattern CK, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 65 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 65 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:K
 %
-lb_orig = [-100 -100];
-ub_orig = [100 100];
-lb_C_work = [-100 -100];
-ub_C_work = [100 100];
-T_break = [NaN 0];   % breakpoints of T (NaN for continuous)
+lb_orig = [-72.149169921875 -100];
+ub_orig = [100 69.371030838794894];
+lb_C_work = [-72.149169921875 -100];
+ub_C_work = [100 69.371030838794894];
+T_break = [NaN 0.56404956053447108];   % breakpoints of T (NaN for continuous)
 T_image = [NaN 0];   % their images
 m = 65;
 ProblemData = cell(1, 2);
@@ -24,7 +24,8 @@ PB.name        = 'schaffer1_ck_2D';
 PB.base_function = 'schaffer1';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: CK adaptation of schaffer1 (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: CK adaptation of schaffer1 (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'C','K'};
@@ -44,13 +45,15 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'schaffer1_ck_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [0 NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [0 NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([7 47 59 25 37 51 60 22 5 65 2 26 24 64 56 10 30 12 1 14 4 52 48 36 49 19 18 28 35 16 11 43 44 61 57 55 63 53 8 46 33 17 41 27 13 40 31 50 23 62 34 3 32 6 39 20 54 58 29 42 38 15 9 45 21])';
 D.fn = @(xh) schaffer1_orig(xh);
 PB.f_star      = 0;
 PB.f_star_justification = 'E';   % exact by structure
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [-68.65234375 7];   % protocol starting point: Halton point 1044 (index representation)
-PB.x0_alt_idx  = [57.91015625 3;-42.87109375 5;8.69140625 6;-93.26171875 1;89.55078125 5;-11.23046875 7;40.33203125 2;-62.20703125 4;64.35546875 8];   % 9 alternative starting points (Halton indices 1044 + 63 k)
+PB.x0_idx      = [-45.166804909706116 7];   % protocol starting point: Halton point 1044 (index representation)
+PB.x0_alt_idx  = [63.771341681480408 3;-22.975700974464417 5;21.406506896018982 6;-66.349222302436829 1;91.005878329277039 5;4.2588356733322144 7;48.641043543815613 2;-39.619028925895691 4;69.319117665290833 8];   % 9 alternative starting points (Halton indices 1044 + 63 k)
 PB.core_pidx   = 44;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -67,14 +70,16 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 2 || ~all(isfinite(z)), error('schaffer1_ck_2D: z must be a finite numeric vector with 2 entries.'); end
 xh = zeros(2, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('schaffer1_ck_2D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('schaffer1_ck_2D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
 k = check_idx(z(2), D.m, D.name, 2); g = D.E{2}(k);
 xh(2) = T_map(g, D.lb(2), D.ub(2), D.Tb(2), D.Ti(2));
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

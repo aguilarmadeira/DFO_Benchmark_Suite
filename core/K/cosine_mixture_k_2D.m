@@ -1,18 +1,18 @@
 function PB = cosine_mixture_k_2D()
-%COSINE_MIXTURE_K_2D  DFO Benchmark Suite v2 core: cosine_mixture, dimension 2, pattern K, strategy baseline.
+%COSINE_MIXTURE_K_2D  DFO Benchmark Suite v2.1.0 core: cosine_mixture, dimension 2, pattern K, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 151 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 151 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -2.2 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:K x2:K
 %
-lb_orig = [-1 -1];
+lb_orig = [-0.73625732421875001 -0.70062388863486258];
 ub_orig = [1 1];
-lb_C_work = [-1 -1];
+lb_C_work = [-0.73625732421875001 -0.70062388863486258];
 ub_C_work = [1 1];
 T_break = [1 1];   % breakpoints of T (NaN for continuous)
 T_image = [1 1];   % their images
@@ -24,7 +24,8 @@ PB.name        = 'cosine_mixture_k_2D';
 PB.base_function = 'cosine_mixture';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: K adaptation of cosine_mixture (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: K adaptation of cosine_mixture (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'K','K'};
@@ -44,12 +45,14 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'cosine_mixture_k_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN];
 g = linspace(lb_orig(1), ub_orig(1), m); D.E{1} = g([78 17 3 19 67 88 73 105 80 143 92 62 59 90 8 82 101 123 102 44 97 50 23 36 145 52 72 116 16 40 79 136 64 148 141 65 47 151 144 18 86 122 56 94 126 104 7 89 14 137 121 111 128 98 77 119 63 46 70 134 125 31 130 113 71 5 135 147 30 53 114 11 138 87 66 106 21 91 61 150 32 48 57 15 42 115 43 54 76 132 110 55 142 34 49 1 103 6 2 120 127 28 112 117 45 9 41 107 33 108 131 133 149 140 100 38 99 75 29 139 69 27 124 12 24 39 85 4 95 35 37 68 51 118 13 146 20 81 22 58 96 83 93 84 60 26 25 109 74 10 129])';
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([49 128 70 86 72 133 63 109 48 89 113 93 110 114 69 9 75 12 42 29 84 50 41 132 95 129 76 126 17 74 124 61 78 62 104 2 83 67 16 143 77 28 103 81 40 3 134 98 106 21 31 94 96 65 22 30 36 117 54 7 140 102 37 118 101 127 14 27 120 97 139 121 34 91 68 11 23 43 64 13 35 105 92 18 111 123 46 57 79 71 45 59 87 125 130 149 136 145 6 147 90 33 131 1 51 15 138 141 119 146 44 58 82 66 108 47 107 85 122 32 80 135 25 144 38 142 99 20 112 53 56 88 73 8 39 55 148 116 151 100 5 137 19 24 10 4 26 52 150 115 60])';
 D.fn = @(xh) cosine_mixture_orig(xh);
 PB.f_star      = -2.2000000000000002;
 PB.f_star_justification = 'E';   % exact by structure
-PB.n_minimizers_documented = 4;
+PB.n_minimizers_documented = 1;
 PB.x0_idx      = [10 9];   % protocol starting point: Halton point 1008 (index representation)
 PB.x0_alt_idx  = [144 13;70 3;107 12;33 14;126 4;52 8;89 18;15 5;135 9];   % 9 alternative starting points (Halton indices 1008 + 63 k)
 PB.core_pidx   = 8;
@@ -76,6 +79,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

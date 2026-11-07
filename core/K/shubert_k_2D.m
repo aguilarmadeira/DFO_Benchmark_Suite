@@ -1,20 +1,20 @@
 function PB = shubert_k_2D()
-%SHUBERT_K_2D  DFO Benchmark Suite v2 core: shubert, dimension 2, pattern K, strategy baseline.
+%SHUBERT_K_2D  DFO Benchmark Suite v2.1.0 core: shubert, dimension 2, pattern K, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 151 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 151 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -186.7309088310238 (L: literature value at a refined point); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:K x2:K
 %
-lb_orig = [-10 -10];
-ub_orig = [10 10];
-lb_C_work = [-10 -10];
-ub_C_work = [10 10];
-T_break = [-7.0666666666666664 4.7999999999999998];   % breakpoints of T (NaN for continuous)
+lb_orig = [-10 -6.3071991058273635];
+ub_orig = [7.1274169921874995 10];
+lb_C_work = [-10 -6.3071991058273635];
+ub_C_work = [7.1274169921874995 10];
+T_break = [-7.0312477213541662 4.8904109468407597];   % breakpoints of T (NaN for continuous)
 T_image = [-7.0835064071999998 4.8580568773000001];   % their images
 m = 151;
 ProblemData = cell(1, 2);
@@ -24,7 +24,8 @@ PB.name        = 'shubert_k_2D';
 PB.base_function = 'shubert';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: K adaptation of shubert (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: K adaptation of shubert (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'K','K'};
@@ -44,12 +45,14 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'shubert_k_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN];
 g = linspace(lb_orig(1), ub_orig(1), m); D.E{1} = g([55 44 119 137 81 59 27 58 124 50 88 18 65 95 78 2 4 70 100 87 97 148 46 77 150 151 15 21 36 66 7 106 112 19 105 146 35 94 141 54 113 63 34 91 120 51 90 83 131 3 76 103 12 17 42 56 149 102 39 135 85 45 52 80 143 47 110 101 96 86 127 43 98 25 64 111 118 145 123 1 40 89 82 109 33 62 140 30 67 29 49 73 28 104 144 23 13 115 128 8 147 93 31 10 116 138 5 133 71 61 129 14 24 125 6 69 57 41 48 92 22 121 32 122 79 72 132 126 20 139 136 84 11 114 60 99 130 117 38 142 53 108 26 37 75 74 16 68 9 107 134])';
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([72 132 92 39 49 86 104 84 47 3 69 54 81 100 41 82 118 6 31 120 88 59 142 130 5 38 16 106 129 29 73 140 67 19 23 26 141 131 13 110 24 91 126 55 7 149 58 61 116 80 101 90 114 18 43 60 10 30 95 83 150 46 53 89 28 48 63 97 137 64 2 151 8 96 117 22 123 127 34 134 42 70 1 74 35 65 143 144 71 125 146 76 113 115 40 111 108 107 109 12 112 98 36 138 139 62 122 147 77 68 27 21 32 87 136 78 66 50 57 102 133 124 44 148 93 135 99 14 37 56 119 105 33 4 85 128 145 15 75 9 103 20 94 121 25 52 17 11 51 79 45])';
 D.fn = @(xh) shubert_orig(xh);
 PB.f_star      = -186.73090883102384;
 PB.f_star_justification = 'L';   % literature value at a refined point
-PB.n_minimizers_documented = 18;
+PB.n_minimizers_documented = 12;
 PB.x0_idx      = [34 149];   % protocol starting point: Halton point 1052 (index representation)
 PB.x0_alt_idx  = [129 139;53 143;92 146;15 135;138 145;63 149;102 136;25 141;120 150];   % 9 alternative starting points (Halton indices 1052 + 63 k)
 PB.core_pidx   = 52;
@@ -76,6 +79,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

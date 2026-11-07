@@ -1,19 +1,19 @@
 function PB = griewank_c_5D()
-%GRIEWANK_C_5D  DFO Benchmark Suite v2 core: griewank, dimension 5, pattern C, strategy moderate.
+%GRIEWANK_C_5D  DFO Benchmark Suite v2.1.0 core: griewank, dimension 5, pattern C, strategy moderate.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 0 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 0 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:C x3:C x4:C x5:C
 %
-lb_orig = [-600 -600 -600 -600 -600];
-ub_orig = [600 600 600 600 600];
-lb_C_work = [-600 -60000 -6 -600 -60000];
-ub_C_work = [600 60000 6 600 60000];
+lb_orig = [-600 -600 -379.98796800000002 -600 -600];
+ub_orig = [363.00439453125 431.78174058832496 600 415.61682632236568 405.60016392322927];
+lb_C_work = [-600 -60000 -3.7998796800000001 -600 -60000];
+ub_C_work = [363.00439453125 43178.17405883249 6 415.61682632236568 40560.016392322927];
 T_break = [NaN NaN NaN NaN NaN];   % breakpoints of T (NaN for continuous)
 T_image = [NaN NaN NaN NaN NaN];   % their images
 m = 0;
@@ -27,7 +27,8 @@ PB.name        = 'griewank_c_5D';
 PB.base_function = 'griewank';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: C adaptation of griewank (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: C adaptation of griewank (F = f o T).';
 PB.nvar        = 5;
 PB.nobj        = 1;
 PB.var_types   = {'C','C','C','C','C'};
@@ -47,12 +48,14 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'griewank_c_5D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 5);
+D.cw = [0 -7.2759576141834259e-12 0 0 7.2759576141834259e-12];   % anchors of the continuous maps (NaN for finite)
+D.cx = [0 0 0 0 0];
 D.fn = @(xh) griewank_orig(xh);
 PB.f_star      = 0;
 PB.f_star_justification = 'E';   % exact by structure
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [598.828125 -22743.484224965701 3.181440000000002 -259.64181591003756 -54320.060105184071];   % protocol starting point: Halton point 1023 (index representation)
-PB.x0_alt_idx  = [-18.1640625 -31138.545953360768 -2.2905599999999993 -399.08371511870058 37911.344853493618;291.2109375 -27681.755829903974 5.6006400000000003 -346.60558100791337 315.55221637866634;-313.4765625 -20274.348422496565 0.12863999999999898 -294.12744689712622 -37280.240420736285;445.8984375 -29986.282578875172 -5.8963200000000002 -409.579341940858 54951.164537941411;-165.8203125 -26529.492455418382 2.455680000000001 -357.10120783007085 16371.832525100734;143.5546875 -23072.702331961584 -3.4771199999999998 -328.61307788421493 -10405.026979031485;-461.1328125 -33223.593964334708 4.874880000000001 -276.13494377342778 -48000.819616146437;523.2421875 -25816.1865569273 -1.0579200000000002 -391.58683881715956 44230.585342531253;-91.9921875 -22359.396433470516 -4.2259200000000003 -339.10870470637235 6634.7927054162865];   % 9 alternative starting points (Halton indices 1023 + 63 k)
+PB.x0_idx      = [362.06396055221558 -27966.172754482275 3.6982042607616012 -311.93875105142405 -55240.209592249179];   % protocol starting point: Halton point 1023 (index representation)
+PB.x0_alt_idx  = [-133.07452940940857 -35184.398923207184 -0.77054087331839938 -429.95503366031198 22049.720362180844;115.20004105567932 -32212.188147849865 5.673860004249601 -385.54030364621434 -9455.559003407936;-370.06389212608337 -25843.165057798476 1.2051148701695995 -341.1255736321167 -40960.838368996709;239.33732628822327 -34193.661998088079 -3.7152087195648003 -438.83797966313148 36329.091585433314;-251.56921076774597 -31221.451222730764 3.1055075377152006 -394.42324964903389 3999.6060886322666;-3.2946403026580811 -28249.240447373446 -1.7395529760768 -370.31239621280946 -18439.405833621611;-488.55857348442078 -36977.160978184613 5.0811632812032013 -325.89766619871187 -49944.685199210384;301.40596890449524 -30608.137888133224 0.23610276741120018 -423.6100722297266 27345.244755219639;-192.32187008857727 -27635.927112775913 -2.3510654681087999 -379.19534221562895 -4160.0346103691554];   % 9 alternative starting points (Halton indices 1023 + 63 k)
 PB.core_pidx   = 23;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -69,20 +72,26 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 5 || ~all(isfinite(z)), error('griewank_c_5D: z must be a finite numeric vector with 5 entries.'); end
 xh = zeros(5, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('griewank_c_5D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
-v = z(2); if v < D.lbw(2) || v > D.ubw(2), error('griewank_c_5D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
-xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2));
-v = z(3); if v < D.lbw(3) || v > D.ubw(3), error('griewank_c_5D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
-xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3));
-v = z(4); if v < D.lbw(4) || v > D.ubw(4), error('griewank_c_5D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
-xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4));
-v = z(5); if v < D.lbw(5) || v > D.ubw(5), error('griewank_c_5D: x5 = %g outside [%g, %g].', v, D.lbw(5), D.ubw(5)); end
-xh(5) = map_work_to_orig(v, D.lbw(5), D.ubw(5), D.lb(5), D.ub(5));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('griewank_c_5D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
+v = z(2); tl = 1e-12 * (D.ubw(2) - D.lbw(2)); if v < D.lbw(2) - tl || v > D.ubw(2) + tl, error('griewank_c_5D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
+v = min(max(v, D.lbw(2)), D.ubw(2));
+if abs(v - D.cw(2)) <= 1e-12 * (D.ubw(2) - D.lbw(2)), xh(2) = D.cx(2); else, xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2)); end
+v = z(3); tl = 1e-12 * (D.ubw(3) - D.lbw(3)); if v < D.lbw(3) - tl || v > D.ubw(3) + tl, error('griewank_c_5D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
+v = min(max(v, D.lbw(3)), D.ubw(3));
+if abs(v - D.cw(3)) <= 1e-12 * (D.ubw(3) - D.lbw(3)), xh(3) = D.cx(3); else, xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3)); end
+v = z(4); tl = 1e-12 * (D.ubw(4) - D.lbw(4)); if v < D.lbw(4) - tl || v > D.ubw(4) + tl, error('griewank_c_5D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
+v = min(max(v, D.lbw(4)), D.ubw(4));
+if abs(v - D.cw(4)) <= 1e-12 * (D.ubw(4) - D.lbw(4)), xh(4) = D.cx(4); else, xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4)); end
+v = z(5); tl = 1e-12 * (D.ubw(5) - D.lbw(5)); if v < D.lbw(5) - tl || v > D.ubw(5) + tl, error('griewank_c_5D: x5 = %g outside [%g, %g].', v, D.lbw(5), D.ubw(5)); end
+v = min(max(v, D.lbw(5)), D.ubw(5));
+if abs(v - D.cw(5)) <= 1e-12 * (D.ubw(5) - D.lbw(5)), xh(5) = D.cx(5); else, xh(5) = map_work_to_orig(v, D.lbw(5), D.ubw(5), D.lb(5), D.ub(5)); end
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

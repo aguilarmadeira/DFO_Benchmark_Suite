@@ -1,20 +1,20 @@
 function PB = neumaier3_k_10D()
-%NEUMAIER3_K_10D  DFO Benchmark Suite v2 core: neumaier3, dimension 10, pattern K, strategy baseline.
+%NEUMAIER3_K_10D  DFO Benchmark Suite v2.1.0 core: neumaier3, dimension 10, pattern K, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 9 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 9 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -210 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:K x2:K x3:K x4:K x5:K x6:K x7:K x8:K x9:K x10:K
 %
-lb_orig = [-100 -100 -100 -100 -100 -100 -100 -100 -100 -100];
-ub_orig = [100 100 100 100 100 100 100 100 100 100];
-lb_C_work = [-100 -100 -100 -100 -100 -100 -100 -100 -100 -100];
-ub_C_work = [100 100 100 100 100 100 100 100 100 100];
-T_break = [0 25 25 25 25 25 25 25 25 0];   % breakpoints of T (NaN for continuous)
+lb_orig = [-100 -100 -100 -72.698042482299044 -66.211597568472087 -71.1692167641189 -100 -100 -100 -100];
+ub_orig = [61.813232421875 69.889549357313427 72.739328 100 100 100 62.208259000730351 69.966651575724555 61.652338292101582 65.622042724178925];
+lb_C_work = [-100 -100 -100 -72.698042482299044 -66.211597568472087 -71.1692167641189 -100 -100 -100 -100];
+ub_C_work = [61.813232421875 69.889549357313427 72.739328 100 100 100 62.208259000730351 69.966651575724555 61.652338292101582 65.622042724178925];
+T_break = [1.133270263671875 27.417162017985078 29.554496 35.238234069137874 37.670650911822975 35.811543713455421 21.65619425054777 27.474988681793405 21.239253719076174 3.5137767026118354];   % breakpoints of T (NaN for continuous)
 T_image = [10 18 24 28 30 30 28 24 18 10];   % their images
 m = 9;
 ProblemData = cell(1, 10);
@@ -32,7 +32,8 @@ PB.name        = 'neumaier3_k_10D';
 PB.base_function = 'neumaier3';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: K adaptation of neumaier3 (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: K adaptation of neumaier3 (F = f o T).';
 PB.nvar        = 10;
 PB.nobj        = 1;
 PB.var_types   = {'K','K','K','K','K','K','K','K','K','K'};
@@ -52,6 +53,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'neumaier3_k_10D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 10);
+D.cw = [NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN];
 g = linspace(lb_orig(1), ub_orig(1), m); D.E{1} = g([9 8 5 3 7 6 2 1 4])';
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([9 6 1 3 2 8 4 7 5])';
 g = linspace(lb_orig(3), ub_orig(3), m); D.E{3} = g([6 8 3 7 9 1 5 4 2])';
@@ -108,6 +111,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

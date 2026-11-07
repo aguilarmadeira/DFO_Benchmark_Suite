@@ -1,19 +1,19 @@
 function PB = goldstein_price_c_2D()
-%GOLDSTEIN_PRICE_C_2D  DFO Benchmark Suite v2 core: goldstein_price, dimension 2, pattern C, strategy baseline.
+%GOLDSTEIN_PRICE_C_2D  DFO Benchmark Suite v2.1.0 core: goldstein_price, dimension 2, pattern C, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 0 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 0 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 3 (L: literature value at a refined point); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:C
 %
 lb_orig = [-2 -2];
-ub_orig = [2 2];
+ub_orig = [1.2800146484374999 1.3770502464055276];
 lb_C_work = [-2 -2];
-ub_C_work = [2 2];
+ub_C_work = [1.2800146484374999 1.3770502464055276];
 T_break = [NaN NaN];   % breakpoints of T (NaN for continuous)
 T_image = [NaN NaN];   % their images
 m = 0;
@@ -24,7 +24,8 @@ PB.name        = 'goldstein_price_c_2D';
 PB.base_function = 'goldstein_price';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: C adaptation of goldstein_price (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: C adaptation of goldstein_price (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'C','C'};
@@ -44,12 +45,14 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'goldstein_price_c_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [0 -1];   % anchors of the continuous maps (NaN for finite)
+D.cx = [0 -1];
 D.fn = @(xh) goldstein_price_orig(xh);
 PB.f_star      = 3;
 PB.f_star_justification = 'L';   % literature value at a refined point
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [0.99609375 0.13077274805669825];   % protocol starting point: Halton point 1021 (index representation)
-PB.x0_alt_idx  = [-1.060546875 -0.14906264288980342;1.470703125 -0.033836305441243608;-0.544921875 0.21307727480566951;0.486328125 -0.11065386374028341;-1.552734375 0.0045724737082761813;1.728515625 0.11979881115683577;-0.287109375 -0.21856424325560142;0.744140625 0.02834933699131259;-1.306640625 0.14357567443987174];   % 9 alternative starting points (Halton indices 1021 + 63 k)
+PB.x0_idx      = [0.45680784702300992 -0.20106834153523589];   % protocol starting point: Halton point 1021 (index representation)
+PB.x0_alt_idx  = [-1.2296449971199035 -0.43732288552245357;0.84598927259445178 -0.34004160270418726;-0.80683060884475721 -0.13158171095075999;0.038798167705535569 -0.40489579124969821;-1.6332405495643616 -0.3076145084314319;1.0573964667320248 -0.21033322561316581;-0.59542341470718396 -0.49600048468267777;0.25020536184310904 -0.28754059292924983;-1.4314427733421327 -0.19025931011098396];   % 9 alternative starting points (Halton indices 1021 + 63 k)
 PB.core_pidx   = 21;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -66,14 +69,17 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 2 || ~all(isfinite(z)), error('goldstein_price_c_2D: z must be a finite numeric vector with 2 entries.'); end
 xh = zeros(2, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('goldstein_price_c_2D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
-v = z(2); if v < D.lbw(2) || v > D.ubw(2), error('goldstein_price_c_2D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
-xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('goldstein_price_c_2D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
+v = z(2); tl = 1e-12 * (D.ubw(2) - D.lbw(2)); if v < D.lbw(2) - tl || v > D.ubw(2) + tl, error('goldstein_price_c_2D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
+v = min(max(v, D.lbw(2)), D.ubw(2));
+if abs(v - D.cw(2)) <= 1e-12 * (D.ubw(2) - D.lbw(2)), xh(2) = D.cx(2); else, xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2)); end
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

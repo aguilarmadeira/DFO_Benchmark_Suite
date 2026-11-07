@@ -1,20 +1,20 @@
 function PB = mccormick_dk_2D()
-%MCCORMICK_DK_2D  DFO Benchmark Suite v2 core: mccormick, dimension 2, pattern DK, strategy baseline.
+%MCCORMICK_DK_2D  DFO Benchmark Suite v2.1.0 core: mccormick, dimension 2, pattern DK, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 151 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 151 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -1.913222954981037 (L: literature value at a refined point); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:D x2:K
 %
 lb_orig = [-1.5 -3];
-ub_orig = [4 3];
+ub_orig = [3.1183013916015625 2.0500198140527357];
 lb_C_work = [-1.5 -3];
-ub_C_work = [4 3];
-T_break = [-0.54666666666666663 -1.5600000000000001];   % breakpoints of T (NaN for continuous)
+ub_C_work = [3.1183013916015625 2.0500198140527357];
+T_break = [-0.54555104573567703 -1.5523276533048824];   % breakpoints of T (NaN for continuous)
 T_image = [-0.54719755371679324 -1.547197552675593];   % their images
 m = 151;
 ProblemData = cell(1, 2);
@@ -24,7 +24,8 @@ PB.name        = 'mccormick_dk_2D';
 PB.base_function = 'mccormick';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: DK adaptation of mccormick (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: DK adaptation of mccormick (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'D','K'};
@@ -44,6 +45,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'mccormick_dk_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([48 37 89 121 20 41 15 122 64 145 126 10 27 32 4 6 80 51 43 36 112 127 77 148 55 81 50 141 78 88 1 86 79 95 12 14 68 31 102 151 99 53 119 70 24 129 42 97 71 114 94 111 109 105 150 65 52 116 17 146 115 9 13 23 44 85 101 147 117 59 120 137 113 73 143 130 83 106 49 118 39 93 72 46 82 2 30 45 75 7 125 21 103 26 47 128 84 104 110 19 134 138 98 60 63 136 29 11 58 91 35 123 57 142 135 62 28 8 108 139 140 25 132 18 3 149 100 16 74 133 87 96 54 5 61 92 107 66 67 56 124 144 131 76 90 34 22 40 69 33 38])';
 D.fn = @(xh) mccormick_orig(xh);
 PB.f_star      = -1.9132229549810367;
@@ -75,6 +78,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

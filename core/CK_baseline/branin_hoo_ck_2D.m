@@ -1,20 +1,20 @@
 function PB = branin_hoo_ck_2D()
-%BRANIN_HOO_CK_2D  DFO Benchmark Suite v2 core: branin_hoo, dimension 2, pattern CK, strategy baseline.
+%BRANIN_HOO_CK_2D  DFO Benchmark Suite v2.1.0 core: branin_hoo, dimension 2, pattern CK, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 65 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 65 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0.3978873577297382 (A: analytic reduction, 1-D root to machine precision); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:K
 %
-lb_orig = [-5 0];
-ub_orig = [10 15];
-lb_C_work = [-5 0];
-ub_C_work = [10 15];
-T_break = [NaN 12.1875];   % breakpoints of T (NaN for continuous)
+lb_orig = [-5 2.1286541685718641];
+ub_orig = [7.2836486816406252 15];
+lb_C_work = [-5 2.1286541685718641];
+ub_C_work = [7.2836486816406252 15];
+T_break = [NaN 12.184393099375097];   % breakpoints of T (NaN for continuous)
 T_image = [NaN 12.275];   % their images
 m = 65;
 ProblemData = cell(1, 2);
@@ -24,7 +24,8 @@ PB.name        = 'branin_hoo_ck_2D';
 PB.base_function = 'branin_hoo';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: CK adaptation of branin_hoo (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: CK adaptation of branin_hoo (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'C','K'};
@@ -44,13 +45,15 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'branin_hoo_ck_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [-3.1415926535897931 NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [-3.1415926535897931 NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([28 39 9 6 8 4 33 63 24 31 17 61 54 43 58 1 59 35 34 48 21 12 25 11 41 60 36 23 3 15 30 55 7 2 13 27 45 49 19 22 44 38 16 32 20 57 51 14 53 62 10 5 18 46 37 52 26 65 56 40 42 47 29 64 50])';
 D.fn = @(xh) branin_hoo_orig(xh);
 PB.f_star      = 0.39788735772973816;
 PB.f_star_justification = 'A';   % analytic reduction, 1-D root to machine precision
-PB.n_minimizers_documented = 3;
-PB.x0_idx      = [5.7666015625 16];   % protocol starting point: Halton point 1005 (index representation)
-PB.x0_alt_idx  = [-1.94580078125 18;7.54638671875 22;-0.01220703125 17;3.85498046875 19;-3.79150390625 20;8.51318359375 16;0.95458984375 20;4.82177734375 21;-2.86865234375 16];   % 9 alternative starting points (Halton indices 1005 + 63 k)
+PB.n_minimizers_documented = 2;
+PB.x0_idx      = [3.8168767392635345 16];   % protocol starting point: Halton point 1005 (index representation)
+PB.x0_alt_idx  = [-2.4988859862089159 18;5.2743604451417916 22;-0.91544689834117943 17;2.2514312773942944 19;-4.0103505700826645 20;6.0660799890756607 16;-0.1237273544073112 20;3.0431508213281635 21;-3.2546182781457902 16];   % 9 alternative starting points (Halton indices 1005 + 63 k)
 PB.core_pidx   = 5;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -67,14 +70,16 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 2 || ~all(isfinite(z)), error('branin_hoo_ck_2D: z must be a finite numeric vector with 2 entries.'); end
 xh = zeros(2, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('branin_hoo_ck_2D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('branin_hoo_ck_2D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
 k = check_idx(z(2), D.m, D.name, 2); g = D.E{2}(k);
 xh(2) = T_map(g, D.lb(2), D.ub(2), D.Tb(2), D.Ti(2));
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

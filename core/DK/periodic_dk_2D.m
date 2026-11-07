@@ -1,20 +1,20 @@
 function PB = periodic_dk_2D()
-%PERIODIC_DK_2D  DFO Benchmark Suite v2 core: periodic, dimension 2, pattern DK, strategy baseline.
+%PERIODIC_DK_2D  DFO Benchmark Suite v2.1.0 core: periodic, dimension 2, pattern DK, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 151 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 151 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0.9 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:D x2:K
 %
 lb_orig = [-10 -10];
-ub_orig = [10 10];
+ub_orig = [6.3563232421875 6.0556216023980092];
 lb_C_work = [-10 -10];
-ub_C_work = [10 10];
-T_break = [0 0];   % breakpoints of T (NaN for continuous)
+ub_C_work = [6.3563232421875 6.0556216023980092];
+T_break = [0.031878255208333428 -0.045514606513233247];   % breakpoints of T (NaN for continuous)
 T_image = [0 0];   % their images
 m = 151;
 ProblemData = cell(1, 2);
@@ -24,7 +24,8 @@ PB.name        = 'periodic_dk_2D';
 PB.base_function = 'periodic';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: DK adaptation of periodic (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: DK adaptation of periodic (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'D','K'};
@@ -44,6 +45,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'periodic_dk_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([69 22 44 19 112 71 49 90 109 120 28 122 126 140 143 53 6 33 151 136 91 46 20 30 145 92 13 18 21 76 147 131 74 75 108 16 24 94 55 85 8 14 17 101 115 63 150 107 57 142 102 149 25 66 51 78 105 70 41 59 27 138 43 54 111 106 42 88 83 81 40 116 35 52 11 80 82 7 144 79 137 56 146 47 141 15 45 61 5 36 132 124 9 99 2 133 50 31 73 3 119 62 128 110 86 29 125 67 10 118 12 87 64 95 121 139 93 113 103 89 98 26 135 60 77 34 100 129 97 1 127 39 72 23 130 65 32 38 4 104 114 134 58 148 84 68 123 37 48 96 117])';
 D.fn = @(xh) periodic_orig(xh);
 PB.f_star      = 0.90000000000000002;
@@ -75,6 +78,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

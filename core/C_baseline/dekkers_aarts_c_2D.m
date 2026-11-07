@@ -1,19 +1,19 @@
 function PB = dekkers_aarts_c_2D()
-%DEKKERS_AARTS_C_2D  DFO Benchmark Suite v2 core: dekkers_aarts, dimension 2, pattern C, strategy baseline.
+%DEKKERS_AARTS_C_2D  DFO Benchmark Suite v2.1.0 core: dekkers_aarts, dimension 2, pattern C, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 0 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 0 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -24776.51834231769 (A: analytic reduction, 1-D root to machine precision); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:C
 %
-lb_orig = [-20 -20];
-ub_orig = [20 20];
-lb_C_work = [-20 -20];
-ub_C_work = [20 20];
+lb_orig = [-20 -12.145811106030584];
+ub_orig = [14.025146484375 20];
+lb_C_work = [-20 -12.145811106030584];
+ub_C_work = [14.025146484375 20];
 T_break = [NaN NaN];   % breakpoints of T (NaN for continuous)
 T_image = [NaN NaN];   % their images
 m = 0;
@@ -24,7 +24,8 @@ PB.name        = 'dekkers_aarts_c_2D';
 PB.base_function = 'dekkers_aarts';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: C adaptation of dekkers_aarts (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: C adaptation of dekkers_aarts (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'C','C'};
@@ -44,12 +45,14 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'dekkers_aarts_c_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [0 14.94511215764898];   % anchors of the continuous maps (NaN for finite)
+D.cx = [0 14.94511215764898];
 D.fn = @(xh) dekkers_aarts_orig(xh);
 PB.f_star      = -24776.51834231769;
 PB.f_star_justification = 'A';   % analytic reduction, 1-D root to machine precision
-PB.n_minimizers_documented = 2;
-PB.x0_idx      = [-7.5390625 8.7151348879743971];   % protocol starting point: Halton point 1010 (index representation)
-PB.x0_alt_idx  = [1.89453125 9.8673982624599859;-17.79296875 7.0690443529949647;18.30078125 9.5381801554641044;-1.38671875 10.25148605395519;8.22265625 7.4531321444901657;-11.46484375 8.6053955189757687;13.37890625 11.074531321444901;-6.30859375 7.6909007773205289;3.18359375 8.8431641518061319];   % 9 alternative starting points (Halton indices 1010 + 63 k)
+PB.n_minimizers_documented = 1;
+PB.x0_idx      = [-9.40036940574646 10.930971443794759];   % protocol starting point: Halton point 1010 (index representation)
+PB.x0_alt_idx  = [-1.3758841753005981 11.856982463310038;-18.122635960578918 9.6080985587729177;12.579742312431335 11.592407886305674;-4.1670094728469849 12.16565280314847;4.0070003271102905 9.9167688986113465;-12.73975145816803 10.842779918126636;8.3930543661117554 12.827089245659385;-8.3536974191665649 10.107850537558948;-0.27937066555023193 11.033861557074237];   % 9 alternative starting points (Halton indices 1010 + 63 k)
 PB.core_pidx   = 10;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -66,14 +69,17 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 2 || ~all(isfinite(z)), error('dekkers_aarts_c_2D: z must be a finite numeric vector with 2 entries.'); end
 xh = zeros(2, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('dekkers_aarts_c_2D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
-v = z(2); if v < D.lbw(2) || v > D.ubw(2), error('dekkers_aarts_c_2D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
-xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('dekkers_aarts_c_2D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
+v = z(2); tl = 1e-12 * (D.ubw(2) - D.lbw(2)); if v < D.lbw(2) - tl || v > D.ubw(2) + tl, error('dekkers_aarts_c_2D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
+v = min(max(v, D.lbw(2)), D.ubw(2));
+if abs(v - D.cw(2)) <= 1e-12 * (D.ubw(2) - D.lbw(2)), xh(2) = D.cx(2); else, xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2)); end
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

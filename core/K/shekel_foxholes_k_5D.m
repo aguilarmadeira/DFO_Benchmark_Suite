@@ -1,20 +1,20 @@
 function PB = shekel_foxholes_k_5D()
-%SHEKEL_FOXHOLES_K_5D  DFO Benchmark Suite v2 core: shekel_foxholes, dimension 5, pattern K, strategy baseline.
+%SHEKEL_FOXHOLES_K_5D  DFO Benchmark Suite v2.1.0 core: shekel_foxholes, dimension 5, pattern K, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 17 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 17 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -10.40561723899244 (L: literature value at a refined point); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:K x2:K x3:K x4:K x5:K
 %
-lb_orig = [0 0 0 0 0];
-ub_orig = [10 10 10 10 10];
-lb_C_work = [0 0 0 0 0];
-ub_C_work = [10 10 10 10 10];
-T_break = [8.125 9.375 5 7.5 4.375];   % breakpoints of T (NaN for continuous)
+lb_orig = [0 1.3797337804196517 0 1.4936693044564764 1.9497507000887921];
+ub_orig = [8.4762084960937507 10 8.6873664000000002 10 10];
+lb_C_work = [0 1.3797337804196517 0 1.4936693044564764 1.9497507000887921];
+ub_C_work = [8.4762084960937507 10 8.6873664000000002 10 10];
+T_break = [7.9464454650878915 8.922466722552457 4.8866436000000002 7.8734173261141187 4.4654536063110442];   % breakpoints of T (NaN for continuous)
 T_image = [8.024914889028711 9.1517257530637934 5.1139278077814589 7.6208609576192838 4.5640883928378626];   % their images
 m = 17;
 ProblemData = cell(1, 5);
@@ -27,7 +27,8 @@ PB.name        = 'shekel_foxholes_k_5D';
 PB.base_function = 'shekel_foxholes';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: K adaptation of shekel_foxholes (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: K adaptation of shekel_foxholes (F = f o T).';
 PB.nvar        = 5;
 PB.nobj        = 1;
 PB.var_types   = {'K','K','K','K','K'};
@@ -47,6 +48,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'shekel_foxholes_k_5D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 5);
+D.cw = [NaN NaN NaN NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN NaN NaN NaN];
 g = linspace(lb_orig(1), ub_orig(1), m); D.E{1} = g([6 9 15 2 3 4 8 10 12 14 1 13 7 17 16 5 11])';
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([2 13 17 15 10 5 11 4 3 12 8 14 7 6 9 16 1])';
 g = linspace(lb_orig(3), ub_orig(3), m); D.E{3} = g([17 3 5 11 8 1 16 9 13 2 12 4 7 14 10 6 15])';
@@ -88,6 +91,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

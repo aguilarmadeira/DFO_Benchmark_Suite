@@ -1,20 +1,20 @@
 function PB = griewank_d_10D()
-%GRIEWANK_D_10D  DFO Benchmark Suite v2 core: griewank, dimension 10, pattern D, strategy baseline.
+%GRIEWANK_D_10D  DFO Benchmark Suite v2.1.0 core: griewank, dimension 10, pattern D, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 9 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 9 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:D x2:D x3:D x4:D x5:D x6:D x7:D x8:D x9:D x10:D
 %
-lb_orig = [-400 -400 -400 -400 -400 -400 -400 -400 -400 -400];
-ub_orig = [400 400 400 400 400 400 400 400 400 400];
-lb_C_work = [-400 -400 -400 -400 -400 -400 -400 -400 -400 -400];
-ub_C_work = [400 400 400 400 400 400 400 400 400 400];
-T_break = [0 0 0 0 0 0 0 0 0 0];   % breakpoints of T (NaN for continuous)
+lb_orig = [-270.0029296875 -256.74338261443881 -400 -400 -400 -400 -400 -400 -278.2615270814498 -287.59161917257779];
+ub_orig = [400 400 264.52531199999999 285.07788421491045 275.49101837306193 285.00822800322118 291.6565654146861 262.337520430322 400 400];
+lb_C_work = [-270.0029296875 -256.74338261443881 -400 -400 -400 -400 -400 -400 -278.2615270814498 -287.59161917257779];
+ub_C_work = [400 400 264.52531199999999 285.07788421491045 275.49101837306193 285.00822800322118 291.6565654146861 262.337520430322 400 400];
+T_break = [-18.7518310546875 -10.464614134024259 15.328319999999962 28.173677634319006 22.18188648316368 28.1301425020132 32.285353384178848 13.960950268951251 -23.913454425906139 -29.744761982861121];   % breakpoints of T (NaN for continuous)
 T_image = [0 0 0 0 0 0 0 0 0 0];   % their images
 m = 9;
 ProblemData = cell(1, 10);
@@ -32,7 +32,8 @@ PB.name        = 'griewank_d_10D';
 PB.base_function = 'griewank';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: D adaptation of griewank (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: D adaptation of griewank (F = f o T).';
 PB.nvar        = 10;
 PB.nobj        = 1;
 PB.var_types   = {'D','D','D','D','D','D','D','D','D','D'};
@@ -52,6 +53,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'griewank_d_10D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 10);
+D.cw = [NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN];
 D.fn = @(xh) griewank_orig(xh);
 PB.f_star      = 0;
 PB.f_star_justification = 'E';   % exact by structure
@@ -98,6 +101,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

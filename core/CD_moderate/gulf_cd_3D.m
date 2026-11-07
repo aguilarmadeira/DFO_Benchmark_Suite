@@ -1,20 +1,20 @@
 function PB = gulf_cd_3D()
-%GULF_CD_3D  DFO Benchmark Suite v2 core: gulf, dimension 3, pattern CD, strategy moderate.
+%GULF_CD_3D  DFO Benchmark Suite v2.1.0 core: gulf, dimension 3, pattern CD, strategy moderate.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 65 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 65 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 9.709124424797534e-31 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:D x3:C
 %
-lb_orig = [0.10000000000000001 0 0];
-ub_orig = [100 25.600000000000001 5];
-lb_C_work = [0.099999999999994316 0 0];
-ub_C_work = [100 25.600000000000001 500];
-T_break = [NaN 25.200000000000003 NaN];   % breakpoints of T (NaN for continuous)
+lb_orig = [0.10000000000000001 4.1859895341157349 0];
+ub_orig = [86.607522094726562 25.600000000000001 4.0132832000000001];
+lb_C_work = [0.099999999999994316 4.1859895341157349 0];
+ub_C_work = [86.607522094726562 25.600000000000001 401.32832000000002];
+T_break = [NaN 24.930812172941117 NaN];   % breakpoints of T (NaN for continuous)
 T_image = [NaN 25 NaN];   % their images
 m = 65;
 ProblemData = cell(1, 3);
@@ -25,7 +25,8 @@ PB.name        = 'gulf_cd_3D';
 PB.base_function = 'gulf';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: CD adaptation of gulf (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: CD adaptation of gulf (F = f o T).';
 PB.nvar        = 3;
 PB.nobj        = 1;
 PB.var_types   = {'C','D','C'};
@@ -45,12 +46,14 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'gulf_cd_3D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 3);
+D.cw = [50 NaN 150.00000000000003];   % anchors of the continuous maps (NaN for finite)
+D.cx = [50 NaN 1.5];
 D.fn = @(xh) gulf_orig(xh);
 PB.f_star      = 9.7091244247975338e-31;
 PB.f_star_justification = 'E';   % exact by structure
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [0.1487792968749943 42 482.56000000000006];   % protocol starting point: Halton point 1024 (index representation)
-PB.x0_alt_idx  = [98.487841796875003 38 254.56;49.318310546874997 40 7.3600000000000003;73.903076171875 44 355.36000000000001;24.733544921874994 38 104.32000000000001;86.195458984374994 40 452.31999999999999;37.025927734374996 42 205.12;61.610693359374999 37 73.11999999999999;12.441162109374995 41 305.92000000000002;92.341650390625006 42 173.91999999999999];   % 9 alternative starting points (Halton indices 1024 + 63 k)
+PB.x0_idx      = [0.14224000102281004 42 387.32998819840003];   % protocol starting point: Halton point 1024 (index representation)
+PB.x0_alt_idx  = [85.29808206301928 38 204.32427427840003;42.720161032021039 40 5.9075528704000009;64.009121547520152 44 285.2320635904;21.431200516521926 38 83.733140684800006;74.653601805269716 40 363.05765140480003;32.075680774271483 42 164.6409299968;53.364641289770603 37 58.690253516799999;10.786720258772368 41 245.54871930880003;79.975841934144498 42 139.5980428288];   % 9 alternative starting points (Halton indices 1024 + 63 k)
 PB.core_pidx   = 24;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -67,16 +70,19 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 3 || ~all(isfinite(z)), error('gulf_cd_3D: z must be a finite numeric vector with 3 entries.'); end
 xh = zeros(3, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('gulf_cd_3D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('gulf_cd_3D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
 k = check_idx(z(2), D.m, D.name, 2); g = D.lb(2) + (k - 1) * (D.ub(2) - D.lb(2)) / (D.m - 1);
 xh(2) = T_map(g, D.lb(2), D.ub(2), D.Tb(2), D.Ti(2));
-v = z(3); if v < D.lbw(3) || v > D.ubw(3), error('gulf_cd_3D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
-xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3));
+v = z(3); tl = 1e-12 * (D.ubw(3) - D.lbw(3)); if v < D.lbw(3) - tl || v > D.ubw(3) + tl, error('gulf_cd_3D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
+v = min(max(v, D.lbw(3)), D.ubw(3));
+if abs(v - D.cw(3)) <= 1e-12 * (D.ubw(3) - D.lbw(3)), xh(3) = D.cx(3); else, xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3)); end
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

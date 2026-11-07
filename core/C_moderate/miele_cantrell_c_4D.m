@@ -1,19 +1,19 @@
 function PB = miele_cantrell_c_4D()
-%MIELE_CANTRELL_C_4D  DFO Benchmark Suite v2 core: miele_cantrell, dimension 4, pattern C, strategy moderate.
+%MIELE_CANTRELL_C_4D  DFO Benchmark Suite v2.1.0 core: miele_cantrell, dimension 4, pattern C, strategy moderate.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 0 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 0 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:C x3:C x4:C
 %
 lb_orig = [-10 -10 -10 -10];
-ub_orig = [10 10 10 10];
+ub_orig = [7.2313232421875 7.1445104912868977 6.7699327999999994 6.4983756768013325];
 lb_C_work = [-10 -1000 -0.10000000000000001 -10];
-ub_C_work = [10 1000 0.10000000000000001 10];
+ub_C_work = [7.2313232421875 714.45104912868987 0.067699328000000003 6.4983756768013317];
 T_break = [NaN NaN NaN NaN];   % breakpoints of T (NaN for continuous)
 T_image = [NaN NaN NaN NaN];   % their images
 m = 0;
@@ -26,7 +26,8 @@ PB.name        = 'miele_cantrell_c_4D';
 PB.base_function = 'miele_cantrell';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: C adaptation of miele_cantrell (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: C adaptation of miele_cantrell (F = f o T).';
 PB.nvar        = 4;
 PB.nobj        = 1;
 PB.var_types   = {'C','C','C','C'};
@@ -46,12 +47,14 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'miele_cantrell_c_4D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 4);
+D.cw = [0 100.00000000000023 0.010000000000000009 1];   % anchors of the continuous maps (NaN for finite)
+D.cx = [0 1 1 1];
 D.fn = @(xh) miele_cantrell_orig(xh);
 PB.f_star      = 0;
 PB.f_star_justification = 'E';   % exact by structure
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [-8.740234375 -502.51486053955193 -0.0093759999999999954 -1.4035818408996263];   % protocol starting point: Halton point 1032 (index representation)
-PB.x0_alt_idx  = [7.666015625 -444.9016918152721 -0.062176000000000009 -0.52894627238650749;-2.412109375 -387.28852309099216 0.030944000000000027 0.34568929612661492;2.744140625 -549.15409236396897 -0.021856 1.220324864639732;-7.451171875 -425.69730224051204 0.069728000000000012 -0.70387338608913019;5.205078125 -368.08413351623221 0.016928000000000012 0.17076218242399221;-4.873046875 -508.00182898948339 -0.081951999999999997 0.64556434818825181;0.283203125 -479.65249199817106 0.057248000000000049 -1.2786339025406086;-9.970703125 -356.19570187471425 -0.041632000000000002 -0.40399833402748797;9.716796875 -496.11339734796536 0.097568000000000016 0.47063723448562911];   % 9 alternative starting points (Halton indices 1032 + 63 k)
+PB.x0_idx      = [-8.9146285653114319 -573.54304036305109 -0.024012080496639998 -2.9086531868142558];   % protocol starting point: Halton point 1032 (index representation)
+PB.x0_alt_idx  = [5.2204412817955017 -524.15556158156619 -0.068284703088640014 -2.1871498773331481;-3.4625301957130432 -474.76808280008117 0.0097961040281600159 -1.4656465678520387;0.97992032766342163 -613.52338032901503 -0.03447651856384 -0.74414325837093287;-7.8040159344673157 -507.6930686544045 0.042316357713920005 -2.331450539229369;3.1001808047294617 -458.30558987291965 -0.0019562648780799968 -1.6099472297482595;-5.5827906727790833 -578.24660977081157 -0.084866812641280001 -1.2182740046013762;-1.1403401494026184 -553.94483449738254 0.031851919646720017 -2.8055812854598123;-9.9747588038444519 -448.11452282277207 -0.051058628116480008 -2.0840779759787038;6.9873250126838684 -568.05554272066388 0.065660104171520017 -1.3625746664975971];   % 9 alternative starting points (Halton indices 1032 + 63 k)
 PB.core_pidx   = 32;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -68,18 +71,23 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 4 || ~all(isfinite(z)), error('miele_cantrell_c_4D: z must be a finite numeric vector with 4 entries.'); end
 xh = zeros(4, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('miele_cantrell_c_4D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
-v = z(2); if v < D.lbw(2) || v > D.ubw(2), error('miele_cantrell_c_4D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
-xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2));
-v = z(3); if v < D.lbw(3) || v > D.ubw(3), error('miele_cantrell_c_4D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
-xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3));
-v = z(4); if v < D.lbw(4) || v > D.ubw(4), error('miele_cantrell_c_4D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
-xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('miele_cantrell_c_4D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
+v = z(2); tl = 1e-12 * (D.ubw(2) - D.lbw(2)); if v < D.lbw(2) - tl || v > D.ubw(2) + tl, error('miele_cantrell_c_4D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
+v = min(max(v, D.lbw(2)), D.ubw(2));
+if abs(v - D.cw(2)) <= 1e-12 * (D.ubw(2) - D.lbw(2)), xh(2) = D.cx(2); else, xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2)); end
+v = z(3); tl = 1e-12 * (D.ubw(3) - D.lbw(3)); if v < D.lbw(3) - tl || v > D.ubw(3) + tl, error('miele_cantrell_c_4D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
+v = min(max(v, D.lbw(3)), D.ubw(3));
+if abs(v - D.cw(3)) <= 1e-12 * (D.ubw(3) - D.lbw(3)), xh(3) = D.cx(3); else, xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3)); end
+v = z(4); tl = 1e-12 * (D.ubw(4) - D.lbw(4)); if v < D.lbw(4) - tl || v > D.ubw(4) + tl, error('miele_cantrell_c_4D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
+v = min(max(v, D.lbw(4)), D.ubw(4));
+if abs(v - D.cw(4)) <= 1e-12 * (D.ubw(4) - D.lbw(4)), xh(4) = D.cx(4); else, xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4)); end
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

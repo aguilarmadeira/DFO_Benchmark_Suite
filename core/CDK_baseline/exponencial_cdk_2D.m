@@ -1,20 +1,20 @@
 function PB = exponencial_cdk_2D()
-%EXPONENCIAL_CDK_2D  DFO Benchmark Suite v2 core: exponencial, dimension 2, pattern CDK, strategy baseline.
+%EXPONENCIAL_CDK_2D  DFO Benchmark Suite v2.1.0 core: exponencial, dimension 2, pattern CDK, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 65 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 65 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -1 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:K
 %
-lb_orig = [-1 -1];
+lb_orig = [-0.64875732421874999 -0.63321648122745522];
 ub_orig = [1 1];
-lb_C_work = [-1 -1];
+lb_C_work = [-0.64875732421874999 -0.63321648122745522];
 ub_C_work = [1 1];
-T_break = [NaN 0];   % breakpoints of T (NaN for continuous)
+T_break = [NaN 0.0047587067520195037];   % breakpoints of T (NaN for continuous)
 T_image = [NaN 0];   % their images
 m = 65;
 ProblemData = cell(1, 2);
@@ -24,7 +24,8 @@ PB.name        = 'exponencial_cdk_2D';
 PB.base_function = 'exponencial';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: CDK adaptation of exponencial (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: CDK adaptation of exponencial (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'C','K'};
@@ -44,13 +45,15 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'exponencial_cdk_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [0 NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [0 NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([43 27 10 56 8 49 11 2 47 42 53 51 34 5 46 58 60 65 15 12 30 57 21 18 3 40 35 16 55 19 6 52 29 33 61 22 44 50 48 9 32 26 31 24 4 23 37 1 25 64 36 7 14 45 39 59 13 63 62 20 17 38 41 28 54])';
 D.fn = @(xh) exponencial_orig(xh);
 PB.f_star      = -1;
 PB.f_star_justification = 'E';   % exact by structure
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [0.373046875 54];   % protocol starting point: Halton point 1013 (index representation)
-PB.x0_alt_idx  = [-0.6552734375 56;0.6103515625 51;-0.3974609375 55;0.1181640625 57;-0.9013671875 52;0.9267578125 54;-0.0810546875 58;0.4345703125 52;-0.5908203125 54];   % 9 alternative starting points (Halton indices 1013 + 63 k)
+PB.x0_idx      = [0.48315322160720819 54];   % protocol starting point: Halton point 1013 (index representation)
+PB.x0_alt_idx  = [-0.36457210183143618 56;0.67878214240074153 51;-0.15203697800636296 55;0.27303326964378349 57;-0.5674465382099152 52;0.9396207034587859 54;0.10880158305168153 58;0.53387183070182787 52;-0.31143832087516787 54];   % 9 alternative starting points (Halton indices 1013 + 63 k)
 PB.core_pidx   = 13;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -67,14 +70,16 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 2 || ~all(isfinite(z)), error('exponencial_cdk_2D: z must be a finite numeric vector with 2 entries.'); end
 xh = zeros(2, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('exponencial_cdk_2D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('exponencial_cdk_2D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
 k = check_idx(z(2), D.m, D.name, 2); g = D.E{2}(k);
 xh(2) = T_map(g, D.lb(2), D.ub(2), D.Tb(2), D.Ti(2));
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

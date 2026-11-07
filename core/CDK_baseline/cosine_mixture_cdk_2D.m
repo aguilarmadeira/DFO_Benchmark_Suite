@@ -1,18 +1,18 @@
 function PB = cosine_mixture_cdk_2D()
-%COSINE_MIXTURE_CDK_2D  DFO Benchmark Suite v2 core: cosine_mixture, dimension 2, pattern CDK, strategy baseline.
+%COSINE_MIXTURE_CDK_2D  DFO Benchmark Suite v2.1.0 core: cosine_mixture, dimension 2, pattern CDK, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 65 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 65 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -2.2 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:K
 %
-lb_orig = [-1 -1];
+lb_orig = [-0.73625732421875001 -0.70062388863486258];
 ub_orig = [1 1];
-lb_C_work = [-1 -1];
+lb_C_work = [-0.73625732421875001 -0.70062388863486258];
 ub_C_work = [1 1];
 T_break = [NaN 1];   % breakpoints of T (NaN for continuous)
 T_image = [NaN 1];   % their images
@@ -24,7 +24,8 @@ PB.name        = 'cosine_mixture_cdk_2D';
 PB.base_function = 'cosine_mixture';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: CDK adaptation of cosine_mixture (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: CDK adaptation of cosine_mixture (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'C','K'};
@@ -44,13 +45,15 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'cosine_mixture_cdk_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [1 NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [1 NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([46 30 41 16 27 37 33 15 5 13 42 55 52 59 47 6 19 62 21 48 25 24 34 1 58 63 45 40 28 36 29 35 61 9 53 56 43 57 12 17 32 7 38 18 50 31 65 3 14 51 20 44 23 39 60 54 8 10 4 2 11 22 64 49 26])';
 D.fn = @(xh) cosine_mixture_orig(xh);
 PB.f_star      = -2.2000000000000002;
 PB.f_star_justification = 'E';   % exact by structure
-PB.n_minimizers_documented = 4;
-PB.x0_idx      = [-0.876953125 4];   % protocol starting point: Halton point 1008 (index representation)
-PB.x0_alt_idx  = [0.9072265625 6;-0.0771484375 2;0.4150390625 6;-0.5693359375 7;0.6611328125 2;-0.3232421875 4;0.1689453125 8;-0.8154296875 3;0.7841796875 4];   % 9 alternative starting points (Halton indices 1008 + 63 k)
+PB.n_minimizers_documented = 1;
+PB.x0_idx      = [-0.62943680524826051 4];   % protocol starting point: Halton point 1008 (index representation)
+PB.x0_alt_idx  = [0.91946071982383737 6;0.064896568059921278 2;0.49217864394187938 6;-0.36238550782203677 7;0.70581968188285837 2;-0.14874446988105772 4;0.27853760600090016 8;-0.57602654576301582 3;0.81264020085334776 4];   % 9 alternative starting points (Halton indices 1008 + 63 k)
 PB.core_pidx   = 8;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -67,14 +70,16 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 2 || ~all(isfinite(z)), error('cosine_mixture_cdk_2D: z must be a finite numeric vector with 2 entries.'); end
 xh = zeros(2, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('cosine_mixture_cdk_2D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('cosine_mixture_cdk_2D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
 k = check_idx(z(2), D.m, D.name, 2); g = D.E{2}(k);
 xh(2) = T_map(g, D.lb(2), D.ub(2), D.Tb(2), D.Ti(2));
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

@@ -11,11 +11,11 @@ exponencial_d_2D,-1,certified,2026-11-07
 exponencial_d_4D,-1,certified,2026-11-07
 fifteenn_local_minima_d_10D,1.349783804395672e-32,f_star,2026-11-07
 fifteenn_local_minima_d_2D,1.349783804395672e-32,certified,2026-11-07
-fifteenn_local_minima_d_4D,1.093512210817874e-30,certified,2026-11-07
+fifteenn_local_minima_d_4D,1.349783804395672e-32,certified,2026-11-07
 fifteenn_local_minima_d_6D,1.349783804395672e-32,f_star,2026-11-07
 fifteenn_local_minima_d_8D,1.349783804395672e-32,f_star,2026-11-07
 fletcher_powell_d_3D,0,certified,2026-11-07
-goldstein_price_d_2D,3.000000000000007,certified,2026-11-07
+goldstein_price_d_2D,3,certified,2026-11-07
 griewank_d_10D,0,f_star,2026-11-07
 griewank_d_5D,0,certified,2026-11-07
 gulf_d_3D,9.709124424797534e-31,certified,2026-11-07
@@ -24,7 +24,7 @@ hartman_4_d_6D,-3.322368011391339,f_star,2026-11-07
 hosaki_d_2D,-2.345811576101292,certified,2026-11-07
 kowalik_d_4D,0.0003074859878056062,certified,2026-11-07
 mccormick_d_2D,-1.913222954981037,certified,2026-11-07
-miele_cantrell_d_4D,3.889384548663214e-62,certified,2026-11-07
+miele_cantrell_d_4D,0,certified,2026-11-07
 multi_gaussian_d_2D,-1.296954045953779,certified,2026-11-07
 neumaier2_d_4D,0,certified,2026-11-07
 neumaier3_d_10D,-210,f_star,2026-11-07
@@ -48,9 +48,9 @@ sinusoidal_d_10D,-3.5,f_star,2026-11-07
 sixhumpcamel_d_2D,-1.031628453488552,certified,2026-11-07
 sphere_d_3D,0,certified,2026-11-07
 tenn_local_minima_d_2D,2.355817157679958e-31,certified,2026-11-07
-tenn_local_minima_d_4D,1.211483945693494e-29,certified,2026-11-07
+tenn_local_minima_d_4D,1.177908578839979e-31,certified,2026-11-07
 tenn_local_minima_d_6D,7.852723858933194e-32,f_star,2026-11-07
 tenn_local_minima_d_8D,5.889542894199896e-32,f_star,2026-11-07
 threehumpcamel_d_2D,0,certified,2026-11-07
 transistor_d_9D,1.60049326654736e-24,f_star,2026-11-07
-wood_d_4D,4.575393250281868e-29,certified,2026-11-07
+wood_d_4D,0,certified,2026-11-07

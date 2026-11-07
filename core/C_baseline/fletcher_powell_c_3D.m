@@ -1,19 +1,19 @@
 function PB = fletcher_powell_c_3D()
-%FLETCHER_POWELL_C_3D  DFO Benchmark Suite v2 core: fletcher_powell, dimension 3, pattern C, strategy baseline.
+%FLETCHER_POWELL_C_3D  DFO Benchmark Suite v2.1.0 core: fletcher_powell, dimension 3, pattern C, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 0 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 0 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:C x3:C
 %
 lb_orig = [-10 -10 -10];
-ub_orig = [10 10 10];
+ub_orig = [7.1000732421875004 7.351917898694305 7.1731327999999994];
 lb_C_work = [-10 -10 -10];
-ub_C_work = [10 10 10];
+ub_C_work = [7.1000732421875004 7.351917898694305 7.1731327999999994];
 T_break = [NaN NaN NaN];   % breakpoints of T (NaN for continuous)
 T_image = [NaN NaN NaN];   % their images
 m = 0;
@@ -25,7 +25,8 @@ PB.name        = 'fletcher_powell_c_3D';
 PB.base_function = 'fletcher_powell';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: C adaptation of fletcher_powell (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: C adaptation of fletcher_powell (F = f o T).';
 PB.nvar        = 3;
 PB.nobj        = 1;
 PB.var_types   = {'C','C','C'};
@@ -45,12 +46,14 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'fletcher_powell_c_3D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 3);
+D.cw = [1 0 0];   % anchors of the continuous maps (NaN for finite)
+D.cx = [1 0 0];
 D.fn = @(xh) fletcher_powell_orig(xh);
 PB.f_star      = 0;
 PB.f_star_justification = 'E';   % exact by structure
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [-5.01953125 -6.0128029263831735 -6.6976000000000004];   % protocol starting point: Halton point 1020 (index representation)
-PB.x0_alt_idx  = [7.197265625 -7.4119798811156832 3.3824000000000041;-2.646484375 -6.8358481938728852 -2.6656000000000004;2.275390625 -5.6012802926383181 7.4144000000000005;-7.568359375 -7.2199359853680845 1.2128000000000014;8.486328125 -6.6438042981252856 -7.9071999999999996;-1.357421875 -6.0676726108824877 5.2448000000000032;3.564453125 -7.759487882944673 -3.8751999999999995;-6.279296875 -6.5249199817101058 9.2768000000000015;5.966796875 -5.9487882944673069 0.15679999999999872];   % 9 alternative starting points (Halton indices 1020 + 63 k)
+PB.x0_idx      = [-5.7416809797286987 -6.540724186634332 -7.1643723120640006];   % protocol starting point: Halton point 1020 (index representation)
+PB.x0_alt_idx  = [4.7037250876426686 -7.7546443688475133 1.4908866191360008;-3.712717211246491 -7.2547948820538508 -3.7022687395840013;0.49550393819808924 -6.1836888389245726 4.9529901916159993;-7.9209383606910713 -7.5880278732496258 -0.37205482700800019;5.8058782458305345 -7.0881783864559633 -8.2030033838079994;-2.6105640530586252 -6.5883288996623008 3.090048745472;1.5976570963859551 -8.0561408846913096 -4.7408998113280001;-6.8187852025032045 -6.9850348415620331 6.5521523179519967;3.6516698002815229 -6.4851853547683689 -1.2787962388480025];   % 9 alternative starting points (Halton indices 1020 + 63 k)
 PB.core_pidx   = 20;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -67,16 +70,20 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 3 || ~all(isfinite(z)), error('fletcher_powell_c_3D: z must be a finite numeric vector with 3 entries.'); end
 xh = zeros(3, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('fletcher_powell_c_3D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
-v = z(2); if v < D.lbw(2) || v > D.ubw(2), error('fletcher_powell_c_3D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
-xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2));
-v = z(3); if v < D.lbw(3) || v > D.ubw(3), error('fletcher_powell_c_3D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
-xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('fletcher_powell_c_3D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
+v = z(2); tl = 1e-12 * (D.ubw(2) - D.lbw(2)); if v < D.lbw(2) - tl || v > D.ubw(2) + tl, error('fletcher_powell_c_3D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
+v = min(max(v, D.lbw(2)), D.ubw(2));
+if abs(v - D.cw(2)) <= 1e-12 * (D.ubw(2) - D.lbw(2)), xh(2) = D.cx(2); else, xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2)); end
+v = z(3); tl = 1e-12 * (D.ubw(3) - D.lbw(3)); if v < D.lbw(3) - tl || v > D.ubw(3) + tl, error('fletcher_powell_c_3D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
+v = min(max(v, D.lbw(3)), D.ubw(3));
+if abs(v - D.cw(3)) <= 1e-12 * (D.ubw(3) - D.lbw(3)), xh(3) = D.cx(3); else, xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3)); end
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

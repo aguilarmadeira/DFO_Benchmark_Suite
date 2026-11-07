@@ -1,20 +1,20 @@
 function PB = sinusoidal_ck_10D()
-%SINUSOIDAL_CK_10D  DFO Benchmark Suite v2 core: sinusoidal, dimension 10, pattern CK, strategy extreme.
+%SINUSOIDAL_CK_10D  DFO Benchmark Suite v2.1.0 core: sinusoidal, dimension 10, pattern CK, strategy extreme.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 17 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 17 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -3.5 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:K x3:C x4:K x5:C x6:K x7:C x8:K x9:C x10:K
 %
-lb_orig = [0 0 0 0 0 0 0 0 0 0];
-ub_orig = [180 180 180 180 180 180 180 180 180 180];
-lb_C_work = [0 0 0 0 0 0 0 0 0 0];
-ub_C_work = [180 180 180 180 18000000000 180 18000000000 180 18000000000 180];
-T_break = [NaN 123.75 NaN 123.75 NaN 123.75 NaN 123.75 NaN 123.75];   % breakpoints of T (NaN for continuous)
+lb_orig = [32.153247070312503 26.235208047553726 0 0 0 0 34.797341985847872 26.401758734202474 0 0];
+ub_orig = [180 180 148.8125952 147.71395251978342 153.96399153063317 149.13158502853543 180 180 148.20241637215418 153.82416663249825];
+lb_C_work = [32.153247070312489 26.235208047553726 0 0 0 0 3479734198.5847883 26.401758734202474 0 0];
+ub_C_work = [180 180 148.8125952 147.71395251978342 15396399153.063316 149.13158502853543 18000000000 180 14820241637.215418 153.82416663249825];
+T_break = [NaN 122.33820301783265 NaN 120.01758642232403 NaN 121.16941283568504 NaN 122.40065952532592 NaN 115.36812497437369];   % breakpoints of T (NaN for continuous)
 T_image = [NaN 120 NaN 120 NaN 120 NaN 120 NaN 120];   % their images
 m = 17;
 ProblemData = cell(1, 10);
@@ -32,7 +32,8 @@ PB.name        = 'sinusoidal_ck_10D';
 PB.base_function = 'sinusoidal';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: CK adaptation of sinusoidal (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: CK adaptation of sinusoidal (F = f o T).';
 PB.nvar        = 10;
 PB.nobj        = 1;
 PB.var_types   = {'C','K','C','K','C','K','C','K','C','K'};
@@ -52,6 +53,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'sinusoidal_ck_10D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 10);
+D.cw = [119.99999999999999 NaN 120 NaN 12000000000 NaN 12000000000 NaN 12000000000 NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [120 NaN 120 NaN 120 NaN 120 NaN 120 NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([3 9 1 2 7 5 6 4 8 15 16 10 17 13 11 12 14])';
 g = linspace(lb_orig(4), ub_orig(4), m); D.E{4} = g([12 17 16 7 3 9 4 11 8 1 14 6 13 15 2 5 10])';
 g = linspace(lb_orig(6), ub_orig(6), m); D.E{6} = g([10 4 1 15 11 16 2 9 8 12 5 14 13 3 7 6 17])';
@@ -61,8 +64,8 @@ D.fn = @(xh) sinusoidal_orig(xh);
 PB.f_star      = -3.5;
 PB.f_star_justification = 'E';   % exact by structure
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [129.462890625 1 111.80160000000002 9 14240420736.288507 1 17575005088.540607 8 14837018163.88592 6];   % protocol starting point: Halton point 1053 (index representation)
-PB.x0_alt_idx  = [40.869140625 2 64.281599999999997 10 8601051840.721262 15 12530022389.578669 13 9462316100.9287415 9;152.666015625 3 148.08959999999999 8 4584522915.1014271 13 6429879910.4416847 2 4868743322.1007643 12;64.072265625 1 100.56959999999999 9 16796393688.955673 10 1384897211.4797475 7 275170543.27278703 14;107.314453125 2 10.1952 9 12779864763.335838 8 14277630775.493587 12 13647571299.416452 1;18.720703125 3 135.47520000000003 10 6992964961.4097404 5 9232648076.5316505 2 9053998520.5884762 4;164.267578125 2 46.483199999999997 8 2976436035.7899051 3 4187665377.5697131 7 4460425741.7605 7;75.673828125 2 171.76320000000001 9 15188306809.644152 17 16025239161.408508 11 17832826497.904167 10;118.388671875 2 82.771199999999993 10 11171777884.024315 14 10980256462.446571 16 13239253719.076189 12;29.794921875 1 35.251200000000004 8 5532408988.4570713 12 5935273763.4846334 6 7864551656.11901 15];   % 9 alternative starting points (Halton indices 1053 + 63 k)
+PB.x0_idx      = [138.49029153585434 1 92.430479130624022 9 12180622320.192091 1 17657164495.631149 8 12216010798.030197 6];   % protocol starting point: Halton point 1053 (index representation)
+PB.x0_alt_idx  = [65.721967828273762 2 53.143953997823999 10 7356957070.885252 15 13587470620.494015 13 7790767281.3043318 9;157.54866203069685 3 122.43109832294401 8 3921396929.2926102 13 8666598941.4066277 2 4008664027.9506812 12;84.780338323116297 1 83.144573190144001 9 14366887864.841953 10 4596905066.2694921 7 226560774.59703031 14;120.2982106089592 2 8.4287453921280004 9 10931327723.249311 8 14997233858.286613 12 11236683578.804323 1;47.529886901378617 3 112.00231165132801 10 5981471100.5139093 5 10927539983.149479 2 7454580325.4506741 4;167.07784727811813 2 38.429364584447995 8 2545910958.9212685 3 6857846108.0123453 7 3672477072.097024 7;94.30952357053755 2 142.00293084364802 9 12991401894.470612 17 16406997096.07922 11 14682599876.304319 10;129.39425107240675 2 68.429983776767997 10 9555841752.8779697 14 12337303220.942081 16 10900496622.950668 12;56.625927364826197 1 29.143458643968003 8 4732176503.5711298 12 8267609345.8049479 6 6475253106.224802 15];   % 9 alternative starting points (Halton indices 1053 + 63 k)
 PB.core_pidx   = 53;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -79,30 +82,36 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 10 || ~all(isfinite(z)), error('sinusoidal_ck_10D: z must be a finite numeric vector with 10 entries.'); end
 xh = zeros(10, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('sinusoidal_ck_10D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('sinusoidal_ck_10D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
 k = check_idx(z(2), D.m, D.name, 2); g = D.E{2}(k);
 xh(2) = T_map(g, D.lb(2), D.ub(2), D.Tb(2), D.Ti(2));
-v = z(3); if v < D.lbw(3) || v > D.ubw(3), error('sinusoidal_ck_10D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
-xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3));
+v = z(3); tl = 1e-12 * (D.ubw(3) - D.lbw(3)); if v < D.lbw(3) - tl || v > D.ubw(3) + tl, error('sinusoidal_ck_10D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
+v = min(max(v, D.lbw(3)), D.ubw(3));
+if abs(v - D.cw(3)) <= 1e-12 * (D.ubw(3) - D.lbw(3)), xh(3) = D.cx(3); else, xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3)); end
 k = check_idx(z(4), D.m, D.name, 4); g = D.E{4}(k);
 xh(4) = T_map(g, D.lb(4), D.ub(4), D.Tb(4), D.Ti(4));
-v = z(5); if v < D.lbw(5) || v > D.ubw(5), error('sinusoidal_ck_10D: x5 = %g outside [%g, %g].', v, D.lbw(5), D.ubw(5)); end
-xh(5) = map_work_to_orig(v, D.lbw(5), D.ubw(5), D.lb(5), D.ub(5));
+v = z(5); tl = 1e-12 * (D.ubw(5) - D.lbw(5)); if v < D.lbw(5) - tl || v > D.ubw(5) + tl, error('sinusoidal_ck_10D: x5 = %g outside [%g, %g].', v, D.lbw(5), D.ubw(5)); end
+v = min(max(v, D.lbw(5)), D.ubw(5));
+if abs(v - D.cw(5)) <= 1e-12 * (D.ubw(5) - D.lbw(5)), xh(5) = D.cx(5); else, xh(5) = map_work_to_orig(v, D.lbw(5), D.ubw(5), D.lb(5), D.ub(5)); end
 k = check_idx(z(6), D.m, D.name, 6); g = D.E{6}(k);
 xh(6) = T_map(g, D.lb(6), D.ub(6), D.Tb(6), D.Ti(6));
-v = z(7); if v < D.lbw(7) || v > D.ubw(7), error('sinusoidal_ck_10D: x7 = %g outside [%g, %g].', v, D.lbw(7), D.ubw(7)); end
-xh(7) = map_work_to_orig(v, D.lbw(7), D.ubw(7), D.lb(7), D.ub(7));
+v = z(7); tl = 1e-12 * (D.ubw(7) - D.lbw(7)); if v < D.lbw(7) - tl || v > D.ubw(7) + tl, error('sinusoidal_ck_10D: x7 = %g outside [%g, %g].', v, D.lbw(7), D.ubw(7)); end
+v = min(max(v, D.lbw(7)), D.ubw(7));
+if abs(v - D.cw(7)) <= 1e-12 * (D.ubw(7) - D.lbw(7)), xh(7) = D.cx(7); else, xh(7) = map_work_to_orig(v, D.lbw(7), D.ubw(7), D.lb(7), D.ub(7)); end
 k = check_idx(z(8), D.m, D.name, 8); g = D.E{8}(k);
 xh(8) = T_map(g, D.lb(8), D.ub(8), D.Tb(8), D.Ti(8));
-v = z(9); if v < D.lbw(9) || v > D.ubw(9), error('sinusoidal_ck_10D: x9 = %g outside [%g, %g].', v, D.lbw(9), D.ubw(9)); end
-xh(9) = map_work_to_orig(v, D.lbw(9), D.ubw(9), D.lb(9), D.ub(9));
+v = z(9); tl = 1e-12 * (D.ubw(9) - D.lbw(9)); if v < D.lbw(9) - tl || v > D.ubw(9) + tl, error('sinusoidal_ck_10D: x9 = %g outside [%g, %g].', v, D.lbw(9), D.ubw(9)); end
+v = min(max(v, D.lbw(9)), D.ubw(9));
+if abs(v - D.cw(9)) <= 1e-12 * (D.ubw(9) - D.lbw(9)), xh(9) = D.cx(9); else, xh(9) = map_work_to_orig(v, D.lbw(9), D.ubw(9), D.lb(9), D.ub(9)); end
 k = check_idx(z(10), D.m, D.name, 10); g = D.E{10}(k);
 xh(10) = T_map(g, D.lb(10), D.ub(10), D.Tb(10), D.Ti(10));
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

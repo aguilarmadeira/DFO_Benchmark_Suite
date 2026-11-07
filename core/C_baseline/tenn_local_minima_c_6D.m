@@ -1,19 +1,19 @@
 function PB = tenn_local_minima_c_6D()
-%TENN_LOCAL_MINIMA_C_6D  DFO Benchmark Suite v2 core: tenn_local_minima, dimension 6, pattern C, strategy baseline.
+%TENN_LOCAL_MINIMA_C_6D  DFO Benchmark Suite v2.1.0 core: tenn_local_minima, dimension 6, pattern C, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 0 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 0 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 7.852723858933194e-32 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:C x3:C x4:C x5:C x6:C
 %
 lb_orig = [-10 -10 -10 -10 -10 -10];
-ub_orig = [10 10 10 10 10 10];
+ub_orig = [6.2961669921874996 7.1886805873088448 6.1987328000000002 6.7800083298625573 6.3434738064339857 7.3157382444592276];
 lb_C_work = [-10 -10 -10 -10 -10 -10];
-ub_C_work = [10 10 10 10 10 10];
+ub_C_work = [6.2961669921874996 7.1886805873088448 6.1987328000000002 6.7800083298625573 6.3434738064339857 7.3157382444592276];
 T_break = [NaN NaN NaN NaN NaN NaN];   % breakpoints of T (NaN for continuous)
 T_image = [NaN NaN NaN NaN NaN NaN];   % their images
 m = 0;
@@ -28,7 +28,8 @@ PB.name        = 'tenn_local_minima_c_6D';
 PB.base_function = 'tenn_local_minima';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: C adaptation of tenn_local_minima (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: C adaptation of tenn_local_minima (F = f o T).';
 PB.nvar        = 6;
 PB.nobj        = 1;
 PB.var_types   = {'C','C','C','C','C','C'};
@@ -48,12 +49,14 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'tenn_local_minima_c_6D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 6);
+D.cw = [1 1 1 1 1 1];   % anchors of the continuous maps (NaN for finite)
+D.cx = [1 1 1 1 1 1];
 D.fn = @(xh) tenn_local_minima_orig(xh);
 PB.f_star      = 7.8527238589331936e-32;
 PB.f_star_justification = 'E';   % exact by structure
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [5.322265625 -5.4366712391403746 7.2224000000000004 -2.6280716368179933 -3.1029301277235168 -0.35958124715521222];   % protocol starting point: Halton point 1059 (index representation)
-PB.x0_alt_idx  = [-4.521484375 -4.2021033379058075 1.9424000000000028 -1.7534360683048735 -9.3688955672426744 -2.8447883477469276;0.400390625 -3.6259716506630078 -7.9455999999999998 -3.6776343190337357 6.0030052592036078 -6.8593536640873918;-9.443359375 -5.2446273433927759 5.9744000000000028 -2.8029987505206169 -0.26296018031555057 -9.3445607646791071;9.423828125 -4.6684956561499771 -4.0671999999999997 -1.928363182007498 -4.7257700976709236 8.0518889394629092;-0.419921875 -3.433927754915409 9.852800000000002 -4.252394835485215 8.6790519773239545 4.0373236231224396;4.501953125 -4.8331047096479187 -0.035199999999999676 -3.3777592669720953 4.2162420599685806 1.5521165225307243;-5.341796875 -4.5496113397347973 -9.9231999999999996 -2.5031236984589764 -2.0497233795505778 -0.93309057806099283;6.904296875 -3.9734796524919993 3.9968000000000004 -1.6284881299458558 -6.5125332969059491 -4.9476558944014561;-2.939453125 -5.372656607224509 -5.8911999999999995 -3.5526863806747189 7.0562120073765442 -7.4328629949931724];   % 9 alternative starting points (Halton indices 1059 + 63 k)
+PB.x0_idx      = [2.4847099661827095 -6.078119975735202 3.9490527887360027 -3.8149490329327937 -4.3638959600652152 -1.6534516154381791];   % protocol starting point: Halton point 1059 (index representation)
+PB.x0_alt_idx  = [-5.5360597252845762 -5.0170903098519402 -0.32741267046399791 -3.0811294266705831 -9.4842780617053144 -3.8051113972940591;-1.5256748795509338 -4.5219431324397501 -8.3360661667840006 -4.6955325604474467 3.077234863900971 -7.2808695064458657;-9.5464445710182186 -5.9130709165978059 2.9382518620160027 -3.9617129541852361 -2.0431472377391264 -9.4325292883017458;5.8266973376274116 -5.4179237391856168 -5.1948079022079989 -3.2278933479230254 -5.690038087108694 5.629089184689418;-2.1940723538398732 -4.356894073302354 6.0795101265920017 -5.1777568731340429 5.264029836020649 2.1533310755376078;1.8163124918937701 -5.5593943613033838 -1.9291433697279992 -4.4439372668718322 1.6171389866510797 0.0016712936817295798;-6.2044571995735165 -5.3157505121005624 -9.9377968660480001 -3.7101176606096216 -3.5032431149890186 -2.1499884881741513;3.7737622380256663 -4.8206033346883732 1.3365211627520015 -2.9762980543474091 -7.1501339643585844 -5.6257465973259571;-4.2470074534416193 -6.023103622689403 -6.6721323335679994 -4.5907011881242736 3.9378877089771684 -7.777406379181838];   % 9 alternative starting points (Halton indices 1059 + 63 k)
 PB.core_pidx   = 59;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -70,22 +73,29 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 6 || ~all(isfinite(z)), error('tenn_local_minima_c_6D: z must be a finite numeric vector with 6 entries.'); end
 xh = zeros(6, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('tenn_local_minima_c_6D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
-v = z(2); if v < D.lbw(2) || v > D.ubw(2), error('tenn_local_minima_c_6D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
-xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2));
-v = z(3); if v < D.lbw(3) || v > D.ubw(3), error('tenn_local_minima_c_6D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
-xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3));
-v = z(4); if v < D.lbw(4) || v > D.ubw(4), error('tenn_local_minima_c_6D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
-xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4));
-v = z(5); if v < D.lbw(5) || v > D.ubw(5), error('tenn_local_minima_c_6D: x5 = %g outside [%g, %g].', v, D.lbw(5), D.ubw(5)); end
-xh(5) = map_work_to_orig(v, D.lbw(5), D.ubw(5), D.lb(5), D.ub(5));
-v = z(6); if v < D.lbw(6) || v > D.ubw(6), error('tenn_local_minima_c_6D: x6 = %g outside [%g, %g].', v, D.lbw(6), D.ubw(6)); end
-xh(6) = map_work_to_orig(v, D.lbw(6), D.ubw(6), D.lb(6), D.ub(6));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('tenn_local_minima_c_6D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
+v = z(2); tl = 1e-12 * (D.ubw(2) - D.lbw(2)); if v < D.lbw(2) - tl || v > D.ubw(2) + tl, error('tenn_local_minima_c_6D: x2 = %g outside [%g, %g].', v, D.lbw(2), D.ubw(2)); end
+v = min(max(v, D.lbw(2)), D.ubw(2));
+if abs(v - D.cw(2)) <= 1e-12 * (D.ubw(2) - D.lbw(2)), xh(2) = D.cx(2); else, xh(2) = map_work_to_orig(v, D.lbw(2), D.ubw(2), D.lb(2), D.ub(2)); end
+v = z(3); tl = 1e-12 * (D.ubw(3) - D.lbw(3)); if v < D.lbw(3) - tl || v > D.ubw(3) + tl, error('tenn_local_minima_c_6D: x3 = %g outside [%g, %g].', v, D.lbw(3), D.ubw(3)); end
+v = min(max(v, D.lbw(3)), D.ubw(3));
+if abs(v - D.cw(3)) <= 1e-12 * (D.ubw(3) - D.lbw(3)), xh(3) = D.cx(3); else, xh(3) = map_work_to_orig(v, D.lbw(3), D.ubw(3), D.lb(3), D.ub(3)); end
+v = z(4); tl = 1e-12 * (D.ubw(4) - D.lbw(4)); if v < D.lbw(4) - tl || v > D.ubw(4) + tl, error('tenn_local_minima_c_6D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
+v = min(max(v, D.lbw(4)), D.ubw(4));
+if abs(v - D.cw(4)) <= 1e-12 * (D.ubw(4) - D.lbw(4)), xh(4) = D.cx(4); else, xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4)); end
+v = z(5); tl = 1e-12 * (D.ubw(5) - D.lbw(5)); if v < D.lbw(5) - tl || v > D.ubw(5) + tl, error('tenn_local_minima_c_6D: x5 = %g outside [%g, %g].', v, D.lbw(5), D.ubw(5)); end
+v = min(max(v, D.lbw(5)), D.ubw(5));
+if abs(v - D.cw(5)) <= 1e-12 * (D.ubw(5) - D.lbw(5)), xh(5) = D.cx(5); else, xh(5) = map_work_to_orig(v, D.lbw(5), D.ubw(5), D.lb(5), D.ub(5)); end
+v = z(6); tl = 1e-12 * (D.ubw(6) - D.lbw(6)); if v < D.lbw(6) - tl || v > D.ubw(6) + tl, error('tenn_local_minima_c_6D: x6 = %g outside [%g, %g].', v, D.lbw(6), D.ubw(6)); end
+v = min(max(v, D.lbw(6)), D.ubw(6));
+if abs(v - D.cw(6)) <= 1e-12 * (D.ubw(6) - D.lbw(6)), xh(6) = D.cx(6); else, xh(6) = map_work_to_orig(v, D.lbw(6), D.ubw(6), D.lb(6), D.ub(6)); end
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

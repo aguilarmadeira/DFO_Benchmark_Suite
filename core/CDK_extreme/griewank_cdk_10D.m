@@ -1,20 +1,20 @@
 function PB = griewank_cdk_10D()
-%GRIEWANK_CDK_10D  DFO Benchmark Suite v2 core: griewank, dimension 10, pattern CDK, strategy extreme.
+%GRIEWANK_CDK_10D  DFO Benchmark Suite v2.1.0 core: griewank, dimension 10, pattern CDK, strategy extreme.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 17 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 17 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:C x2:K x3:D x4:C x5:D x6:K x7:C x8:K x9:D x10:C
 %
-lb_orig = [-400 -400 -400 -400 -400 -400 -400 -400 -400 -400];
-ub_orig = [400 400 400 400 400 400 400 400 400 400];
-lb_C_work = [-400 -400 -400 -400 -400 -400 -40000000000 -400 -400 -40000000000];
-ub_C_work = [400 400 400 400 400 400 40000000000 400 400 40000000000];
-T_break = [NaN 0 0 NaN 0 0 NaN 0 0 NaN];   % breakpoints of T (NaN for continuous)
+lb_orig = [-270.0029296875 -256.74338261443881 -400 -400 -400 -400 -400 -400 -278.2615270814498 -287.59161917257779];
+ub_orig = [400 400 264.52531199999999 285.07788421491045 275.49101837306193 285.00822800322118 291.6565654146861 262.337520430322 400 400];
+lb_C_work = [-270.0029296875 -256.74338261443881 -400 -400 -400 -400 -40000000000 -400 -278.2615270814498 -28759161917.257782];
+ub_C_work = [400 400 264.52531199999999 285.07788421491045 275.49101837306193 285.00822800322118 29165656541.468613 262.337520430322 400 40000000000];
+T_break = [NaN -10.464614134024259 15.328319999999962 NaN -20.036302165152676 -14.68287174818812 NaN 13.960950268951251 18.477891016684509 NaN];   % breakpoints of T (NaN for continuous)
 T_image = [NaN 0 0 NaN 0 0 NaN 0 0 NaN];   % their images
 m = 17;
 ProblemData = cell(1, 10);
@@ -32,7 +32,8 @@ PB.name        = 'griewank_cdk_10D';
 PB.base_function = 'griewank';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: CDK adaptation of griewank (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: CDK adaptation of griewank (F = f o T).';
 PB.nvar        = 10;
 PB.nobj        = 1;
 PB.var_types   = {'C','K','D','C','D','K','C','K','D','C'};
@@ -52,6 +53,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'griewank_cdk_10D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 10);
+D.cw = [0 NaN NaN -5.6843418860808015e-14 NaN NaN 0 NaN NaN 0];   % anchors of the continuous maps (NaN for finite)
+D.cx = [0 NaN NaN 0 NaN NaN 0 NaN NaN 0];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([15 14 1 9 13 3 12 10 2 7 11 16 8 5 17 6 4])';
 g = linspace(lb_orig(6), ub_orig(6), m); D.E{6} = g([13 5 9 12 6 4 16 3 15 14 7 11 8 10 17 2 1])';
 g = linspace(lb_orig(8), ub_orig(8), m); D.E{8} = g([3 5 6 4 12 14 7 15 1 2 10 13 16 11 9 17 8])';
@@ -59,8 +62,8 @@ D.fn = @(xh) griewank_orig(xh);
 PB.f_star      = 0;
 PB.f_star_justification = 'E';   % exact by structure
 PB.n_minimizers_documented = 1;
-PB.x0_idx      = [-0.78125 15 10 -287.38025822573928 16 11 -28048035823.325871 14 9 -20115625896.920746];   % protocol starting point: Halton point 1022 (index representation)
-PB.x0_alt_idx  = [187.890625 14 3 -380.341524364848 13 9 29253002238.95787 3 4 -6132272745.9100418;-205.859375 14 13 -345.35610162432317 8 7 6830856910.2381439 8 16 7851080405.1006546;291.015625 15 6 -310.3706788837984 3 4 -20280887441.481785 13 12 21834433556.111366;-102.734375 14 16 -387.33860891295296 15 2 37020150620.801956 2 8 35817786707.12207;89.453125 14 9 -352.35318617242814 10 16 14598005292.082237 7 3 -30103735290.499817;-304.296875 15 1 -333.36109954185758 6 12 -7824140036.6374931 13 15 -16120382139.489117;342.578125 13 12 -298.37567680133282 1 10 -34935884388.357422 1 11 -2137028988.4784088;-51.171875 14 4 -375.34360683048732 13 7 22365153673.926315 6 7 11846324162.532295;138.671875 15 16 -340.35818408996249 8 5 -56991654.793411255 11 2 25829677313.542999];   % 9 alternative starting points (Halton indices 1022 + 63 k)
+PB.x0_idx      = [64.344235420227051 15 10 -303.55838198057484 16 11 -29666681884.502754 14 9 -11668750685.045858];   % protocol starting point: Halton point 1022 (index representation)
+PB.x0_alt_idx  = [222.35762166976929 14 3 -383.16551638122462 13 9 19874117091.566452 3 4 349794858.16091156;-107.40944528579712 14 13 -353.20584214442096 8 7 488587057.45241547 8 16 12368340401.367683;308.72518682479858 15 6 -323.24616790761729 3 4 -22951432918.437107 13 12 24386885944.574463;-21.041880130767822 14 16 -389.15745122858533 15 2 26589366057.632111 2 8 36405431487.781227;139.91585493087769 14 9 -359.19777699178167 10 16 7203836023.5180664 7 3 -20253426073.05069;-189.85121202468872 15 1 -342.93395383465969 6 12 -12181694010.595978 13 15 -8234880529.8439217;351.90896940231323 13 12 -312.97427959785603 1 10 -35621713986.485497 1 11 3783665013.3628502;22.141902446746826 14 4 -378.88556291882406 13 7 13919084989.58371 6 7 15802210556.569626;181.13673830032349 15 16 -348.9258886820204 8 5 -5466445044.5303268 11 2 27820756099.776398];   % 9 alternative starting points (Halton indices 1022 + 63 k)
 PB.core_pidx   = 22;
 PB.func_idx    = @(z) objective(z, D);
 PB.func_F      = @(xr) objective(cell2idx(xr, PB), D);
@@ -77,30 +80,35 @@ end
 function xh = decode_to_original(z, D)
 if ~isnumeric(z) || numel(z) ~= 10 || ~all(isfinite(z)), error('griewank_cdk_10D: z must be a finite numeric vector with 10 entries.'); end
 xh = zeros(10, 1);
-v = z(1); if v < D.lbw(1) || v > D.ubw(1), error('griewank_cdk_10D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
-xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1));
+v = z(1); tl = 1e-12 * (D.ubw(1) - D.lbw(1)); if v < D.lbw(1) - tl || v > D.ubw(1) + tl, error('griewank_cdk_10D: x1 = %g outside [%g, %g].', v, D.lbw(1), D.ubw(1)); end
+v = min(max(v, D.lbw(1)), D.ubw(1));
+if abs(v - D.cw(1)) <= 1e-12 * (D.ubw(1) - D.lbw(1)), xh(1) = D.cx(1); else, xh(1) = map_work_to_orig(v, D.lbw(1), D.ubw(1), D.lb(1), D.ub(1)); end
 k = check_idx(z(2), D.m, D.name, 2); g = D.E{2}(k);
 xh(2) = T_map(g, D.lb(2), D.ub(2), D.Tb(2), D.Ti(2));
 k = check_idx(z(3), D.m, D.name, 3); g = D.lb(3) + (k - 1) * (D.ub(3) - D.lb(3)) / (D.m - 1);
 xh(3) = T_map(g, D.lb(3), D.ub(3), D.Tb(3), D.Ti(3));
-v = z(4); if v < D.lbw(4) || v > D.ubw(4), error('griewank_cdk_10D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
-xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4));
+v = z(4); tl = 1e-12 * (D.ubw(4) - D.lbw(4)); if v < D.lbw(4) - tl || v > D.ubw(4) + tl, error('griewank_cdk_10D: x4 = %g outside [%g, %g].', v, D.lbw(4), D.ubw(4)); end
+v = min(max(v, D.lbw(4)), D.ubw(4));
+if abs(v - D.cw(4)) <= 1e-12 * (D.ubw(4) - D.lbw(4)), xh(4) = D.cx(4); else, xh(4) = map_work_to_orig(v, D.lbw(4), D.ubw(4), D.lb(4), D.ub(4)); end
 k = check_idx(z(5), D.m, D.name, 5); g = D.lb(5) + (k - 1) * (D.ub(5) - D.lb(5)) / (D.m - 1);
 xh(5) = T_map(g, D.lb(5), D.ub(5), D.Tb(5), D.Ti(5));
 k = check_idx(z(6), D.m, D.name, 6); g = D.E{6}(k);
 xh(6) = T_map(g, D.lb(6), D.ub(6), D.Tb(6), D.Ti(6));
-v = z(7); if v < D.lbw(7) || v > D.ubw(7), error('griewank_cdk_10D: x7 = %g outside [%g, %g].', v, D.lbw(7), D.ubw(7)); end
-xh(7) = map_work_to_orig(v, D.lbw(7), D.ubw(7), D.lb(7), D.ub(7));
+v = z(7); tl = 1e-12 * (D.ubw(7) - D.lbw(7)); if v < D.lbw(7) - tl || v > D.ubw(7) + tl, error('griewank_cdk_10D: x7 = %g outside [%g, %g].', v, D.lbw(7), D.ubw(7)); end
+v = min(max(v, D.lbw(7)), D.ubw(7));
+if abs(v - D.cw(7)) <= 1e-12 * (D.ubw(7) - D.lbw(7)), xh(7) = D.cx(7); else, xh(7) = map_work_to_orig(v, D.lbw(7), D.ubw(7), D.lb(7), D.ub(7)); end
 k = check_idx(z(8), D.m, D.name, 8); g = D.E{8}(k);
 xh(8) = T_map(g, D.lb(8), D.ub(8), D.Tb(8), D.Ti(8));
 k = check_idx(z(9), D.m, D.name, 9); g = D.lb(9) + (k - 1) * (D.ub(9) - D.lb(9)) / (D.m - 1);
 xh(9) = T_map(g, D.lb(9), D.ub(9), D.Tb(9), D.Ti(9));
-v = z(10); if v < D.lbw(10) || v > D.ubw(10), error('griewank_cdk_10D: x10 = %g outside [%g, %g].', v, D.lbw(10), D.ubw(10)); end
-xh(10) = map_work_to_orig(v, D.lbw(10), D.ubw(10), D.lb(10), D.ub(10));
+v = z(10); tl = 1e-12 * (D.ubw(10) - D.lbw(10)); if v < D.lbw(10) - tl || v > D.ubw(10) + tl, error('griewank_cdk_10D: x10 = %g outside [%g, %g].', v, D.lbw(10), D.ubw(10)); end
+v = min(max(v, D.lbw(10)), D.ubw(10));
+if abs(v - D.cw(10)) <= 1e-12 * (D.ubw(10) - D.lbw(10)), xh(10) = D.cx(10); else, xh(10) = map_work_to_orig(v, D.lbw(10), D.ubw(10), D.lb(10), D.ub(10)); end
 end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);

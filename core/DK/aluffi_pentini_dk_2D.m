@@ -1,20 +1,20 @@
 function PB = aluffi_pentini_dk_2D()
-%ALUFFI_PENTINI_DK_2D  DFO Benchmark Suite v2 core: aluffi_pentini, dimension 2, pattern DK, strategy baseline.
+%ALUFFI_PENTINI_DK_2D  DFO Benchmark Suite v2.1.0 core: aluffi_pentini, dimension 2, pattern DK, strategy baseline.
 %
 % Copyright (C) 2026 J. F. A. Madeira
 %
 % Objective F(z) = f(T(z)), where f is the original function (embedded below) and T acts on the finite
-% coordinates only: uniform grid of 151 levels on the original interval, piecewise-affine map with |T - Id| <=
+% coordinates only: uniform grid of 151 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
 % half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
 % Global optimum of F on this domain: f* = -0.3523860738000364 (A: analytic reduction, 1-D root to machine precision); the optimal solution is listed in
 % reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
 % Variables: x1:D x2:K
 %
-lb_orig = [-10 -10];
-ub_orig = [10 10];
-lb_C_work = [-10 -10];
-ub_C_work = [10 10];
-T_break = [-1.0666666666666667 0];   % breakpoints of T (NaN for continuous)
+lb_orig = [-6.9031982421875 -10];
+ub_orig = [10 7.3173499974597362];
+lb_C_work = [-6.9031982421875 -10];
+ub_C_work = [10 7.3173499974597362];
+T_break = [-1.0434228515625001 0.044062998526646524];   % breakpoints of T (NaN for continuous)
 T_image = [-1.0466805324973201 0];   % their images
 m = 151;
 ProblemData = cell(1, 2);
@@ -24,7 +24,8 @@ PB.name        = 'aluffi_pentini_dk_2D';
 PB.base_function = 'aluffi_pentini';
 PB.suite_version = 2;
 PB.core = true;
-PB.description = 'DFO Benchmark Suite v2 core: DK adaptation of aluffi_pentini (F = f o T).';
+PB.suite_release = '2.1.0';
+PB.description = 'DFO Benchmark Suite v2.1.0 core: DK adaptation of aluffi_pentini (F = f o T).';
 PB.nvar        = 2;
 PB.nobj        = 1;
 PB.var_types   = {'D','K'};
@@ -44,6 +45,8 @@ PB.m = m;
 PB.ProblemData = ProblemData;
 D = struct('name', 'aluffi_pentini_dk_2D', 'm', m, 'lb', lb_orig(:), 'ub', ub_orig(:), 'lbw', lb_C_work(:), 'ubw', ub_C_work(:), 'Tb', T_break(:), 'Ti', T_image(:));
 D.E = cell(1, 2);
+D.cw = [NaN NaN];   % anchors of the continuous maps (NaN for finite)
+D.cx = [NaN NaN];
 g = linspace(lb_orig(2), ub_orig(2), m); D.E{2} = g([50 142 72 131 125 126 111 22 87 35 71 6 134 85 135 49 145 95 96 67 46 53 146 47 105 12 15 141 138 123 51 147 33 100 88 130 10 132 18 56 25 97 75 36 86 2 7 119 13 19 70 109 66 90 14 21 115 37 42 54 74 128 122 113 84 92 60 151 8 28 32 55 133 11 139 48 137 98 112 43 143 93 108 104 65 129 58 68 89 73 103 107 78 24 38 102 29 77 116 83 40 144 101 41 76 23 149 3 34 91 16 17 27 117 26 64 1 63 121 127 9 20 106 94 81 82 99 79 110 5 61 62 114 69 57 59 136 45 148 140 39 124 118 80 150 44 30 31 52 120 4])';
 D.fn = @(xh) aluffi_pentini_orig(xh);
 PB.f_star      = -0.35238607380003645;
@@ -75,6 +78,7 @@ end
 
 function x = T_map(g, a, b, zs, xs)
 % piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+if abs(g - zs) <= 1e-12 * max(1, abs(b - a)), x = xs; return; end
 if abs(zs - a) <= 1e-14 * max(1, abs(a)), x = xs + (g - a) * (b - xs) / (b - a);
 elseif abs(zs - b) <= 1e-14 * max(1, abs(b)), x = a + (g - a) * (xs - a) / (b - a);
 elseif g <= zs, x = a + (g - a) * (xs - a) / (zs - a);
