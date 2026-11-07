@@ -14,7 +14,11 @@ authors:
 version: 2.1.0
 date-released: '2026-11-07'
 repository-code: 'https://github.com/aguilarmadeira/DFO_Benchmark_Suite'
+doi: 10.5281/zenodo.24041183
 identifiers:
+  - type: doi
+    value: 10.5281/zenodo.24041183
+    description: Version 2.1.0
   - type: doi
     value: 10.5281/zenodo.20782892
     description: All versions (resolves to the latest)
