@@ -128,7 +128,7 @@ for i = 1:6
             v = xr{i}; if ~isnumeric(v) || ~isscalar(v) || ~isfinite(v), error('fifteenn_local_minima_d_6D: x%d must be a finite scalar.', i); end
             z(i) = double(v);
         case 'D'
-            v = xr{i}; grid = PB.ProblemData{i}{1}; if ~isnumeric(v) || ~isscalar(v), error('fifteenn_local_minima_d_6D: x%d must be a grid value.', i); end
+            v = xr{i}; grid = PB.ProblemData{i}{1}; if ~isnumeric(v) || ~isscalar(v) || ~isfinite(v), error('fifteenn_local_minima_d_6D: x%d must be a grid value.', i); end
             [d, k] = min(abs(grid - v)); if d > 1e-10 * max(1, max(abs(grid))), error('fifteenn_local_minima_d_6D: x%d = %g is not a grid value.', i, v); end
             z(i) = k;
         case 'K'
