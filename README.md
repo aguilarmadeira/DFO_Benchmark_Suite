@@ -1,6 +1,7 @@
 # DFO Benchmark Suite — version 2.1.1
 
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+[![DOI v2.1.1](https://zenodo.org/badge/DOI/10.5281/zenodo.24055130.svg)](https://doi.org/10.5281/zenodo.24055130)
 [![DOI (all versions)](https://img.shields.io/badge/DOI_(all_versions)-10.5281%2Fzenodo.20782892-blue.svg)](https://doi.org/10.5281/zenodo.20782892)
 
 A reproducible collection of deterministic black-box optimisation problems
@@ -115,13 +116,14 @@ definitions come. See [`LICENSE`](LICENSE).
   year      = {2026},
   version   = {2.1.1},
   publisher = {Zenodo},
-  doi       = {10.5281/zenodo.20782892},
-  url       = {https://doi.org/10.5281/zenodo.20782892}
+  doi       = {10.5281/zenodo.24055130},
+  url       = {https://doi.org/10.5281/zenodo.24055130}
 }
 ```
 
 The DOI 10.5281/zenodo.20782892 cites all versions and resolves to the latest;
-each version has its own DOI on Zenodo (v2.1.0: 10.5281/zenodo.24041183;
+each version has its own DOI on Zenodo (v2.1.1: 10.5281/zenodo.24055130;
+v2.1.0: 10.5281/zenodo.24041183;
 v2.0.0: 10.5281/zenodo.24037856;
 v1.0.0: 10.5281/zenodo.20782893).
 `CITATION.cff` carries the same metadata for GitHub and Zenodo.
