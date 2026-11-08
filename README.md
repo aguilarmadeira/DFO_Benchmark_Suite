@@ -1,7 +1,6 @@
-# DFO Benchmark Suite — version 2.1.0
+# DFO Benchmark Suite — version 2.1.1
 
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
-[![DOI v2.1.0](https://zenodo.org/badge/DOI/10.5281/zenodo.24041183.svg)](https://doi.org/10.5281/zenodo.24041183)
 [![DOI (all versions)](https://img.shields.io/badge/DOI_(all_versions)-10.5281%2Fzenodo.20782892-blue.svg)](https://doi.org/10.5281/zenodo.20782892)
 
 A reproducible collection of deterministic black-box optimisation problems
@@ -9,8 +8,15 @@ with continuous (C), ordered discrete (D) and categorical (K) variables,
 independent of any solver. Every problem has a **known global optimum** with a
 stated justification, every file is a self-contained MATLAB/Octave function,
 and the evaluation protocol uses only the points and values a solver
-evaluates. The domains are chosen so that the centre of the box is never the
+evaluates. Every problem is also available as a self-contained Python file
+(`python/`, standard library only), with the same values. The domains are
+chosen so that the centre of the box is never the
 optimum (no advantage for methods that evaluate the centre first).
+
+**Version 2.1.1** adds the Python version (`python/`) and makes the MATLAB
+wrappers reject a non-finite value for an ordered discrete variable; the
+problems, starting points, optima and targets are those of version 2.1.0
+(doi:10.5281/zenodo.24041183), and results on 2.1.0 and 2.1.1 are comparable.
 
 **Version 2.0.0** (tag [`v2.0.0`](https://github.com/aguilarmadeira/DFO_Benchmark_Suite/tree/v2.0.0),
 doi:10.5281/zenodo.24037856) is superseded: it had the same construction on
@@ -35,6 +41,7 @@ versions are not comparable.
 | `core/<folder>/INDEX.csv` | per instance: dimension, cardinalities, f*, enumeration certificate, ... |
 | `targets/` | versioned targets of the protocol (one file per folder) |
 | `benchmark/` | protocol (`PROTOCOL.md`) and tools: run, validate, targets, profiles |
+| `python/` | the 841 problems as self-contained Python files, example and MATLAB–Python check (`python/README.md`) |
 | `docs/CORE_SPEC.md` | specification: construction, interface, starting points |
 | `docs/OPTIMA.md` | the 55 base instances, their optimum and its justification |
 | `LICENSE`, `CITATION.cff`, `CHANGELOG.md` | licence (LGPL-3.0-or-later), citation metadata, changes |
@@ -66,7 +73,15 @@ run_benchmark(solver_random_search(), 'core/D');   % 1000 n evaluations, 10 seed
 data_profiles({'random_search'}, 'core/D');
 ```
 
-To benchmark your own solver write a struct `solver.name`, `solver.fun =
+Python:
+
+```python
+import sys; sys.path.insert(0, 'python/core/CDK_baseline')
+from ackley_cdk_10D import ackley_cdk_10D
+PB = ackley_cdk_10D(); f = PB.func_idx(PB.x0_idx)
+```
+
+To benchmark your own solver in MATLAB write a struct `solver.name`, `solver.fun =
 @(P) ...` (see `benchmark/solver_random_search.m` and `benchmark/PROTOCOL.md`).
 The solver receives the domain, the objective and the starting point only.
 
@@ -76,6 +91,8 @@ The solver receives the domain, the objective and the starting point only.
 F(x*) = f* in every file; generation reproduced identically in MATLAB and
 Octave; optimum of the fully finite versions certified by enumeration where
 the grid has at most 2·10⁶ points (39 of 55 instances in each of D, K, DK).
+Python version against MATLAB at 26 071 points: 93.1% of the values identical,
+largest relative difference 2.0·10⁻¹⁴ (`python/README.md`).
 
 ## Held-out part
 
@@ -96,10 +113,10 @@ definitions come. See [`LICENSE`](LICENSE).
   author    = {Madeira, J. F. A.},
   title     = {{DFO Benchmark Suite}},
   year      = {2026},
-  version   = {2.1.0},
+  version   = {2.1.1},
   publisher = {Zenodo},
-  doi       = {10.5281/zenodo.24041183},
-  url       = {https://doi.org/10.5281/zenodo.24041183}
+  doi       = {10.5281/zenodo.20782892},
+  url       = {https://doi.org/10.5281/zenodo.20782892}
 }
 ```
 

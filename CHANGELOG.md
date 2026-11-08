@@ -1,5 +1,21 @@
 # DFO Benchmark Suite — changes
 
+## 2.1.1
+
+- Python version of the 841 problems (`python/core/`): one self-contained file
+  per instance, standard library only, same interface as the MATLAB wrappers
+  (level indices 1..m; `lambda_` in Family BK). The construction data were
+  read from the MATLAB wrappers; the 42 original functions were translated.
+- Checked against MATLAB at 26 071 points (x0, alternative starting points,
+  x*, random points): 93.1% identical to the last bit, largest relative
+  difference 2.0e-14; F(x*) bit-for-bit equal in 828 of 841 instances (the
+  other 13: gulf, f* ≈ 1e-30). Check repeatable with `python/verify/`.
+- MATLAB wrappers: `func_F` / `cell2idx` now reject a non-finite value for
+  an ordered discrete variable (in 2.1.0 a NaN was mapped to the first grid
+  value). One line per wrapper; the objective, domains, starting points,
+  optima and targets are unchanged, so results on 2.1.0 and 2.1.1 are
+  comparable. The Python files apply the same rule.
+
 ## 2.1.0
 
 - Decentred domains: the classical box of each of the 55 base instances is
