@@ -1,5 +1,16 @@
 # DFO Benchmark Suite — changes
 
+## 2.1.2
+
+- Julia version of the 841 problems (`julia/core/`): one self-contained file
+  (one module) per instance, Base only, same interface as the MATLAB wrappers
+  (level indices 1..m). Made like the Python version, from the MATLAB wrappers.
+- Checked against MATLAB at the 26 071 points of `python/verify`: 93.5%
+  identical to the last bit, largest relative difference 2.0e-14; F(x*)
+  bit-for-bit equal in 828 of 841 instances (the other 13: gulf, f* ≈ 1e-30).
+  Invalid-input test: 33 684 checks, 0 failures. Repeatable with `julia/verify/`.
+- MATLAB and Python files, targets and protocol unchanged.
+
 ## 2.1.1
 
 - Python version of the 841 problems (`python/core/`): one self-contained file

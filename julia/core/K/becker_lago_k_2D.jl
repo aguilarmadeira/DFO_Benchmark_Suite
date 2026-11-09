@@ -1,0 +1,178 @@
+# becker_lago_k_2D  DFO Benchmark Suite v2.1 core, Julia version (self-contained; Base only).
+#BECKER_LAGO_K_2D  DFO Benchmark Suite v2.1.0 core: becker_lago, dimension 2, pattern K, strategy baseline.
+#
+# Copyright (C) 2026 J. F. A. Madeira
+#
+# Objective F(z) = f(T(z)), where f is the original function (embedded below, translated from the MATLAB original) and T acts on the finite
+# coordinates only: uniform grid of 151 levels on the interval of the domain, piecewise-affine map with |T - Id| <=
+# half a cell, identity on the continuous coordinates (up to the affine scaling of the strategy).
+# Global optimum of F on this domain: f* = 0 (E: exact by structure); the optimal solution is listed in
+# reference_optima.csv of this folder, not here. Starting point of the protocol: PB.x0_idx (Halton).
+# Variables: x1:K x2:K
+#
+# Julia version of the MATLAB wrapper becker_lago_k_2D.m: same instance, same values (level indices 1..m as in MATLAB).
+# Usage:  include("becker_lago_k_2D.jl");  PB = becker_lago_k_2D.problem();  f = PB.func_idx(PB.x0_idx)
+# Copyright (C) 2026 J. F. A. Madeira. LGPL-3.0-or-later.
+module becker_lago_k_2D
+
+const NAME = "becker_lago_k_2D"
+const N = 2
+const TYPES = Char['K', 'K']
+const CARD = Float64[151.0, 151.0]
+const LB = Float64[-6.2031982421875, -6.85068333079307]
+const UB = Float64[10.0, 10.0]
+const LBW = Float64[-6.2031982421875, -6.85068333079307]
+const UBW = Float64[10.0, 10.0]
+const TB = Float64[-5.014963704427084, -5.05327710884181]
+const TI = Float64[-5.0, -5.0]
+const CW = Float64[NaN, NaN]
+const CX = Float64[NaN, NaN]
+const M = 151
+const PERM = Dict{Int,Vector{Int}}(1 => Int[51, 29, 150, 135, 120, 30, 20, 146, 49, 60, 92, 55, 66, 11, 107, 40, 95, 41, 86, 3, 110, 121, 34, 44, 12, 43, 100, 38, 129, 74, 99, 138, 4, 141, 46, 94, 15, 114, 109, 50, 56, 35, 103, 108, 104, 132, 93, 87, 106, 26, 57, 72, 136, 10, 23, 31, 79, 71, 76, 88, 22, 28, 32, 39, 53, 126, 6, 137, 21, 42, 47, 70, 78, 27, 48, 151, 101, 130, 36, 142, 122, 96, 24, 97, 2, 149, 82, 5, 25, 9, 67, 123, 105, 54, 148, 102, 62, 147, 1, 133, 77, 16, 37, 81, 116, 111, 98, 52, 83, 33, 117, 73, 127, 125, 89, 144, 134, 18, 84, 58, 91, 113, 80, 69, 61, 64, 145, 143, 115, 17, 85, 90, 19, 124, 118, 8, 112, 139, 140, 45, 7, 119, 75, 14, 131, 128, 13, 68, 63, 59, 65], 2 => Int[125, 83, 70, 18, 89, 62, 45, 117, 132, 33, 109, 111, 53, 103, 147, 47, 108, 143, 112, 121, 4, 60, 63, 130, 13, 51, 114, 128, 123, 40, 56, 126, 81, 88, 46, 59, 16, 61, 100, 146, 142, 136, 79, 52, 122, 10, 134, 113, 116, 118, 119, 43, 135, 148, 25, 32, 37, 48, 54, 6, 69, 30, 34, 133, 55, 107, 7, 73, 23, 44, 49, 95, 101, 29, 50, 67, 2, 96, 38, 64, 140, 131, 26, 65, 127, 115, 85, 137, 28, 12, 71, 84, 98, 141, 72, 20, 66, 17, 5, 24, 124, 21, 42, 86, 19, 75, 104, 58, 90, 39, 76, 138, 93, 120, 144, 22, 151, 27, 94, 68, 102, 129, 92, 139, 74, 77, 99, 91, 3, 35, 149, 110, 41, 15, 9, 36, 8, 145, 82, 87, 57, 150, 1, 97, 80, 106, 14, 11, 105, 31, 78])
+
+function _linspace(a::Float64, b::Float64, m::Int)
+    # MATLAB linspace: a + (k*(b-a))/(m-1), first and last values exactly a and b
+    n1 = m - 1
+    y = [a + (k * (b - a)) / n1 for k in 0:m-1]
+    y[1] = a; y[end] = b
+    return y
+end
+
+_err(msg) = throw(ArgumentError(NAME * ": " * msg))
+
+function _vector(z)
+    ok = (z isa AbstractVector || z isa Tuple) && length(z) == N && all(v -> v isa Real && !(v isa Bool) && isfinite(v), z)
+    ok || _err("z must be a finite numeric vector with $N entries.")
+    return Float64[v for v in z]
+end
+
+function _check_idx(v::Float64, m::Int, i::Int)
+    (isfinite(v) && v == floor(v) && 1 <= v <= m) || _err("z$i = $v is not an index in 1..$m.")
+    return Int(v)
+end
+
+_orig(x::Vector{Float64}) = (abs(x[1]) - 5)^2 + (abs(x[2]) - 5)^2
+
+function _T_map(g, a, b, zs, xs)
+    # piecewise-affine T with T(zs) = xs; fixes the bounds when zs is interior
+    abs(g - zs) <= 1e-12 * max(1, abs(b - a)) && return xs
+    if abs(zs - a) <= 1e-14 * max(1, abs(a))
+        x = xs + (g - a) * (b - xs) / (b - a)
+    elseif abs(zs - b) <= 1e-14 * max(1, abs(b))
+        x = a + (g - a) * (xs - a) / (b - a)
+    elseif g <= zs
+        x = a + (g - a) * (xs - a) / (zs - a)
+    else
+        x = xs + (g - zs) * (b - xs) / (b - zs)
+    end
+    return min(max(x, min(a, xs)), max(b, xs))
+end
+
+function _map_work_to_orig(xw, lbw, ubw, lbo, ubo)
+    t = abs(ubw - lbw) <= 1e-14 ? 0.0 : (xw - lbw) / (ubw - lbw)
+    t = max(0.0, min(1.0, t))
+    return lbo + t * (ubo - lbo)
+end
+
+const E = Dict{Int,Vector{Float64}}(i => _linspace(LB[i], UB[i], M)[p] for (i, p) in PERM)
+
+function _decode(z)
+    z = _vector(z)
+    xh = zeros(N)
+    for i in 1:N
+        t = TYPES[i]
+        if t == 'C'
+            v = z[i]; tl = 1e-12 * (UBW[i] - LBW[i])
+            (v < LBW[i] - tl || v > UBW[i] + tl) && _err("x$i = $v outside [$(LBW[i]), $(UBW[i])].")
+            v = min(max(v, LBW[i]), UBW[i])
+            xh[i] = abs(v - CW[i]) <= 1e-12 * (UBW[i] - LBW[i]) ? CX[i] : _map_work_to_orig(v, LBW[i], UBW[i], LB[i], UB[i])
+        else
+            k = _check_idx(z[i], M, i)
+            g = t == 'K' ? E[i][k] : LB[i] + (k - 1) * (UB[i] - LB[i]) / (M - 1)
+            xh[i] = _T_map(g, LB[i], UB[i], TB[i], TI[i])
+        end
+    end
+    return xh
+end
+
+_objective(z) = _orig(_decode(z))
+
+function _problem_data()
+    pd = Any[]
+    for i in 1:N
+        t = TYPES[i]
+        if t == 'C'; push!(pd, [LBW[i], UBW[i]])
+        elseif t == 'D'; push!(pd, Any[_linspace(LB[i], UB[i], M)])
+        else; push!(pd, ["k$(i)_$j" for j in 1:M]); end
+    end
+    return pd
+end
+
+function _idx2cell(z)
+    z = _vector(z); pd = _problem_data(); xr = Any[]
+    for i in 1:N
+        t = TYPES[i]
+        if t == 'C'; push!(xr, z[i])
+        elseif t == 'D'; push!(xr, pd[i][1][_check_idx(z[i], Int(CARD[i]), i)])
+        else; push!(xr, pd[i][_check_idx(z[i], Int(CARD[i]), i)]); end
+    end
+    return xr
+end
+
+function _cell2idx(xr)
+    ((xr isa AbstractVector || xr isa Tuple) && length(xr) == N) || _err("xr must be a vector with $N entries.")
+    pd = _problem_data(); z = zeros(N)
+    for i in 1:N
+        t = TYPES[i]; v = xr[i]
+        if t == 'C'
+            (v isa Real && !(v isa Bool) && isfinite(v)) || _err("x$i must be a finite scalar.")
+            z[i] = Float64(v)
+        elseif t == 'D'
+            (v isa Real && !(v isa Bool) && isfinite(v)) || _err("x$i must be a grid value.")
+            grid = pd[i][1]
+            d, k = findmin(abs.(grid .- Float64(v)))
+            d > 1e-10 * max(1, maximum(abs.(grid))) && _err("x$i = $v is not a grid value.")
+            z[i] = k
+        else
+            k = v isa AbstractString ? findfirst(==(v), pd[i]) : nothing
+            k === nothing && _err("x$i unknown label $v.")
+            z[i] = k
+        end
+    end
+    return z
+end
+
+"""
+    problem()
+
+Return the problem as a named tuple: `func_idx(z)` (level indices 1..m, continuous coordinates as values),
+`func_F(xr)` (values, grid values, labels), `idx2cell`, `cell2idx`, `x0_idx`, `x0_alt_idx`, `f_star`, ...
+"""
+function problem()
+    return (name = NAME, nvar = N, var_types = String[string(t) for t in TYPES],
+        cardinality = Float64[151.0, 151.0],
+        f_star = 0.0,
+        f_star_justification = "E",
+        n_minimizers_documented = 4,
+        description = "DFO Benchmark Suite v2.1.0 core (Julia): K adaptation of becker_lago (F = f o T).",
+        x0_idx = Float64[127.0, 70.0],
+        x0_alt_idx = Vector{Float64}[Float64[50.0, 74.0], Float64[89.0, 83.0], Float64[13.0, 73.0], Float64[136.0, 76.0], Float64[60.0, 80.0], Float64[99.0, 69.0], Float64[23.0, 79.0], Float64[118.0, 81.0], Float64[41.0, 70.0]],
+        suite_release = "2.1.0",
+        base_function = "becker_lago",
+        m = 151,
+        pattern = "K",
+        strategy = "baseline",
+        scale_factors_C = Float64[],
+        lb_orig = Float64[-6.2031982421875, -6.85068333079307],
+        ub_orig = Float64[10.0, 10.0],
+        lb_C_work = Float64[-6.2031982421875, -6.85068333079307],
+        ub_C_work = Float64[10.0, 10.0],
+        ProblemData = _problem_data(),
+        func_idx = _objective,
+        func_F = xr -> _objective(_cell2idx(xr)),
+        idx2cell = _idx2cell,
+        cell2idx = _cell2idx,
+        decode = xr -> _decode(_cell2idx(xr)))
+end
+
+end # module
